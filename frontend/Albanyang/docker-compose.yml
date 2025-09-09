@@ -1,0 +1,14 @@
+# docker-compose.yml
+services:
+  expo:
+    build: .
+    ports:
+      - "19000:19000"  # 호스트 포트 매핑
+      - "19001:19001"  # Expo DevTools 포트
+      - "19002:19002"  # 추가 포트 (필요 시)
+    volumes:
+      - .:/app  # 호스트와 컨테이너 간 코드 동기화
+      - /app/node_modules  # node_modules는 컨테이너 내 유지 (속도 최적화)
+    environment:
+      - EXPO_DEBUG=true  # 디버그 모드 (옵션)
+    command: npx expo start --tunnel
