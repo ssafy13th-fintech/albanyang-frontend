@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 // Import your custom navigation bar component
-import CustomNavBar from '@/components/navBar/NavBar';
+import CustomNavBar from '@/components/navBar/TempNavBar';
 
 const HomeScreen = () => {
   return (
