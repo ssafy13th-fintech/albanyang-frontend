@@ -1,5 +1,5 @@
 // components/navBar/TempNavBar.tsx
-import { colors } from '@/constants/Colors/ColorTheme';
+import { colors } from '@/constants/colors/ColorTheme';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';

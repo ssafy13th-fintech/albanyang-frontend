@@ -1,6 +1,6 @@
 // AlbaMainPage.tsx
 import TempNavBar from '@/components/navBar/TempNavBar';
-import { colors } from '@/constants/Colors/ColorTheme';
+import { colors } from '@/constants/colors/ColorTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
