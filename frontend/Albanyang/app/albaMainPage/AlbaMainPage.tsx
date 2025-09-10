@@ -42,7 +42,8 @@ const HomeScreen = () => {
           <Ionicons name="location-outline" size={24} color={colors.text.primary} />
           <Text style={styles.headerText}>강남점</Text>
         </Pressable>
-        <Pressable style={styles.headerRight}>
+        <Pressable style={ ({pressed}) => [styles.headerRight, pressed && styles.pressed]}
+          onPress = {() => {console.log("눌렀어요")}}>
           <Ionicons name="bulb-outline" size={24} color={colors.accent} />
         </Pressable>
       </View>
