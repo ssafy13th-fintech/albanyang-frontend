@@ -1,3 +1,4 @@
+// components/ageDropDown/AgeDropDown.tsx
 import { useRef, useState } from "react";
 import {
   View,
@@ -21,7 +22,7 @@ type Props = {
   inputStyle?: ViewStyle;
   textStyle?: TextStyle;
   maxDropdownHeight?: number;      // 기본 260
-  overlayColor?: string;           // 배경 눌러 닫기 영역 컬러 (투명)
+  overlayColor?: string;           // 배경 터치 닫기 영역 색 (거의 투명)
 };
 
 const DEFAULT_AGE_OPTIONS = ["10대", "20대", "30대", "40대", "50대", "60대 이상"];
@@ -36,17 +37,20 @@ export default function AgeDropDown({
   inputStyle,
   textStyle,
   maxDropdownHeight = 260,
-  overlayColor = "rgba(0,0,0,0.001)", // 거의 투명, 터치만 받게
+  overlayColor = "rgba(0,0,0,0.001)",
 }: Props) {
   const triggerRef = useRef<View>(null);
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState({ x: 0, y: 0, w: 0, h: 0 });
 
-  const measure = () => {
-    // RN / RN Web 공통 동작: measureInWindow
-    triggerRef.current?.measureInWindow?.((x, y, w, h) => {
-      setAnchor({ x, y, w, h });
-      setOpen(true);
+  const measureAndOpen = () => {
+    // 트리거의 화면 좌표 측정 후 모달 오픈
+    // (web/ios/android 공통)
+    requestAnimationFrame(() => {
+      triggerRef.current?.measureInWindow?.((x, y, w, h) => {
+        setAnchor({ x, y, w, h });
+        setOpen(true);
+      });
     });
   };
 
@@ -66,7 +70,7 @@ export default function AgeDropDown({
       {/* 트리거 */}
       <Pressable
         ref={triggerRef}
-        onPress={measure}
+        onPress={measureAndOpen}
         style={[styles.input, styles.selectRow, inputStyle]}
         hitSlop={6}
       >
@@ -76,20 +80,18 @@ export default function AgeDropDown({
         <Text style={styles.caret}>▾</Text>
       </Pressable>
 
-      {/* 오버레이 + 드롭다운(포탈) */}
+      {/* 포탈: 항상 맨 위 레이어에 떠서 다른 요소를 덮음 */}
       <Modal visible={open} transparent animationType="none" onRequestClose={close}>
-        {/* 배경 클릭 시 닫힘 */}
+        {/* 바깥을 누르면 닫힘 */}
         <Pressable style={[styles.overlay, { backgroundColor: overlayColor }]} onPress={close}>
-          {/* 클릭 버블링 막기 위해 내부 컨테이너 */}
           <View pointerEvents="box-none" style={StyleSheet.absoluteFillObject}>
-            {/* 드롭다운 패널 */}
             <View
               style={[
                 styles.dropdown,
                 {
-                  top: anchor.y + anchor.h + 8,
-                  left: Math.max(12, anchor.x),            // 좌측 여백 보정
-                  width: Math.min(anchor.w, screenW - anchor.x - 12), // 화면 밖 방지
+                  top: anchor.y + anchor.h + 8,                             // 트리거 바로 아래
+                  left: Math.max(12, anchor.x),                              // 좌측 여백 보정
+                  width: Math.min(anchor.w, screenW - anchor.x - 12),        // 화면 밖 방지
                   maxHeight: maxDropdownHeight,
                 },
               ]}
@@ -124,7 +126,6 @@ const BLUE_DARK = "#BFDBFE";
 const styles = StyleSheet.create({
   wrap: { width: "100%", maxWidth: 360 },
   label: { fontSize: 14, color: "#111827", marginBottom: 6 },
-
   input: {
     height: 48,
     borderWidth: 1,
@@ -147,13 +148,11 @@ const styles = StyleSheet.create({
   selectPlaceholder: { color: "#94a3b8" },
   caret: { fontSize: 16, color: "#6B7280" },
 
-  // 포탈 배경
   overlay: {
     flex: 1,
     justifyContent: "flex-start",
   },
 
-  // 떠 있는 드롭다운 패널
   dropdown: {
     position: "absolute",
     borderWidth: 1,
@@ -164,10 +163,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
+    elevation: 6,
     overflow: "hidden",
   },
-
   optionRow: { paddingVertical: 12, paddingHorizontal: 12 },
   optionText: { color: "#111827", fontSize: 14 },
 });
