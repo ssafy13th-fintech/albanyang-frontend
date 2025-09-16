@@ -1,6 +1,5 @@
 // AlbaMainPage.tsx
-import TempNavBar from '@/components/navBar/TempNavBar';
-import { colors } from '@/constants/Colors/ColorTheme';
+import { colors } from '@/constants/colors/ColorTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
@@ -105,7 +104,6 @@ const HomeScreen = () => {
 
       {/* Nav */}
       
-      <TempNavBar/>
 
     </View>
   );
@@ -114,7 +112,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.main,
     justifyContent: 'space-between',
   },
   header: {
@@ -158,7 +156,7 @@ const styles = StyleSheet.create({
   },
 
   panel: {
-    backgroundColor: colors.panel,
+    backgroundColor: colors.text.reverse,
     marginHorizontal: 20,
     marginTop: 20,
     borderRadius: 20,
@@ -185,11 +183,11 @@ const styles = StyleSheet.create({
   primaryButton: {
     backgroundColor: colors.accent,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.accent,
   },
   secondaryButton: {
-    backgroundColor: colors.panel,
-    borderColor: colors.border,
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
     borderWidth: 1,
   },
   pressed: { opacity: 0.7 },
@@ -206,7 +204,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    borderColor: colors.border,
+    borderColor: colors.main,
     borderWidth: 1,
   },
 });
