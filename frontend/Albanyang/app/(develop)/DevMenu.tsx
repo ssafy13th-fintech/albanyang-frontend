@@ -4,6 +4,7 @@ import { Button, View, Text } from 'react-native';
 const routes = [
   { name: '로그인', path: '/login/Login' },
   { name: '프로필', path: '/profile' },
+  { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'}
 ];
 
 export default function DevMenu() {
@@ -16,7 +17,7 @@ export default function DevMenu() {
         <Button
           key={r.path}
           title={r.name}
-          onPress={() => router.push('/login/Login')} // navigation 활용
+          onPress={() => router.push(r.path as any)} // navigation 활용
         />
       ))}
     </View>
