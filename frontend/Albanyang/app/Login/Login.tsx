@@ -11,7 +11,6 @@ import {
   Pressable,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { Link } from "expo-router"; // ← 라우팅 안정화를 위해 Link 사용
 import { FONTS } from "@/constants/fonts/Fonts"
 
 export default function Login() {
@@ -85,11 +84,11 @@ export default function Login() {
           </Pressable>
 
           {/* 회원가입 이동: 히트박스 크게 + Link(asChild) */}
-          <Link href="/beforeLogin/SignUpAgree" asChild>
+          {/* <Link href="/beforeLogin/SignUpAgree" asChild>
             <Pressable style={styles.signUpBtn} hitSlop={14}>
               <Text style={styles.signUpText}>회원 가입</Text>
             </Pressable>
-          </Link>
+          </Link> */}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
