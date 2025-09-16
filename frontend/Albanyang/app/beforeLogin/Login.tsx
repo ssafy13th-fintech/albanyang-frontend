@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Link } from "expo-router"; // ← 라우팅 안정화를 위해 Link 사용
+import { FONTS } from "@/constants/fonts/Fonts"
 
 export default function Login() {
   const [id, setId] = useState("");
@@ -185,8 +186,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     lineHeight: 36,
-    fontWeight: "800",
     color: "#111827",
+    fontFamily: FONTS.jamsil.medium4
   },
   accent: { color: ORANGE },
 
