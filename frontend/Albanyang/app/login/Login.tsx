@@ -1,18 +1,17 @@
 import { useState } from "react";
 import {
-  View,
+  Image,
+  Pressable,
+  StyleSheet,
   Text,
   TextInput,
-  StyleSheet,
-  Pressable,
-  Image
+  View
 } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import {SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from "@/constants/colors/ColorTheme"
-import { FONTS } from "@/constants/fonts/Fonts"
-import { sizes } from '@/constants/size/FontSize'
+import { colors } from "@/constants/colors/ColorTheme";
+import { FONTS } from "@/constants/fonts/Fonts";
+import { sizes } from '@/constants/size/FontSize';
 
 
 export default function Login() {
@@ -59,9 +58,9 @@ export default function Login() {
               { 
                 backgroundColor: pressed ? colors.accent : colors.main
               },
-            ]
-          }
-          >
+             ] 
+            }
+           >
             <Text style ={ styles.buttonText}>로그인</Text>
         </Pressable>
         </View>

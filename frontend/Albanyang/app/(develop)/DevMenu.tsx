@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router';
-import { Button, View, Text } from 'react-native';
+import { Button, Text, View } from 'react-native';
 
 const routes = [
   { name: '로그인', path: '/login/Login' },
+  { name :'회원가입1', path :'/login/SignUpFirst'},
   { name: '프로필', path: '/profile' },
   { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'}
 ];
