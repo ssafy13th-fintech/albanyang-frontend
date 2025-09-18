@@ -1,4 +1,4 @@
-// src/constants/fonts.ts
+// Albanyang/constants/fonts/Fonts.ts
 export const FONTS = {
   jamsil: {
   thin1 : 'The-Jamsil-1-Thin',   // ttf 파일 내 fontFamily 이름

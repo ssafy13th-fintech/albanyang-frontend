@@ -1,3 +1,4 @@
+// Albanyang/constants/size/FontSize.ts
 export const sizes = {
   bigTitle : 36,
   middleTitle : 32,
