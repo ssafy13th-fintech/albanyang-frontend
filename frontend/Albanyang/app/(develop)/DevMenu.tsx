@@ -5,6 +5,7 @@ const routes = [
   { name: '로그인', path: '/login/Login' },
   { name :'회원가입1', path :'/login/SignUpFirst'},
   { name: '회원가입2', path : '/login/SignUpSecond'},
+  { name: '회원가입3', path : '/login/SignUpThird'},
   { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
   { name: '프로필', path: '/profile' },
 ];

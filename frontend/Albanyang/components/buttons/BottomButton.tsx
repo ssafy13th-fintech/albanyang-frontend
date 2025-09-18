@@ -85,7 +85,7 @@ export default function BottomActionButton({
             buttonStyle,
           ]}
         >
-          {content}
+         <Text> {content}</Text>
         </Pressable>
       </View>
     );
