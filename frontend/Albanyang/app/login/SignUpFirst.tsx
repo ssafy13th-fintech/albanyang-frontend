@@ -1,3 +1,4 @@
+import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -22,19 +23,20 @@ export default function Signup() {
         
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
-            <View style = {[{marginTop : insets.top + 24}]}>
-              <Image style = {styles.icon}>
-              
-              </Image>
-                <View style ={[styles.headerContainer]}>
+            
+            <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
+              <Image style = {styles.icon}></Image>
+              <View style ={[styles.headerContainer]}>
                   <Text style ={styles.headerText}>회원가입</Text>
                   <Image
                       source={require("@/assets/images/mascot/mascot_hootface_alba.png")}
                       style={styles.mascot}
                   >
                 </Image>
-                </View>
               </View>
+            </View>
+
+              
             <View style = {styles.InputContainer}>
                 <View style = { styles.smallInputContainer}>
 
@@ -81,24 +83,21 @@ export default function Signup() {
                 </View>
             </View>
 
-          <View style = {styles.footerContainer}>
+
+          <View style ={{flex : 1}}/>
+          <View style = {[styles.footerContainer]}>
             <View style ={styles.indicator}>
               <View style={[styles.indicatorUnit, {backgroundColor : colors.accent}]}></View>
               <View style={styles.indicatorUnit}></View>
               <View style={styles.indicatorUnit}></View>
             </View>
-            <Pressable
-              onPress={() => console.log("클릭")}
-              style={({ pressed }) => [
-                styles.footerbutton,
-                { 
-                  backgroundColor: pressed ? colors.accent : colors.main
-                },
-                ]}>
-                <Text style ={ styles.buttonText}>다음으로</Text>
-            </Pressable>
+              <BottomActionButton
+                label ="다음으로"
+                bottomGap={insets.bottom + 16}
+                mode="spacer"
+                onPress = {() => console.log("다음으로 버튼")}
+              />
           </View>
-
           </View>
 
         </SafeAreaView>
@@ -109,7 +108,8 @@ export default function Signup() {
 
 const styles = StyleSheet.create({
   rootContainer : {
-    alignItems :"center"
+    alignItems :"center",
+    flex : 1
   },
   section :{
     width: '100%'
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     alignItems :"center",
     justifyContent :"center",
     gap : 12,
-    marginBottom : 40,
+    marginBottom : 0,
   },
 
   indicator : {
