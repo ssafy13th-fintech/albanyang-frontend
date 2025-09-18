@@ -124,7 +124,7 @@ const StoreScrollSection = () => {
 
   const handleAddStore = () => {
     console.log('매장 추가');
-    router.push("/addStore"); 
+    router.push("/store/StoreRegistration"); 
   };
 
   const handleStorePress = (storeId: number) => {
