@@ -1,286 +1,240 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
-import { Image } from 'expo-image';
+// app/(mainPage)/AlbaMainPage.tsx
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from "react";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-// 프로젝트의 Colors 상수들을 import (실제 경로에 맞게 수정)
-// import Colors from '@/constants/Colors';
+import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
+import { colors } from "@/constants/colors/ColorTheme";
+import { FONTS } from "@/constants/fonts/Fonts";
+import { sizes } from '@/constants/size/FontSize';
 
-// 임시로 색상 정의
-const Colors = {
-  primary: '#FF9500',
-  background: '#F8F8F8',
-  white: '#FFFFFF',
-  text: '#333333',
-  gray: '#888888',
-  lightGray: '#F0F0F0',
-  darkGray: '#666666',
-  orange: '#FF6B35'
-};
+// ====== 레이아웃 상수 ======
+const TOP_PADDING = 24;
+const SIDE_PADDING = 16;
+const EXTRA_BOTTOM = 40;
+const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 
-const AlbaWorkAttendance = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-
-  // 실시간 시계
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('ko-KR', {
-      hour12: false,
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
+export default function AlbaMainPage() {
+  const [isWorking, setIsWorking] = useState(true); // 현재 근무 중 상태
+  
+  const handleNotification = () => {
+    console.log('알림 클릭');
   };
 
-  const handleClockIn = () => {
-    // 출근 로직 구현
-    console.log('출근 처리');
+  const handleAttendance = () => {
+    setIsWorking(!isWorking);
+    console.log(isWorking ? '퇴근 처리' : '출근 처리');
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
-      
-      {/* 헤더 - 알림 버튼 */}
-      <View style={styles.header}>
-        <View style={styles.placeholder} />
-        <TouchableOpacity style={styles.notificationButton}>
-          <Ionicons name="notifications-outline" size={24} color={Colors.text} />
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.rootContainer} edges={['top']}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* 상단 알림 버튼 */}
+        <View style={styles.notificationRow}>
+          <View style={{ flex: 1 }} />
+          <Pressable
+            style={({ pressed }) => [
+              styles.notificationButton,
+              pressed && styles.notificationButtonPressed
+            ]}
+            onPress={handleNotification}
+          >
+            <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
+          </Pressable>
+        </View>
 
-      {/* 메인 컨텐츠 */}
-      <View style={styles.mainContent}>
-        
-        {/* 상단 정보 */}
-        <View style={styles.topInfo}>
+        {/* 마스코트와 수익 정보 */}
+        <View style={styles.mascotSection}>
+          <Image
+            source={require("@/assets/images/mascot/mascot_good_alba.png")}
+            style={styles.mascotImage}
+          />
           <Text style={styles.monthText}>8월에</Text>
-          <View style={styles.salaryInfo}>
-            <Text style={styles.salaryLabel}>총</Text>
-            <Text style={styles.salaryAmount}>1,000,000원</Text>
+          <View style={styles.salaryContainer}>
+            <Text style={styles.salaryLabel}>총 </Text>
+            <Text style={styles.salaryAmount}>1,000,000</Text>
+            <Text style={styles.currencyText}>원</Text>
           </View>
           <Text style={styles.earnedText}>벌었습니다!</Text>
         </View>
 
-        {/* 마스코트 */}
-        <View style={styles.mascotContainer}>
-          <Image 
-            source={require('@/assets/images/mascot/mascot_work_alba.png')}
-            style={styles.mascot}
-            contentFit="contain"
-          />
-        </View>
-
-        {/* 시간 정보 박스 */}
-        <View style={styles.timeInfoBox}>
-          <View style={styles.timeRow}>
-            <View style={styles.timeItem}>
-              <Text style={styles.timeLabel}>출근시간</Text>
-              <Text style={styles.timeValue}>{formatTime(currentTime)}</Text>
-            </View>
-            <View style={styles.timeDivider} />
-            <View style={styles.timeItem}>
-              <Text style={styles.timeLabel}>퇴근시간</Text>
-              <Text style={styles.timeValue}>근무 중</Text>
-            </View>
+        {/* 출퇴근 시간 표시 */}
+        <View style={styles.timeSection}>
+          <View style={styles.timeItem}>
+            <Text style={styles.timeLabel}>출근시간</Text>
+            <Text style={styles.timeValue}>10:12:25</Text>
+          </View>
+          <View style={styles.timeItem}>
+            <Text style={styles.timeLabel}>퇴근시간</Text>
+            <Text style={styles.timeValue}>근무 중</Text>
           </View>
         </View>
 
         {/* 출근하기 버튼 */}
-        <TouchableOpacity 
-          style={styles.clockInButton} 
-          onPress={handleClockIn}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.clockInButtonText}>출근하기</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonSection}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.attendanceButton,
+              pressed && styles.attendanceButtonPressed
+            ]}
+            onPress={handleAttendance}
+          >
+            <Text style={styles.attendanceButtonText}>출근하기</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
 
+      <View style={styles.navBarWrapper}>
+        <NavBar
+          role="alba"
+          activeKey="home"
+          onTabPress={(key) => {
+            console.log('탭 클릭:', key);
+          }}
+        />
       </View>
-
-      {/* 하단 네비게이션 */}
-      <View style={styles.bottomNavigation}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color={Colors.primary} />
-          <Text style={[styles.navText, styles.activeNavText]}>Home</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="calendar-outline" size={24} color={Colors.gray} />
-          <Text style={styles.navText}>Calendar</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="card-outline" size={24} color={Colors.gray} />
-          <Text style={styles.navText}>Account</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person-outline" size={24} color={Colors.gray} />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
+  rootContainer: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.text.reverse,
   },
-  header: {
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: colors.text.reverse,
+  },
+  contentContainer: {
+    flexGrow: 1,
+    paddingTop: TOP_PADDING,
+    paddingBottom: NAVBAR_HEIGHT + EXTRA_BOTTOM,
+    paddingHorizontal: SIDE_PADDING,
+  },
+
+  // 상단 알림 버튼
+  notificationRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 10,
-  },
-  placeholder: {
-    width: 24,
+    marginBottom: 40,
   },
   notificationButton: {
-    padding: 4,
+    padding: 8,
+    borderRadius: 8,
   },
-  mainContent: {
-    flex: 1,
-    paddingHorizontal: 20,
-    alignItems: 'center',
+  notificationButtonPressed: {
+    backgroundColor: 'rgba(0,0,0,0.05)',
   },
-  topInfo: {
+
+  // 마스코트 섹션
+  mascotSection: {
     alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 30,
+    marginBottom: 60,
+  },
+  mascotImage: {
+    width: 120,
+    height: 120,
+    resizeMode: 'contain',
+    marginBottom: 20,
   },
   monthText: {
-    fontSize: 18,
-    color: Colors.text,
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
     marginBottom: 8,
-    // fontFamily: 'The-Jamsil-3-Regular',
   },
-  salaryInfo: {
+  salaryContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
     marginBottom: 8,
   },
   salaryLabel: {
-    fontSize: 20,
-    color: Colors.text,
-    marginRight: 8,
-    // fontFamily: 'The-Jamsil-4-Medium',
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
   },
   salaryAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.orange,
-    // fontFamily: 'The-Jamsil-5-Bold',
+    fontSize: sizes.middleTitle,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.accent,
+  },
+  currencyText: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
   },
   earnedText: {
-    fontSize: 18,
-    color: Colors.text,
-    // fontFamily: 'The-Jamsil-3-Regular',
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
   },
-  mascotContainer: {
-    marginVertical: 40,
-  },
-  mascot: {
-    width: 120,
-    height: 150,
-  },
-  timeInfoBox: {
-    backgroundColor: Colors.white,
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 40,
-    width: '100%',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  timeRow: {
+
+  // 출퇴근 시간 섹션
+  timeSection: {
     flexDirection: 'row',
-    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginBottom: 80,
   },
   timeItem: {
-    flex: 1,
     alignItems: 'center',
-  },
-  timeDivider: {
-    width: 1,
-    height: 40,
-    backgroundColor: Colors.lightGray,
-    marginHorizontal: 20,
   },
   timeLabel: {
-    fontSize: 14,
-    color: Colors.gray,
-    marginBottom: 8,
-    // fontFamily: 'The-Jamsil-3-Regular',
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
+    marginBottom: 12,
   },
   timeValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: Colors.text,
-    // fontFamily: 'The-Jamsil-4-Medium',
+    fontSize: sizes.smallTitle,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.text.primary,
   },
-  clockInButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 25,
-    paddingVertical: 16,
-    paddingHorizontal: 60,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+
+  // 출근 버튼 섹션
+  buttonSection: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingBottom: 40,
+  },
+  attendanceButton: {
+    backgroundColor: colors.accent,
+    borderRadius: 16,
+    paddingVertical: 20,
+    alignItems: 'center',
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4,
+    elevation: 5,
   },
-  clockInButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: Colors.white,
-    textAlign: 'center',
-    // fontFamily: 'The-Jamsil-4-Medium',
+  attendanceButtonPressed: {
+    backgroundColor: colors.main,
+    transform: [{ scale: 0.98 }],
   },
-  bottomNavigation: {
-    flexDirection: 'row',
-    backgroundColor: Colors.white,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderTopWidth: 1,
-    borderTopColor: Colors.lightGray,
-    justifyContent: 'space-around',
-    paddingBottom: 20,
+  attendanceButtonText: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.text.reverse,
   },
-  navItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  navText: {
-    fontSize: 12,
-    color: Colors.gray,
-    marginTop: 4,
-    // fontFamily: 'The-Jamsil-2-Light',
-  },
-  activeNavText: {
-    color: Colors.primary,
-    fontWeight: 'bold',
+
+  // NavBar 고정
+  navBarWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: EXTRA_BOTTOM,
   },
 });
-
-export default AlbaWorkAttendance;
