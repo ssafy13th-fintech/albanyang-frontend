@@ -1,4 +1,4 @@
-import { colors as COLORS } from '@/constants/Colors/ColorTheme';
+import { colors as COLORS } from '@/constants/colors/ColorTheme';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {

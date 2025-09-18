@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors as COLORS } from '../../../constants/Colors/ColorTheme';
+import { colors as COLORS } from '../../../constants/colors/ColorTheme';
 import { FONTS } from '../../../constants/fonts/Fonts';
 
 interface Props {
