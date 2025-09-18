@@ -2,11 +2,14 @@ import { useRouter } from 'expo-router';
 import { Button, Text, View } from 'react-native';
 
 const routes = [
-  { name: '로그인', path: '/login/Login' },
+  { name: '로그인', path: '/Login' },
   { name: '프로필', path: '/profile' },
   { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},
   { name: '급여명세서(직원)', path: '/payslip/PayslipListEmployee'},
+  { name: '알바 데모 메인페이지', path : '/AlbaMainPage'},
+  { name: '사장 메인페이지', path : '/EmployerMainPage' },
+  { name: '알바 메인페이지', path : '/EmployeeMainPage' }
 ];
 
 export default function DevMenu() {
