@@ -1,23 +1,23 @@
 // app/(mainPage)/EmployerMainPage.tsx
-import { useState, useRef } from "react";
+import { Ionicons } from '@expo/vector-icons';
+import { useRef, useState } from "react";
 import {
+  Dimensions,
   Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
-  View,
-  ScrollView,
-  Dimensions,
-  NativeSyntheticEvent,
-  NativeScrollEvent
+  View
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 
-import { colors } from "@/constants/Colors/ColorTheme";
+import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
+import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
-import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { useRouter } from "expo-router";
 
 // ====== 레이아웃 상수 ======

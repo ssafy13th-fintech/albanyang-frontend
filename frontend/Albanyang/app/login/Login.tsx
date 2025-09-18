@@ -65,7 +65,7 @@ export default function Login() {
 
             
         <Pressable onPress={() => router.push("/login/SignUpFirst")} 
-        style = {({pressed}) => [styles.toSignUp, {opacity : pressed ? 0.5 : 1}]}>
+        style = {({pressed}) => [styles.toSignUp]}>
          <Text style={styles.toSignUpText}>회원가입</Text>
         </Pressable>
         </View>
