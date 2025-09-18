@@ -9,23 +9,25 @@ interface Props {
   employeeName?: string;
   employeeNickname?: string;
   onPress: () => void;
+  showEmployeeInfo?: boolean; // 직원 정보 표시 여부
 }
 
-const PayslipListItem = ({ 
-  month, 
-  year, 
-  payDate, 
-  employeeName, 
-  employeeNickname, 
-  onPress 
+const PayslipListItem = ({
+  month,
+  year,
+  payDate,
+  employeeName,
+  employeeNickname,
+  showEmployeeInfo = true,
+  onPress
 }: Props) => {
   // 제목 생성 (사장용/알바생용 구분)
-  const title = employeeName && employeeNickname 
+  const title = showEmployeeInfo && employeeName && employeeNickname
     ? `${month}월 급여명세서(${employeeName}/${employeeNickname})`
-    : `${month}월 급여명세서`;
+    : `${month}월 급여명세서`; // 직원용은 월만 표시
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.container}
       onPress={onPress}
       activeOpacity={0.7}
