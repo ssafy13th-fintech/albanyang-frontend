@@ -20,6 +20,9 @@ export type NavBarProps = {
   inactiveIconColor?: string;
 };
 
+// 외부에서 하단 패딩 계산에 쓰는 기준 높이(디자인 스펙)
+export const NAVBAR_BASE_HEIGHT = 56;
+
 const ICONS = {
   alba: {
     home: require('../../assets/images/navbaricon/navbar_icon_home_alba.png'),
@@ -39,13 +42,34 @@ const ICONS = {
 
 const LABELS: Record<Role, Record<TabKey, string>> = {
   alba: { home: '홈', calendar: '캘린더', albot: 'AI 봇', sum: '급여 명세서', profile: '마이페이지' },
-  sajang:{ home: '홈', calendar: '캘린더', albot: 'AI 봇', sum: '급여 관리',  profile: '마이페이지' },
+  sajang: { home: '홈', calendar: '캘린더', albot: 'AI 봇', sum: '급여 관리', profile: '마이페이지' },
 };
 
-const TAB_ICON = 24;         // 아이콘 규격
-const NAVBAR_TOP = 6;        // 위 패딩
-const NAVBAR_BOTTOM_MIN = 8; // insets 없을 때 최소 여백
-const SIDE_PADDING = 16;     // 좌우 규격
+// 컬러 아이콘을 유지할 탭들 (tintColor 적용하지 않음)
+const COLOR_PRESERVED_TABS: TabKey[] = ['albot'];
+
+const TAB_ICON = 24;
+const NAVBAR_TOP = 6;
+const NAVBAR_BOTTOM_MIN = 8;
+const SIDE_PADDING = 16;
+
+// 폰트 폴백 함수
+const getFontFamily = () => {
+  try {
+    return FONTS?.jamsil?.regular3 || 'System';
+  } catch {
+    return 'System';
+  }
+};
+
+// 폰트 사이즈 폴백 함수
+const getFontSize = () => {
+  try {
+    return sizes?.smallText || 12;
+  } catch {
+    return 12;
+  }
+};
 
 function NavBar({
   role,
@@ -59,30 +83,41 @@ function NavBar({
   inactiveIconColor = '#9BA1A6',
 }: NavBarProps) {
   const insets = useSafeAreaInsets();
-  const bottomPad = Math.max(insets.bottom, NAVBAR_BOTTOM_MIN);
+  
+  // 안전한 하단 패딩 계산
+  const bottomPad = Math.max(insets.bottom || 0, NAVBAR_BOTTOM_MIN);
+  const totalHeight = NAVBAR_BASE_HEIGHT + bottomPad;
 
   const items = useMemo(
-    () => (['home','calendar','albot','sum','profile'] as TabKey[]).map((key) => ({
-      key, label: LABELS[role][key], icon: ICONS[role][key],
+    () => (['home', 'calendar', 'albot', 'sum', 'profile'] as TabKey[]).map((key) => ({
+      key,
+      label: LABELS[role][key],
+      icon: ICONS[role][key],
+      preserveColor: COLOR_PRESERVED_TABS.includes(key),
     })),
     [role]
   );
+
+  const fontSize = getFontSize();
+  const fontFamily = getFontFamily();
 
   return (
     <View
       style={[
         styles.container,
         {
+          height: totalHeight,
+          paddingBottom: bottomPad,
+          paddingTop: NAVBAR_TOP,
+          paddingHorizontal: SIDE_PADDING,
           borderTopColor: borderColor,
           backgroundColor,
-          paddingBottom: bottomPad,   // ✅ 기기별 하단 안전영역 반영
-          paddingHorizontal: SIDE_PADDING, // ✅ 좌우 16 규격
         },
       ]}
     >
       {items.map((item) => {
         const isActive = activeKey === item.key;
-        const isMono = item.key !== 'albot'; // AI 봇만 컬러 유지
+        const shouldApplyTint = !item.preserveColor;
 
         return (
           <TouchableOpacity
@@ -90,17 +125,22 @@ function NavBar({
             style={styles.tab}
             accessibilityRole="button"
             accessibilityLabel={item.label}
+            accessibilityState={{ selected: isActive }}
             onPress={(e) => onTabPress?.(item.key, e)}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
           >
-            <Image
-              source={item.icon}
-              resizeMode="contain"
-              style={[
-                styles.icon,
-                isMono && { tintColor: isActive ? activeIconColor : inactiveIconColor },
-              ]}
-            />
+            <View style={styles.iconContainer}>
+              <Image
+                source={item.icon}
+                resizeMode="contain"
+                style={[
+                  styles.icon,
+                  shouldApplyTint && {
+                    tintColor: isActive ? activeIconColor : inactiveIconColor,
+                  },
+                ]}
+              />
+            </View>
             <Text
               numberOfLines={1}
               ellipsizeMode="tail"
@@ -109,9 +149,9 @@ function NavBar({
                 styles.label,
                 {
                   color: isActive ? activeLabelColor : inactiveLabelColor,
-                  fontSize: sizes?.smallText ?? 12,
-                  lineHeight: (sizes?.smallText ?? 12) + 2,
-                  fontFamily: FONTS?.jamsil?.regular3,
+                  fontSize,
+                  lineHeight: fontSize + 2,
+                  fontFamily,
                 },
               ]}
             >
@@ -130,23 +170,28 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-between',   // ✅ 5등분 고르게
-    paddingTop: NAVBAR_TOP,
+    justifyContent: 'space-around', // 더 균등한 간격
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   tab: {
-    flexBasis: 0,   // ✅ 남은 공간 균등 분배
-    flexGrow: 1,
+    flex: 1, // 정확히 균등 분할
     alignItems: 'center',
+    paddingHorizontal: 4, // 최소 간격 보장
+  },
+  iconContainer: {
+    width: TAB_ICON,
+    height: TAB_ICON,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 2,
   },
   icon: {
     width: TAB_ICON,
     height: TAB_ICON,
-    marginBottom: 2,
   },
   label: {
     includeFontPadding: false,
     textAlign: 'center',
-    width: '100%',  // ✅ 텍스트 폭 명시 → 줄바꿈 방지
+    width: '100%',
   },
 });
