@@ -7,7 +7,7 @@ const routes = [
   { name :'회원가입1', path :'/login/SignUpFirst'},
   { name: '회원가입2', path : '/login/SignUpSecond'},
   { name: '회원가입3', path : '/login/SignUpThird'},
-  { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
+  {name : '회원가입 완료', path : '/login/SignUpComplete'},
   { name: '프로필', path: '/profile' },
   { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},

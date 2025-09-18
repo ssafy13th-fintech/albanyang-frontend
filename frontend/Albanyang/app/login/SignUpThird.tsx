@@ -91,6 +91,7 @@ export default function Signup() {
                         
             <View style ={styles.rowDirectionInput}>
               <Pressable
+                onPress={() => {router.push("/login/SignUpComplete")}}
                 style={({ pressed }) => [    
                 { 
                   borderColor: pressed ? colors.accent :colors.main,
