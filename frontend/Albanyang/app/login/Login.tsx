@@ -4,11 +4,11 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import LoginTextInput from "@/components/TextInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -26,7 +26,7 @@ export default function Login() {
         {[styles.titleContainer, 
         {marginTop : insets.top + 64}]}>
                 <Text style = { styles.titleText }>어서오세요!{"\n"}
-                  <Text style = { styles.accentText}>알바냥</Text>입니다! </Text> 
+                  <Text style = { styles.accentText}>알바냥</Text>입니다!</Text> 
                   <Image
                   source={require("@/assets/images/mascot/mascot_smileface_alba.png")}
                   style = {styles.mascot}
@@ -35,23 +35,20 @@ export default function Login() {
         </View>
         <View style = {styles.inputSection}>
         <View style = {styles.inputContainer}>
-        <TextInput
-            style={styles.inputField}
-            placeholder="아이디"
-            value={id}
-            onChangeText={setId}
-            autoCapitalize="none" // 첫 글자 자동 대문자 방지
-        />
-          <View>
-            <TextInput
-                  style={styles.inputField}
-                  placeholder="비밀번호"
-                  value={pw}
-                  onChangeText={setPw}
-                  autoCapitalize="none" // 첫 글자 자동 대문자 방지
-              />
+            <LoginTextInput
+              placeholder="아이디"
+              value = {id}
+              setChangeValue={setId}
+              isSecure={false}
+              />    
+            <LoginTextInput
+              placeholder="비밀번호"
+              value = {pw}
+              setChangeValue={setPw}
+              isSecure={true}
+              />   
               <Text style = {styles.inputError}>잘못된 정보를 입력하셨습니다.</Text>
-          </View>
+    
             <Pressable
             onPress={() => console.log("클릭")}
             style={({ pressed }) => [
@@ -102,7 +99,7 @@ const styles = StyleSheet.create({
     inputSection :{
         paddingHorizontal : 8,
         paddingVertical : 16,
-        marginTop : 48,
+        marginTop : 32,
         marginBottom : 16,
     },
     inputContainer :{

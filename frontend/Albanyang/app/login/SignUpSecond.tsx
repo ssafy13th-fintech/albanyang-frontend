@@ -24,10 +24,10 @@ export default function Signup() {
     const [name, setName] = useState("");
     const [age, setAge] = useState("");
     const [phoneNum, setPhoneNum] = useState("");
-    //true : male , false : female
-    const [gender, setGender] = useState<boolean|null>(null);
-    //true : alba, false : boss
-    const [isAlba, setIsAlba] = useState<boolean|null>(null);
+    //  female : 1, male : 2
+    const [gender, setGender] = useState<number|null>(null);
+    // employee : 1 , employer : 2, admin : 100
+    const [isAlba, setIsAlba] = useState<number|null>(null);
 
     const router = useRouter();
     return (
@@ -101,21 +101,21 @@ export default function Signup() {
                     <View style ={styles.rowDirectionNoGapInput}>
 
                     <Pressable 
-                      onPress = {() => {setGender(true)}}
+                      onPress = {() => {setGender(2)}}
                       style ={({pressed}) => [styles.choicebutton,styles.leftbutton,
-                      {backgroundColor : gender === true ? colors.main : "transparent"}]}> 
+                      {backgroundColor : gender === 2 ? colors.main : "transparent"}]}> 
                       <Text style={{
                         fontSize : sizes.normalText,
-                        color : gender === true ? colors.text.reverse : colors.text.primary
+                        color : gender === 2 ? colors.text.reverse : colors.text.primary
                       }}>남</Text></Pressable>
 
                       <Pressable 
-                      onPress = {() => {setGender(false)}}
+                      onPress = {() => {setGender(1)}}
                       style ={({pressed}) =>[styles.choicebutton, styles.rightbutton,
-                      {backgroundColor : gender === false ? colors.main : "transparent"}]}> 
+                      {backgroundColor : gender === 1 ? colors.main : "transparent"}]}> 
                       <Text style={{
                         fontSize : sizes.normalText,
-                        color : gender === false ? colors.text.reverse : colors.text.primary
+                        color : gender === 1 ? colors.text.reverse : colors.text.primary
                         }}>여</Text></Pressable>
                     
                     </View> 
@@ -126,22 +126,22 @@ export default function Signup() {
                                       <View style ={styles.rowDirectionNoGapInput}>
 
                     <Pressable 
-                      onPress = {() => {setIsAlba(true)}}
+                      onPress = {() => {setIsAlba(1)}}
                       style ={({pressed}) => [styles.choicebutton,styles.leftbutton,
-                      {backgroundColor : isAlba === true ? colors.main : "transparent"}]}> 
+                      {backgroundColor : isAlba === 1 ? colors.main : "transparent"}]}> 
                       <Text style={{
                         fontSize : sizes.normalText,
-                        color : isAlba === true ? colors.text.reverse : colors.text.primary
+                        color : isAlba === 1 ? colors.text.reverse : colors.text.primary
                       }}>알바생</Text></Pressable>
 
                       <Pressable 
-                      onPress = {() => {setIsAlba(false)}}
+                      onPress = {() => {setIsAlba(2)}}
                       style ={({pressed}) =>[styles.choicebutton, styles.rightbutton,
-                      {backgroundColor : isAlba === false ? colors.main : "transparent"}
+                      {backgroundColor : isAlba === 2 ? colors.main : "transparent"}
                       ]}> 
                       <Text style={{
                         fontSize : sizes.normalText,
-                        color : isAlba === false ? colors.text.reverse : colors.text.primary
+                        color : isAlba === 2 ? colors.text.reverse : colors.text.primary
                       }}>사장님 </Text></Pressable>
 
                     </View>

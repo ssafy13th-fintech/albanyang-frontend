@@ -8,7 +8,7 @@ type AgeOption = {
   value: string;
 };
 
-type Props = {
+type AgeDropdownProps = {
   value: string | null;
   onChange: (value: string) => void;
   containerStyle?: StyleProp<ViewStyle>;
@@ -30,7 +30,7 @@ export default function AgeDropdown({
   onChange,
   containerStyle,
   placeholder = "선택하세요",
-}: Props) {
+}: AgeDropdownProps) {
   return (
 
       <Dropdown

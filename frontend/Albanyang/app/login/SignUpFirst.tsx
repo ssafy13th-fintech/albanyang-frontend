@@ -53,7 +53,7 @@ export default function Signup() {
                     
                     <View style={[styles.emailInput]}>
                      <TextInput
-                      style={[styles.inputField,  {flex : 8 }]}
+                      style={[styles.inputField,  {flex : 2 }]}
                       placeholder="이메일 주소"
                       value={id}
                       onChangeText={setId}
@@ -64,7 +64,8 @@ export default function Signup() {
                         style={({ pressed }) => [
                           styles.button,
                           { 
-                            backgroundColor: pressed ? colors.accent : colors.main
+                            backgroundColor: pressed ? colors.accent : colors.main,
+                            flex : 1
                           },
                           ]}>
                           <Text style ={styles.buttonText}>중복 확인</Text>
@@ -74,6 +75,7 @@ export default function Signup() {
                 </View>
                 <View style = {styles.smallInputContainer}>
                     <Text style = {styles.smallInputText}>비밀번호</Text>
+                    <View style = {{gap : 16}}>
                       <TextInput
                       style={styles.inputField}
                       placeholder="비밀번호"
@@ -88,6 +90,7 @@ export default function Signup() {
                       onChangeText={setcConfirmPw}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       />
+                      </View>
                       <Text style = {styles.inputError}>비밀번호가 일치하지 않습니다.</Text>
                 </View>
             </View>
@@ -153,7 +156,7 @@ const styles = StyleSheet.create({
   emailInput : {
     flexDirection : "row",
     justifyContent : "center",
-    gap : 16
+    gap : 8
   },
     inputField : {
       paddingLeft : 16,
