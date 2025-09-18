@@ -5,7 +5,7 @@ const routes = [
   { name: '로그인', path: '/login/Login' },
   { name: '프로필', path: '/profile' },
   { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
-  { name: '급여명세서', path: '/payslip/PayslipDetailOwner'}
+  { name: '급여명세서', path: '/payslip/PayslipListOwner'}
 ];
 
 export default function DevMenu() {

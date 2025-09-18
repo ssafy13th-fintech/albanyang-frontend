@@ -1,13 +1,14 @@
 import { colors as COLORS } from '@/constants/colors/ColorTheme';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { FONTS } from '../../constants/fonts/Fonts';
 
 
@@ -47,16 +48,18 @@ interface Props {
   storeId: string;
 }
 
-const PayslipDetailOwner = ({ payslipId, storeId }: Props) => {
+const PayslipDetailOwner = () => {
+  const params = useLocalSearchParams();
+  const { payslipId, storeId, month, year, employeeName } = params;
   const [payslipData, setPayslipData] = useState<PayslipDetailData | null>(null);
 
 
   // 더미 데이터
   useEffect(() => {
     const sampleData: PayslipDetailData = {
-      employeeName: "홍길동",
+      employeeName: employeeName as string,
       accountNumber: "우리 1002-123-123456",
-      period: "25.06.01 ~ 06.30 급여명세서",
+      period: `${year}.${month?.toString().padStart(2, '0')}.01 ~ ${month?.toString().padStart(2, '0')}.30 급여명세서`,
       payDate: "07.10 (목)",
       totalAmount: 310000,
       allowanceItems: {
@@ -80,6 +83,7 @@ const PayslipDetailOwner = ({ payslipId, storeId }: Props) => {
 
   const handleBackPress = () => {
     console.log('뒤로가기');
+    router.back();
   }
 
   if (!payslipData) {
@@ -148,7 +152,7 @@ const PayslipDetailOwner = ({ payslipId, storeId }: Props) => {
         </View>
       </View>
 
-      {/* 공제 항목 */} 
+      {/* 공제 항목 */}
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>공제 합계</Text>
@@ -199,29 +203,33 @@ const PayslipDetailOwner = ({ payslipId, storeId }: Props) => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-    paddingHorizontal: 16
+    paddingHorizontal: 16,
+    backgroundColor: '#FFF'
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 32,
+    paddingHorizontal: 16,  
+    paddingVertical: 30,   
+    // borderColor: 'pink',
+    // borderWidth: 1,
   },
-  backIcon: { 
+  backIcon: {
     fontSize: 18,
     fontFamily: FONTS.jamsil.thin1
   },
-  headerTitle: { 
+  headerTitle: {
     fontSize: 24,
     fontFamily: FONTS.jamsil.thin1,
   },
   headerSpacer: { width: 18 },
   content: { flex: 1, padding: 16 },
-  periodSection: { marginBottom: 24 },
-  periodText: { 
-    fontSize: 15, 
+  periodSection: { marginBottom: 24, marginHorizontal: 24 },
+  periodText: {
+    fontSize: 15,
     marginBottom: 8,
     fontFamily: FONTS.jamsil.thin1
   },
@@ -229,16 +237,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  infoLabel: { 
+  infoLabel: {
     fontSize: 15,
     fontFamily: FONTS.jamsil.thin1
   },
-  infoValue: { 
+  infoValue: {
     fontSize: 15,
     fontFamily: FONTS.jamsil.thin1
   },
   totalSection: {
     marginBottom: 24,
+    marginHorizontal: 24
   },
   totalAmount: {
     fontSize: 36,
@@ -246,11 +255,11 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.thin1,
     color: COLORS.accent,
   },
-  totalLabel: { 
+  totalLabel: {
     fontSize: 15,
     fontFamily: FONTS.jamsil.thin1
   },
-  section: { marginBottom: 24 },
+  section: { marginBottom: 24, marginHorizontal: 24 },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -271,11 +280,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
   },
-  itemLabel: { 
+  itemLabel: {
     fontSize: 14,
     fontFamily: FONTS.jamsil.thin1
   },
-  itemValue: { 
+  itemValue: {
     fontSize: 14,
     fontFamily: FONTS.jamsil.thin1
   },
@@ -287,7 +296,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
-  editButtonText: { 
+  editButtonText: {
     fontSize: 14,
     fontFamily: FONTS.jamsil.thin1
   },
