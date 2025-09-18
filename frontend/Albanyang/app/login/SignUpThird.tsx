@@ -1,6 +1,7 @@
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Image,
@@ -19,14 +20,23 @@ export default function Signup() {
     const insets = useSafeAreaInsets();
     const [bankName, setBankName] = useState("");
     const [accountNum, setAccountNum] = useState("");
-
+    const router = useRouter();
     return (
         
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
             
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
-              <Image style = {styles.icon}></Image>
+              <Pressable
+              onPress={() => {router.back()}}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.5 : 1,
+              })}>
+              <Image 
+              source = {require("@/assets/images/icon/icon_back.png")}
+              style = {styles.icon}/>
+              </Pressable>
+
               <View style ={[styles.headerContainer]}>
                   <Text style ={styles.headerText}>회원가입</Text>
                   <Image
@@ -72,7 +82,7 @@ export default function Signup() {
 
           <View style ={{flex : 1}}/>
 
-          <View style = {[styles.footerContainer, {marginBottom : insets.bottom + 10}]}>
+          <View style = {[styles.footerContainer, {marginBottom : insets.bottom + 16}]}>
             <View style ={styles.indicator}>
               <View style={[styles.indicatorUnit]}></View>
               <View style={[styles.indicatorUnit]}></View>
@@ -94,7 +104,7 @@ export default function Signup() {
                   paddingBottom : 4
                 },
                 ]}>
-              <Text style ={{fontSize : sizes.normalText, color : colors.main, fontWeight : 100}}>건너뛰기</Text>
+              <Text style ={{fontSize : sizes.normalText, color : colors.main, fontWeight : 600}}>건너뛰기 (완료) </Text>
               </Pressable>  
               <Pressable
                 style={({ pressed }) => [    

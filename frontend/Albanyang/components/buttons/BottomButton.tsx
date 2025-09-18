@@ -38,7 +38,7 @@ export interface BottomActionButtonProps {
 export default function BottomActionButton({
   label = "다음으로",
   onPress,
-  bottomGap = 40,
+  bottomGap = 0,
   mode = "spacer",
   containerStyle,
   buttonStyle,
@@ -93,7 +93,7 @@ export default function BottomActionButton({
 
   // spacer mode: flow layout. marginBottom로 안전영역 + gap 적용
   return (
-    <View style={[styles.spacerWrapper, { marginBottom: computedBottom }, containerStyle]}>
+    <View style={[styles.spacerWrapper, { marginBottom: 0 }, containerStyle]}>
       <Pressable
         onPress={onPress}
         style={({ pressed }) => [
@@ -103,7 +103,7 @@ export default function BottomActionButton({
         ]}
         disabled={disabled || loading}
       >
-        {content}
+      <Text>  {content}</Text>
       </Pressable>
     </View>
   );
@@ -126,11 +126,10 @@ const styles = StyleSheet.create({
   button: {
     justifyContent: "center",
     alignItems: "center",
-    height: 40,
-    borderRadius: 20,
+    height: 48,
+    borderRadius: 30,
     alignSelf: "stretch",
     paddingHorizontal: 16,
-    gap: 8,
   },
   buttonText: {
     fontSize: sizes.normalText,

@@ -4,6 +4,7 @@ import PhoneNumDropdown from "@/components/dropdown/PhoneNumDropDown";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Image,
@@ -28,32 +29,28 @@ export default function Signup() {
     //true : alba, false : boss
     const [isAlba, setIsAlba] = useState<boolean|null>(null);
 
-
-    
-
-
+    const router = useRouter();
     return (
         
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
             
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
-                <Pressable
+              <Pressable
+              onPress={() => {router.back();}}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
-              })}
-            >
+              })}>
               <Image 
               source = {require("@/assets/images/icon/icon_back.png")}
-              style = {styles.icon}></Image>
+              style = {styles.icon}/>
               </Pressable>
               <View style ={[styles.headerContainer]}>
                   <Text style ={styles.headerText}>회원가입</Text>
                   <Image
                       source={require("@/assets/images/mascot/mascot_hootface_alba.png")}
                       style={styles.mascot}
-                  >
-                </Image>
+                  />
               </View>
             </View>
 
@@ -110,8 +107,8 @@ export default function Signup() {
                       <Text style={{
                         fontSize : sizes.normalText,
                         color : gender === true ? colors.text.reverse : colors.text.primary
-                      }}>남 </Text></Pressable>
-                    
+                      }}>남</Text></Pressable>
+
                       <Pressable 
                       onPress = {() => {setGender(false)}}
                       style ={({pressed}) =>[styles.choicebutton, styles.rightbutton,
@@ -119,10 +116,9 @@ export default function Signup() {
                       <Text style={{
                         fontSize : sizes.normalText,
                         color : gender === false ? colors.text.reverse : colors.text.primary
-                        }}>여 </Text> </Pressable> 
+                        }}>여</Text></Pressable>
                     
-                    </View>
-                    
+                    </View> 
                 </View>
 
                 <View style = {styles.smallInputContainer}>
@@ -136,8 +132,8 @@ export default function Signup() {
                       <Text style={{
                         fontSize : sizes.normalText,
                         color : isAlba === true ? colors.text.reverse : colors.text.primary
-                      }}>알바생 </Text></Pressable>
-                    
+                      }}>알바생</Text></Pressable>
+
                       <Pressable 
                       onPress = {() => {setIsAlba(false)}}
                       style ={({pressed}) =>[styles.choicebutton, styles.rightbutton,
@@ -146,16 +142,15 @@ export default function Signup() {
                       <Text style={{
                         fontSize : sizes.normalText,
                         color : isAlba === false ? colors.text.reverse : colors.text.primary
-                        
-                      }}>사장님 </Text> </Pressable> 
-                    
+                      }}>사장님 </Text></Pressable>
+
                     </View>
                 </View>
             </View>
 
 
           <View style ={{flex : 1}}/>
-          <View style = {[styles.footerContainer]}>
+          <View style = {[styles.footerContainer, {marginBottom : insets.bottom + 10}]}>
             <View style ={styles.indicator}>
               <View style={[styles.indicatorUnit]}></View>
               <View style={[styles.indicatorUnit, {backgroundColor : colors.accent}]}></View>
@@ -163,9 +158,8 @@ export default function Signup() {
             </View>
               <BottomActionButton
                 label ="다음으로"
-                bottomGap={insets.bottom + 16}
                 mode="spacer"
-                onPress = {() => console.log("다음으로 버튼")}
+                onPress = {() => router.push("/login/SignUpThird")}
               />
           </View>
           </View>

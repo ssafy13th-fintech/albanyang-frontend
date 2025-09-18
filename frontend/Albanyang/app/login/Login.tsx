@@ -12,13 +12,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useRouter } from "expo-router";
 
 
 export default function Login() {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const insets = useSafeAreaInsets();
-
+  const router = useRouter();
   return (
       <SafeAreaView style={styles.rootcontainer}>
         <View style = 
@@ -65,8 +66,9 @@ export default function Login() {
         </Pressable>
         </View>
 
-
-        <Pressable onPress={() => console.log("회원가입")} style = {({pressed}) => [styles.toSignUp]}>
+            
+        <Pressable onPress={() => router.push("/login/SignUpFirst")} 
+        style = {({pressed}) => [styles.toSignUp, {opacity : pressed ? 0.5 : 1}]}>
          <Text style={styles.toSignUpText}>회원가입</Text>
         </Pressable>
         </View>

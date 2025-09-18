@@ -1,14 +1,14 @@
+import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
-  SafeAreaView,
-  View,
-  Text,
-  StyleSheet,
   Pressable,
+  SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { StatusBar } from "expo-status-bar";
-import { router } from "expo-router";
 
 export default function SignUpAgree() {
   const [agreeAll, setAgreeAll] = useState(false);
