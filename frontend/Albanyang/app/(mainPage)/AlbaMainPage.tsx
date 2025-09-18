@@ -1,5 +1,5 @@
 // AlbaMainPage.tsx
-import { colors } from '@/constants/colors/ColorTheme';
+import { colors } from '@/constants/Colors/ColorTheme';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';

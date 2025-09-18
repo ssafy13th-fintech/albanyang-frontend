@@ -29,7 +29,7 @@ export default function SignUpAgree() {
   // TODO: 다음 화면이 정해지면 라우팅 경로만 바꿔주세요.
   const onNext = () => {
     if (!requiredOk) return;
-    router.push("/login/SignUpFirst");
+    router.push("/beforeLogin/SignUpFirst");
     console.log("동의 완료 → 다음 단계로");
   };
 

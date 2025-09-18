@@ -1,3 +1,4 @@
+// Albanyang/constants/Colors/ColorTheme.ts
 export const colors = {
   // 주요 색상 (이미지 기반)
   main: "#FCC373",         // 메인 색 (이미지: FCC373)
