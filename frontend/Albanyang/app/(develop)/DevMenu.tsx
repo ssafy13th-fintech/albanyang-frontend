@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Button, Text, View } from 'react-native';
 
+
 const routes = [
   { name: '로그인', path: '/login/Login' },
   { name :'회원가입1', path :'/login/SignUpFirst'},
@@ -8,6 +9,9 @@ const routes = [
   { name: '회원가입3', path : '/login/SignUpThird'},
   { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
   { name: '프로필', path: '/profile' },
+  { name: '메인페이지', path : '/albaMainPage/AlbaMainPage'},
+  { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},
+  { name: '급여명세서(직원)', path: '/payslip/PayslipListEmployee'},
 ];
 
 export default function DevMenu() {
