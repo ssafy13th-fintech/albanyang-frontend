@@ -10,12 +10,11 @@ const routes = [
   {name : '회원가입 완료', path : '/login/SignUpComplete'},
   { name: '프로필', path: '/profile' },
   { name: '사장 메인페이지', path : '/EmployerMainPage'},
-  { name: '알바 메인페이지', path : '/EployeeMainPage'},
+  { name: '알바 메인페이지', path : '/EmployeeMainPage'},
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},
   { name: '급여명세서(직원)', path: '/payslip/PayslipListEmployee'},
   { name: '사업자등록', path: '/store/StoreRegistration'},
-  { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},
-  { name: '급여명세서(직원)', path: '/payslip/PayslipListEmployee'},
+  { name: '알바 초대1', path: '/FindAlba'},
 ];
 
 export default function DevMenu() {
