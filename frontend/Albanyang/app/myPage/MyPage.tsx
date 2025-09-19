@@ -1,13 +1,20 @@
 import { Text } from "@react-navigation/elements";
 import { useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Image, ImageSourcePropType, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
+import PanelMenuButton from "@/components/buttons/PanelMenuButton";
+import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { Mascot } from "@/constants/images/mascot";
 import { sizes } from "@/constants/size/FontSize";
 
+interface PanelMenuItems{
+    title : string,
+    icon : ImageSourcePropType
+
+}
 
 export default function MyPage() {
     const insets = useSafeAreaInsets();
@@ -25,41 +32,29 @@ export default function MyPage() {
     const isAlbaShowInfo = isAlba === 1 ? "알바생" : "사장님";
     // const isAccountExist = bankname === null  || bankAccountNum === null ?   
 
-    const items = ["내 정보 수정", "계좌 등록 및 수정", "통계", "회원 탈퇴"]
+    const items : PanelMenuItems[] = [
+        { title : "내 정보 수정", icon : require("@/assets/images/icon/icon_insert.png") },
+        { title : "계좌 등록 및 수정", icon : require("@/assets/images/icon/icon_insert.png") },
+        { title : "통계" , icon : require("@/assets/images/icon/icon_insert.png") },
+        { title : "회원 탈퇴", icon : require("@/assets/images/icon/icon_insert.png") },
+    ]
     const views = [];
 
 
     for(let i=0; i<items.length; ++i){
-        
-        views.push(<Pressable style={({pressed})=>[{
-            flexDirection : "row",
-            alignItems :"center",
-            paddingVertical : 24,
-            backgroundColor : pressed ? colors.disable : "transparent"
-        }]}>
-            <Image
-                source={require("@/assets/images/icon/icon_insert.png")}
-                style = {{width : 24, height : 24, marginRight :16}}
+        views.push(
+            <PanelMenuButton
+            icon={items[i].icon}
+            menuText= {items[i].title}
+            key = {i}
             />
-            <Text style = 
-            {{
-                fontFamily : FONTS.jamsil.regular3,
-                fontSize : sizes.normalText
-            }} 
-            key={i}>{items[i]}</Text>
-            <View style = {{flex:1}}></View>
-            <Text style = {{
-                fontFamily : FONTS.jamsil.regular3,
-                fontSize : sizes.normalText
-            }}>{">"}</Text>
-            </Pressable>)
+        )
         if(i < items.length-1){
             views.push(<View style = {{
                 borderBottomWidth:1,
                 borderColor : colors.shadow,
                 opacity : 0.5
             }}>
-
             </View>)
         }
 
@@ -68,7 +63,9 @@ export default function MyPage() {
     return (
         <SafeAreaView style = {{flex :1}}>
         <ScrollView
-            contentContainerStyle = {{padding: 16}}
+
+            contentContainerStyle = {{padding: 16}
+        }
         > 
             <View style = {[styles.introduceCard, {flexDirection : "row"}]}>
                 <View>
@@ -140,6 +137,10 @@ export default function MyPage() {
                     {views}
             </View>
         </ScrollView>
+
+        <NavBar
+            role="alba"
+        />
         </SafeAreaView>
 
     )
@@ -152,7 +153,9 @@ const styles = StyleSheet.create({
         paddingTop : 32,
         paddingHorizontal : 16,
         paddingBottom : 16,
-        marginBottom :24
+        marginBottom :24,
+        boxShadow: "0 -10 0 0 rgba(0, 0, 255, 0.7)",
+        elevation : 5
     },
     accountCard : {
         borderColor : colors.accent,

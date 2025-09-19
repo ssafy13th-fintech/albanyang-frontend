@@ -46,7 +46,6 @@ export default function BottomActionButton({
   rightIcon,
 }: BottomActionButtonProps) {
   const insets = useSafeAreaInsets();
-  const computedBottom = (insets.bottom ?? 0) + bottomGap;
 
   const content = (
     <>
@@ -69,12 +68,13 @@ export default function BottomActionButton({
         onPress={onPress}
         style={({ pressed }) => [
           styles.button,
-          { backgroundColor: pressed ? colors.accent : colors.main, opacity: disabled ? 0.6 : 1 },
+          { backgroundColor: pressed ? colors.accent : colors.main, 
+            opacity: disabled ? 0.6 : 1 },
           buttonStyle,
         ]}
         disabled={disabled || loading}
       >
-      <Text>{content}</Text>
+      <Text style = {{fontWeight : 500}}>{content}</Text>
       </Pressable>
     </View>
   );
