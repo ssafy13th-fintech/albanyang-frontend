@@ -26,6 +26,8 @@ export interface BottomActionButtonProps {
   loading?: boolean;
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  mainColor? : string;
+  pressColor? : string;
 }
 
 /**
@@ -38,12 +40,14 @@ export default function BottomActionButton({
   onPress,
   bottomGap = 0,
   containerStyle,
-  buttonStyle,
+  buttonStyle = null,
   textStyle,
   disabled = false,
   loading = false,
   leftIcon,
   rightIcon,
+  mainColor = colors.main,
+  pressColor =  colors.accent
 }: BottomActionButtonProps) {
   const insets = useSafeAreaInsets();
 
@@ -68,7 +72,7 @@ export default function BottomActionButton({
         onPress={onPress}
         style={({ pressed }) => [
           styles.button,
-          { backgroundColor: pressed ? colors.accent : colors.main, 
+          { backgroundColor: pressed ? pressColor : mainColor, 
             opacity: disabled ? 0.6 : 1 },
           buttonStyle,
         ]}

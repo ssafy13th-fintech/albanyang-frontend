@@ -53,8 +53,8 @@ export default function WithDrawPage(){
                 <BottomActionButton 
                     label = "탈퇴 하기"
                     containerStyle = {{flex :1}}
-                    buttonStyle = {{
-                        backgroundColor : colors.reject}}
+                    mainColor = {colors.reject}
+                    pressColor={colors.accent}
                 />
             </View>
 
