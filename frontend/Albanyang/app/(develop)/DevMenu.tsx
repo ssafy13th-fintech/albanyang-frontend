@@ -9,7 +9,7 @@ const routes = [
   { name: '회원가입3', path : '/login/SignUpThird'},
   { name : '회원가입 완료', path : '/login/SignUpComplete'},
   { name : '마이페이지' , path : '/myPage/MyPage'},
-  { name: '프로필', path: '/profile' },
+  { name: '내 정보 수정', path: '/myPage/MyInfoInsertion' },
   { name: '사장 메인페이지', path : '/EmployerMainPage'},
   { name: '알바 메인페이지', path : '/EployeeMainPage'},
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},

@@ -1,14 +1,14 @@
 import { useState } from "react";
 import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
+    Image,
+    Pressable,
+    StyleSheet,
+    Text,
+    View
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import LoginTextInput from "@/components/TextInput/loginTextInput";
+import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
