@@ -31,8 +31,6 @@ export default function MyInfoInsertion() {
 
     const router = useRouter();
     
-    const [focus , setFocus] = useState(false)
-    
     return (
         
         <SafeAreaView style = {[styles.rootContainer, {paddingHorizontal : insets.left + 16}]}>
@@ -133,7 +131,6 @@ export default function MyInfoInsertion() {
           <View style = {[styles.footerContainer, {marginBottom : insets.bottom + 10}]}>
               <BottomActionButton
                 label ="수정하기"
-                mode="spacer"
                 onPress = {() => router.push("/")}
               />
           </View>

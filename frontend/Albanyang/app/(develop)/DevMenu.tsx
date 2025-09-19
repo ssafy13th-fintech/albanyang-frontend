@@ -10,6 +10,7 @@ const routes = [
   { name : '회원가입 완료', path : '/login/SignUpComplete'},
   { name : '마이페이지' , path : '/myPage/MyPage'},
   { name: '내 정보 수정', path: '/myPage/MyInfoInsertion' },
+  { name :'계좌 추가 및 수정', path :'/myPage/MyAccountInsertion'},
   { name: '사장 메인페이지', path : '/EmployerMainPage'},
   { name: '알바 메인페이지', path : '/EployeeMainPage'},
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},

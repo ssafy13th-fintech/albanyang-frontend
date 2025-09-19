@@ -8,7 +8,8 @@ import { Text, TextInput, View } from 'react-native';
 interface LabelTextInputProps{
     titleText : string,
     value : string,
-    onChangeText : (v : string) => void
+    onChangeText : (v : string) => void,
+    placeHolder? : string
 }
 
 
@@ -22,7 +23,8 @@ interface LabelTextInputProps{
 export default function LabelTextInput({
     titleText,
     value,
-    onChangeText
+    onChangeText,
+    placeHolder
 }:LabelTextInputProps){
 
     const [focus, setFocus] = useState(false);
@@ -37,6 +39,7 @@ export default function LabelTextInput({
                     {titleText}
                   </Text>
                   <TextInput
+                    placeholder= {placeHolder}
                     onFocus={() => setFocus(true)}
                     onBlur ={() => setFocus(false)}
                     onChangeText={onChangeText}

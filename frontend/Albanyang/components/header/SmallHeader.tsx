@@ -6,7 +6,7 @@ import {
 } from "react-native"
 
 interface SmallHeaderProps{
-    paddingTopLen :number,
+    paddingTopLen? :number,
     paddingBottomLen? : number,
     headerText :string,
     headerTextFont : string,
@@ -26,8 +26,8 @@ interface SmallHeaderProps{
 */
 
 export default function SmallHeader({
-    paddingTopLen,
-    paddingBottomLen = 0,
+    paddingTopLen = 32,
+    paddingBottomLen = 32,
     headerText,
     headerTextFont,
     headerTextSize,

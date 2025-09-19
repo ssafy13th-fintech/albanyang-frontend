@@ -14,13 +14,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export type BottomActionMode = "spacer" | "absolute";
 
 export interface BottomActionButtonProps {
   label?: string;
   onPress?: (event: GestureResponderEvent) => void;
   bottomGap?: number; // 안전영역 제외하고 바닥에서 떨어질 거리 (default 40)
-  mode?: BottomActionMode; // 'spacer' (flow) or 'absolute' (fixed)
   containerStyle?: StyleProp<ViewStyle>;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
@@ -39,7 +37,6 @@ export default function BottomActionButton({
   label = "다음으로",
   onPress,
   bottomGap = 0,
-  mode = "spacer",
   containerStyle,
   buttonStyle,
   textStyle,
@@ -65,32 +62,6 @@ export default function BottomActionButton({
     </>
   );
 
-  if (mode === "absolute") {
-    return (
-      <View
-        style={[
-          styles.absoluteWrapper,
-          // bottom must be numeric; set via inline style
-          { bottom: computedBottom },
-          containerStyle,
-        ]}
-        // make sure parent is relative (SafeAreaView by default is fine)
-        pointerEvents={disabled ? "none" : "auto"}
-      >
-        <Pressable
-          onPress={onPress}
-          style={({ pressed }) => [
-            styles.button,
-            { backgroundColor: pressed ? colors.accent : colors.main, opacity: disabled ? 0.6 : 1 },
-            buttonStyle,
-          ]}
-        >
-         <Text> {content}</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
   // spacer mode: flow layout. marginBottom로 안전영역 + gap 적용
   return (
     <View style={[styles.spacerWrapper, { marginBottom: 0 }, containerStyle]}>
@@ -103,7 +74,7 @@ export default function BottomActionButton({
         ]}
         disabled={disabled || loading}
       >
-      <Text>  {content}</Text>
+      <Text>{content}</Text>
       </Pressable>
     </View>
   );
