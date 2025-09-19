@@ -5,22 +5,30 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
+import { Mascot } from "@/constants/images/mascot";
 import { sizes } from "@/constants/size/FontSize";
+
 
 export default function MyPage() {
     const insets = useSafeAreaInsets();
-    const [name , setName] = useState("김알바");
-    const [isAlba, setIsAlba] = useState("알바생");
+    let [name , setName] = useState("김알바");
     const [phoneNum, setPhoneNum] = useState("010-0000-0000")
     const [age , setAge] = useState("30대")
-    const [email, setEmail] = useState("testEmail@gmail.com")
     const [gender, setGender] = useState("성별")
-    const [bankname, setBankName] = useState("국민")
-    const [bankAccountNum, setBankAccountNum] = useState("000-0000-000000")
+    const [email, setEmail] = useState("testEmail@gmail.com")
+    const [bankname, setBankName] = useState<string|null>("국민")
+    const [bankAccountNum, setBankAccountNum] = useState<string|null>("000-0000-000000")
+    const isAlba = 1;
+
+
+    const mascot_path = isAlba === 1 ? Mascot.mascot_basic_alba : Mascot.mascot_basic_boss;
+    const isAlbaShowInfo = isAlba === 1 ? "알바생" : "사장님";
+    // const isAccountExist = bankname === null  || bankAccountNum === null ?   
 
     const items = ["내 정보 수정", "계좌 등록 및 수정", "통계", "회원 탈퇴"]
     const views = [];
-    
+
+
     for(let i=0; i<items.length; ++i){
         
         views.push(<Pressable style={({pressed})=>[{
@@ -62,8 +70,8 @@ export default function MyPage() {
         <ScrollView
             contentContainerStyle = {{padding: 16}}
         > 
-            <View style = {styles.introduceCard}>
-                
+            <View style = {[styles.introduceCard, {flexDirection : "row"}]}>
+                <View>
                 <View style = {{flexDirection : "row", marginBottom : 18}}>
                 <Text style = {{
                     fontFamily : FONTS.jamsil.medium4,
@@ -74,7 +82,7 @@ export default function MyPage() {
                         fontFamily : FONTS.jamsil.medium4,
                         fontSize : sizes.smallTitle
                     } 
-                }>  {isAlba}</Text>
+                }>  {isAlbaShowInfo}</Text>
                 </Text>
                 </View>
 
@@ -84,6 +92,13 @@ export default function MyPage() {
                     <Text style = {{fontFamily:FONTS.jamsil.light2}}>이메일 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{email}</Text></Text>
                     <Text style = {{fontFamily:FONTS.jamsil.light2}}>성별 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{gender}</Text></Text>
                 </View>
+                </View>
+                <Image
+                    source ={mascot_path}
+                    style = {{marginLeft : 10}}
+                >
+                </Image>
+
             </View>
         
             <View style = {{paddingVertical : 16}}>
