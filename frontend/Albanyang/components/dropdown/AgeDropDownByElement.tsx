@@ -1,5 +1,6 @@
 // components/AgeDropdown.tsx
-import React from "react";
+import { colors } from "@/constants/colors/ColorTheme";
+import React, { useState } from "react";
 import { StyleProp, ViewStyle } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 
@@ -31,6 +32,9 @@ export default function AgeDropdown({
   containerStyle,
   placeholder = "선택하세요",
 }: AgeDropdownProps) {
+
+  const [focus, onFocus] = useState(false);
+
   return (
 
       <Dropdown
@@ -41,10 +45,21 @@ export default function AgeDropdown({
         onChange={(item) => {
           onChange(item.value);
         }}
+        onFocus={()=>onFocus(true)}
+        onBlur={() => onFocus(false)}
         placeholder={placeholder}
         // styles.inputField을 그대로 사용하려면 styles를 외부에서 주입하거나
         // 아래처럼 스타일 배열로 기존 스타일을 적용합니다.
-        style={containerStyle}
+        style={[
+          containerStyle,
+          { 
+            borderColor : focus ? colors.accent : colors.main,
+            borderWidth : focus ? 2 : 1,
+            backgroundColor : focus ? colors.disable : "transparent"
+
+          }
+          ]
+        }
         iconStyle={{marginTop:8}}
         selectedTextStyle={{ paddingTop : 5,alignItems : "center"}}
         placeholderStyle={{ paddingTop : 5,alignItems : "center"}}

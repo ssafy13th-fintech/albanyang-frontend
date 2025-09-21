@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import LoginTextInput from "@/components/TextInput/loginTextInput";
+import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -36,13 +36,15 @@ export default function Login() {
         <View style = {styles.inputSection}>
         <View style = {styles.inputContainer}>
             <LoginTextInput
-              placeholder="아이디"
+              //placeholder="아이디"
+              label ="아이디"
               value = {id}
               setChangeValue={setId}
               isSecure={false}
               />    
             <LoginTextInput
-              placeholder="비밀번호"
+              //placeholder="비밀번호"
+              label="비밀번호"
               value = {pw}
               setChangeValue={setPw}
               isSecure={true}
