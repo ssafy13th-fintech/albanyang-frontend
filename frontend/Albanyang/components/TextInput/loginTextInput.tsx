@@ -1,9 +1,10 @@
 import { colors } from "@/constants/colors/ColorTheme";
 import { useRef, useState } from "react";
-import { Animated, StyleSheet, TextInput } from "react-native";
+import { Animated, StyleSheet, Text, TextInput } from "react-native";
 
 interface LoginTextInputParams {
-  placeholder: string;
+  placeholder? : string;
+  label? : string;
   value: any;
   setChangeValue: (text: string) => void | undefined;
   isSecure?: boolean;
@@ -19,6 +20,7 @@ interface LoginTextInputParams {
  */ 
 export default function LoginTextInput({
   placeholder,
+  label,
   value,
   setChangeValue,
   isSecure = false
@@ -68,6 +70,17 @@ export default function LoginTextInput({
         secureTextEntry={isSecure}
         autoCapitalize="none"
       />
+      <Text
+      style={{
+        position:"absolute",
+        bottom : 40,
+        left : 20,
+        fontSize : 12,
+        paddingHorizontal : 4,
+        backgroundColor : colors.disable,
+        color : colors.text.secondary
+      }}
+      >{label}</Text>
     </Animated.View>
   );
 }

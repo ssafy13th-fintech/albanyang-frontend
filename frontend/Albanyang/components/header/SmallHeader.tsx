@@ -1,3 +1,4 @@
+import { router } from "expo-router"
 import {
     Image,
     Text,
@@ -36,7 +37,9 @@ export default function SmallHeader({
         <View style ={{flexDirection : "row", paddingTop : paddingTopLen, paddingBottom : paddingBottomLen,
             alignItems : "center"
         }}>
-        <TouchableOpacity>
+        <TouchableOpacity
+            onPress={()=> {router.back()}}
+        >
             <Image
                 source = {require("@/assets/images/icon/icon_back.png")}
                 style = {{width : 24, height : 20}}

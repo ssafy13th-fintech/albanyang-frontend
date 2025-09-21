@@ -23,13 +23,13 @@ export default function SignupComplete() {
                 fontFamily : FONTS.jamsil.regular3,
                 marginTop : insets.top + 96,
                 alignSelf : 'baseline',
-            }}>반갑습니다!!{"\n"}
+            }}>안녕히 가세요..{"\n"}
                 <Text style={
                 {
                     fontFamily : FONTS.jamsil.medium4,
                     color : colors.accent
                 }
-            }>알바냥</Text>에{"\n"}어서오세요!!</Text>
+            }></Text>그리고 또 오세요!!!</Text>
             
             <Image
             source={require("@/assets/images/mascot/mascot_basic_alba.png")}
@@ -42,11 +42,11 @@ export default function SignupComplete() {
             <View style ={{flex : 1}}/>
             <View style = {[styles.footerContainer, {paddingHorizontal : 16, marginBottom : insets.bottom + 10}]}>
             <BottomActionButton
-                label ="메인페이지로!!"
+                label ="로그인 화면으로 가기"
                 textStyle = {{fontWeight : 600}}
                 onPress = {() => {
                     router.dismissAll();
-                    router.push("/albaMainPage/AlbaMainPage")
+                    router.push("/login/Login")
                 }}
             />
             </View>

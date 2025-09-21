@@ -2,6 +2,7 @@ import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
+import { router } from "expo-router";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -47,6 +48,7 @@ export default function WithDrawPage(){
             {/* 하단 버튼 영역: safe area inset 반영 */}
             <View style = {{flexDirection : "row", gap : 16, marginBottom : insets.bottom + 16}}>
                 <BottomActionButton 
+                    onPress={() => {router.back()}}
                     label="뒤로 가기"
                     containerStyle = {{flex : 1}}
                 />

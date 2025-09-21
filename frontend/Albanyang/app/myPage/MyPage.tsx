@@ -9,11 +9,12 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { Mascot } from "@/constants/images/mascot";
 import { sizes } from "@/constants/size/FontSize";
+import { router } from "expo-router";
 
 interface PanelMenuItems{
     title : string,
-    icon : ImageSourcePropType
-
+    icon : ImageSourcePropType,
+    action : ()=>void
 }
 
 export default function MyPage() {
@@ -33,17 +34,27 @@ export default function MyPage() {
     // const isAccountExist = bankname === null  || bankAccountNum === null ?   
 
     const items : PanelMenuItems[] = [
-        { title : "내 정보 수정", icon : require("@/assets/images/icon/icon_insert.png") },
-        { title : "계좌 등록 및 수정", icon : require("@/assets/images/icon/icon_insert.png") },
-        { title : "통계" , icon : require("@/assets/images/icon/icon_insert.png") },
-        { title : "회원 탈퇴", icon : require("@/assets/images/icon/icon_insert.png") },
+        { title : "내 정보 수정", 
+        icon : require("@/assets/images/icon/icon_insert.png"),
+        action : () => {router.push("/myPage/MyAccountInsertionPage")}
+        },
+        { title : "계좌 등록 및 수정", 
+        icon : require("@/assets/images/icon/icon_insert.png"),
+            action : () => {router.push("/myPage/MyInfoInsertionPage")} },
+        { title : "통계" , 
+        icon : require("@/assets/images/icon/icon_insert.png"),
+            action : () => {router.push("/")} },
+        { title : "회원 탈퇴", 
+        icon : require("@/assets/images/icon/icon_insert.png"),
+    action : () => {router.push("/myPage/WithDrawPage")} },
     ]
-    const views = [];
+    const views : React.JSX.Element[] = [];
 
 
     for(let i=0; i<items.length; ++i){
         views.push(
             <PanelMenuButton
+            buttonAction = {items[i].action}
             icon={items[i].icon}
             menuText= {items[i].title}
             key = {i}
@@ -63,7 +74,6 @@ export default function MyPage() {
     return (
         <SafeAreaView style = {{flex :1}}>
         <ScrollView
-
             contentContainerStyle = {{padding: 16}
         }
         > 

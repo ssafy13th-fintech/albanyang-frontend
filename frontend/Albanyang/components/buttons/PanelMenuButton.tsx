@@ -6,15 +6,19 @@ import { Image, ImageSourcePropType, Pressable, Text, View } from "react-native"
 interface PanelMenuButtonProps{
     key? : any,
     menuText : string,
-    icon : ImageSourcePropType
+    icon : ImageSourcePropType,
+    buttonAction : () => void
 }
 export default function PanelMenuButton({
     key="",
     menuText,
-    icon
+    icon,
+    buttonAction
 } :PanelMenuButtonProps){
     return(
-        <Pressable style={({pressed})=>[{
+        <Pressable 
+                onPress={buttonAction}
+                style={({pressed})=>[{
                     flexDirection : "row",
                     alignItems :"center",
                     paddingVertical : 24,

@@ -12,6 +12,7 @@ const routes = [
   { name: '내 정보 수정', path: '/myPage/MyInfoInsertionPage' },
   { name :'계좌 추가 및 수정', path :'/myPage/MyAccountInsertionPage'},
   { name : '탈퇴 페이지', path : '/myPage/WithDrawPage'},
+  { name : '탈퇴 완료 페이지', path : '/myPage/WithDrawComplete'},
   { name: '사장 메인페이지', path : '/EmployerMainPage'},
   { name: '알바 메인페이지', path : '/EmployeeMainPage'},
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},
