@@ -1,9 +1,11 @@
 import { router } from "expo-router"
 import {
     Image,
+    StyleProp,
     Text,
     TouchableOpacity,
-    View
+    View,
+    ViewStyle
 } from "react-native"
 
 interface SmallHeaderProps{
@@ -11,7 +13,9 @@ interface SmallHeaderProps{
     paddingBottomLen? : number,
     headerText :string,
     headerTextFont : string,
-    headerTextSize : number
+    headerTextSize : number,
+    isAblaBack : boolean,
+    style? : StyleProp<ViewStyle>
 }
 
 /**
@@ -27,22 +31,28 @@ interface SmallHeaderProps{
 */
 
 export default function SmallHeader({
-    paddingTopLen = 32,
+    paddingTopLen =32,
     paddingBottomLen = 32,
     headerText,
     headerTextFont,
     headerTextSize,
+    isAblaBack = true,
+    style
 } : SmallHeaderProps) {
     return (
-        <View style ={{flexDirection : "row", paddingTop : paddingTopLen, paddingBottom : paddingBottomLen,
+        <View style ={[{
+            flexDirection : "row", paddingTop : paddingTopLen, paddingBottom : paddingBottomLen,
             alignItems : "center"
-        }}>
+        }, style]}>
         <TouchableOpacity
             onPress={()=> {router.back()}}
         >
             <Image
                 source = {require("@/assets/images/icon/icon_back.png")}
-                style = {{width : 24, height : 20}}
+                style = {{
+                    width : 24, height : 20,
+                    opacity : isAblaBack ? 1 : 0
+                }}
             />
         </TouchableOpacity>
         <View style = {{flex:1}}/>
