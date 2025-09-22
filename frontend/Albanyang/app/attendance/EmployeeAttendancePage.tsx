@@ -16,19 +16,23 @@ type Type_AttendanceState = {
 }
 
 
-const cards = [
-  { id: '1', title: 'Item 1' },
-  { id: '2', title: 'Item 2' },
-  { id: '3', title: 'Item 3' },
-  { id: '4', title: 'Item 4' },
-];
 
-function MyCard({ title }: { title: string }) {
-    const rest_time = 10;
-    const condition = "결근";
-    const work_time = "12:05~20:03";
-    const name = "정알바";
-    const work_place ="GS편의점";
+interface CardInfo {
+  rest_time? : number,
+  condition? : string,
+  work_time?  : string,
+  name? : string,
+  work_place? : string
+}
+
+
+function MyCard({
+  rest_time = 10,
+  condition = "결근",
+  work_time ="12:05~20:01",
+  name = "정알바",
+  work_place = "GS 편의점"
+ } : CardInfo) {
 
     return (
     <View style={{ 
@@ -49,7 +53,8 @@ function MyCard({ title }: { title: string }) {
             flexDirection : "row", justifyContent :"center", alignItems:"center",
             alignSelf :"flex-start"
         }}>
-            <View style ={{backgroundColor : "red",
+            <View style ={{
+              backgroundColor : attendance_states.get(condition) ,
             borderRadius : 6, 
             width : 12, height : 12,
             marginRight : 8
@@ -91,13 +96,19 @@ function MyCard({ title }: { title: string }) {
 
 
 
-const attendance_states : Type_AttendanceState[] = [
-    { state : "결근", color : "red"},
-    { state : "지각", color : "yellow"},
-    { state : "지각", color : "yellow"},
-    { state : "정상", color :"green"}
-]
+const attendance_states : Map<string, string> = new Map([
+  [ "결근" , "red"],
+   ["지각" ,"yellow"],
+   ["정상" , "green"]
+])
 
+
+const cards = [
+  { id: '1', condition: '결근', name : "정태승", work_place : "GS" },
+  { id: '2', condition: '정상', name : "김철수", work_place : "GS" },
+  { id: '3', contidion: '정상', name : "김싸피", work_place : "CU" },
+  { id: '4', condition: '지각', name : "이싸피", work_place : "CU" },
+];
 
 
 
@@ -122,15 +133,15 @@ export default function EmployeeAttendancePage(){
     const [focus, setFocus] = useState(false);
 
     let data_dropdown_workplaces = [
-    { label: "oo 사업장", value: "0" },
-    { label: "xx 사업장", value: "1" },
-    { label: "aa 사업장", value: "2" },
-    { label: "bb 사업장", value: "3" },
-    { label: "yy 사업장", value: "4" },
-    { label: "zz 사업장", value: "5" },
+    { label: "oo 사업장", value: "oo 사업장" },
+    { label: "xx 사업장", value: "xx 사업장" },
+    { label: "aa 사업장", value: "aa 사업장" },
+    { label: "bb 사업장", value: "bb 사업장" },
+    { label: "yy 사업장", value: "yy 사업장" },
+    { label: "zz 사업장", value: "zz 사업장" },
     ];
 
-    let year=0, month=0, day = 0
+    let year="0000", month=0, day = 0
 
   // Provider에서 관리할 date (초기값을 'YYYY-MM-DD' 형식으로)
   const [providerDate, setProviderDate] = useState<string>(() => {
@@ -149,8 +160,8 @@ export default function EmployeeAttendancePage(){
 
         <View style ={{flexDirection : "row", alignSelf : "center", marginBottom : 16}}>
             <Text style ={{fontFamily : FONTS.jamsil.regular3,
-                fontSize : sizes.normalText
-            }}>{year}년 {month}월  {day}일
+                fontSize : sizes.normalText + 2
+            }}>{year}년 {month}월 {day}일
             </Text>
         </View>
         
@@ -189,6 +200,7 @@ export default function EmployeeAttendancePage(){
           style={{ height: 50 }}
         />
     </CalendarProvider>
+
         <Dropdown
         data={data_dropdown_workplaces}
         labelField="label"
@@ -216,14 +228,17 @@ export default function EmployeeAttendancePage(){
         iconStyle = {{marginTop:8}}
         selectedTextStyle={{alignItems : "center"}}
         placeholderStyle={{ alignItems : "center"}}
-        // 드롭다운 목록 스타일 (필요하면 커스터마이즈)
-
         />
 
         <FlatList
             data={cards}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <MyCard title={item.title} />}
+            renderItem={({ item }) => 
+            <MyCard 
+            condition = {item.condition}
+            name={item.name} 
+            work_place={item.work_place}
+            />}
             
             style = {
                 {

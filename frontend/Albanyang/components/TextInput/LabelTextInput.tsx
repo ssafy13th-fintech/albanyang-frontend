@@ -9,7 +9,8 @@ interface LabelTextInputProps{
     titleText : string,
     value : string,
     onChangeText : (v : string) => void,
-    placeHolder? : string
+    placeHolder? : string,
+    isDropdown? : boolean
 }
 
 
@@ -24,7 +25,8 @@ export default function LabelTextInput({
     titleText,
     value,
     onChangeText,
-    placeHolder
+    placeHolder,
+    isDropdown = false
 }:LabelTextInputProps){
 
     const [focus, setFocus] = useState(false);

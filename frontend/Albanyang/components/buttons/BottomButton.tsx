@@ -30,11 +30,7 @@ export interface BottomActionButtonProps {
   pressColor? : string;
 }
 
-/**
- * 재사용 가능한 하단 액션 버튼
- * - mode 'spacer'일 때: 부모에 flex:1이 있어야 푸시되어 하단에 배치됩니다.
- * - mode 'absolute'일 때: position absolute로 화면 하단에 고정됩니다.
- */
+
 export default function BottomActionButton({
   label = "다음으로",
   onPress,
