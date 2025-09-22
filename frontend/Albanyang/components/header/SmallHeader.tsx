@@ -11,7 +11,8 @@ interface SmallHeaderProps{
     paddingBottomLen? : number,
     headerText :string,
     headerTextFont : string,
-    headerTextSize : number
+    headerTextSize : number,
+    isAblaBack : boolean
 }
 
 /**
@@ -32,9 +33,11 @@ export default function SmallHeader({
     headerText,
     headerTextFont,
     headerTextSize,
+    isAblaBack = true,
 } : SmallHeaderProps) {
     return (
-        <View style ={{flexDirection : "row", paddingTop : paddingTopLen, paddingBottom : paddingBottomLen,
+        <View style ={{
+            flexDirection : "row", paddingTop : paddingTopLen, paddingBottom : paddingBottomLen,
             alignItems : "center"
         }}>
         <TouchableOpacity
@@ -42,7 +45,10 @@ export default function SmallHeader({
         >
             <Image
                 source = {require("@/assets/images/icon/icon_back.png")}
-                style = {{width : 24, height : 20}}
+                style = {{
+                    width : 24, height : 20,
+                    opacity : isAblaBack ? 1 : 0
+                }}
             />
         </TouchableOpacity>
         <View style = {{flex:1}}/>

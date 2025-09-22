@@ -19,6 +19,9 @@ const routes = [
   { name: '급여명세서(직원)', path: '/payslip/PayslipListEmployee'},
   { name: '사업자등록', path: '/store/StoreRegistration'},
   { name: '알바 초대1', path: '/FindAlba'},
+  { name: '직원 근태 관리', path: '/attendance/EmployeeAttendancePage'},
+  { name: '내 근태 관리', path: '/attendance/MyAttendancePage'},
+
 ];
 
 export default function DevMenu() {
