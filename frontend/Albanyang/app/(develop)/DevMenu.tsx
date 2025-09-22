@@ -21,7 +21,7 @@ const routes = [
   { name: '알바 초대1', path: '/FindAlba'},
   { name: '직원 근태 관리', path: '/attendance/EmployeeAttendancePage'},
   { name: '내 근태 관리', path: '/attendance/MyAttendancePage'},
-
+  { name :'직원 근태 수정', path :'/attendance/EmployeeAttendanceInsertPage'}
 ];
 
 export default function DevMenu() {
