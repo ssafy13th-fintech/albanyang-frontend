@@ -2,6 +2,7 @@
 import React, { memo, useMemo } from 'react';
 import { View, Image, TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { sizes } from '@/constants/size/FontSize';
 import { FONTS } from '@/constants/fonts/Fonts';
 
@@ -45,6 +46,24 @@ const LABELS: Record<Role, Record<TabKey, string>> = {
   sajang: { home: '홈', calendar: '캘린더', albot: 'AI 봇', sum: '급여 관리', profile: '마이페이지' },
 };
 
+// 라우트 경로 정의
+const ROUTES: Record<Role, Record<TabKey, string>> = {
+  alba: {
+    home: '/(mainPage)/EmployeeMainPage',
+    calendar: '/schedule',
+    albot: '/ai-chat',
+    sum: '/salary',
+    profile: '/myPage',
+  },
+  sajang: {
+    home: '/(mainPage)/EmployerMainPage',
+    calendar: '/schedule',
+    albot: '/ai-chat',
+    sum: '/salary-management',
+    profile: '/myPage',
+  },
+};
+
 // 컬러 아이콘을 유지할 탭들 (tintColor 적용하지 않음)
 const COLOR_PRESERVED_TABS: TabKey[] = ['albot'];
 
@@ -83,8 +102,9 @@ function NavBar({
   inactiveIconColor = '#9BA1A6',
 }: NavBarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   
-  // 안전한 하단 패딩 계산
+  // 안전한 하단 패딩 계산 - 최소 패딩만 적용
   const bottomPad = Math.max(insets.bottom || 0, NAVBAR_BOTTOM_MIN);
   const totalHeight = NAVBAR_BASE_HEIGHT + bottomPad;
 
@@ -93,6 +113,7 @@ function NavBar({
       key,
       label: LABELS[role][key],
       icon: ICONS[role][key],
+      route: ROUTES[role][key],
       preserveColor: COLOR_PRESERVED_TABS.includes(key),
     })),
     [role]
@@ -100,6 +121,22 @@ function NavBar({
 
   const fontSize = getFontSize();
   const fontFamily = getFontFamily();
+
+  const handleTabPress = (key: TabKey, route: string, e: GestureResponderEvent) => {
+    // 커스텀 onTabPress가 있으면 먼저 실행
+    if (onTabPress) {
+      onTabPress(key, e);
+    }
+    
+    // 현재 활성 탭이 아닐 때만 라우팅
+    if (activeKey !== key) {
+      try {
+        router.push(route);
+      } catch (error) {
+        console.warn(`Failed to navigate to ${route}:`, error);
+      }
+    }
+  };
 
   return (
     <View
@@ -126,7 +163,7 @@ function NavBar({
             accessibilityRole="button"
             accessibilityLabel={item.label}
             accessibilityState={{ selected: isActive }}
-            onPress={(e) => onTabPress?.(item.key, e)}
+            onPress={(e) => handleTabPress(item.key, item.route, e)}
             activeOpacity={0.7}
           >
             <View style={styles.iconContainer}>
@@ -170,13 +207,13 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-around', // 더 균등한 간격
+    justifyContent: 'space-around',
     borderTopWidth: StyleSheet.hairlineWidth,
   },
   tab: {
-    flex: 1, // 정확히 균등 분할
+    flex: 1,
     alignItems: 'center',
-    paddingHorizontal: 4, // 최소 간격 보장
+    paddingHorizontal: 4,
   },
   iconContainer: {
     width: TAB_ICON,

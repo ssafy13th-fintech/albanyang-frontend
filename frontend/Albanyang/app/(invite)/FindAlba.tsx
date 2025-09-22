@@ -1,4 +1,4 @@
-// app/employee/EmployeeSearch.tsx
+// app/invite/FindAlba.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from "react";
 import {
@@ -20,7 +20,9 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
-const SIDE_PADDING = 16;
+// 메인 페이지와 통일된 레이아웃 상수
+const SIDE_PADDING = 20;
+const SECTION_SPACING = 24;
 
 interface Employee {
   id: string;
@@ -50,7 +52,7 @@ const ActionModal = ({ visible, onClose, onConfirm, selectedEmployees, type, new
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              {/* 마스코트 아이콘 */}
+              {/* 마스코트 */}
               <View style={styles.mascotContainer}>
                 <View style={styles.mascotCircle}>
                   <Image
@@ -60,13 +62,13 @@ const ActionModal = ({ visible, onClose, onConfirm, selectedEmployees, type, new
                 </View>
               </View>
               
-              <Text style={styles.modalText1}>
+              <Text style={styles.modalTitle}>초대 완료!</Text>
+              <Text style={styles.modalSubtitle}>
                 {selectedEmployees.length === 1 
-                  ? `${selectedEmployees[0].name} 님에게`
-                  : `${selectedEmployees.map(emp => emp.name).join(', ')} 님에게`
+                  ? `${selectedEmployees[0].name} 님에게 초대 메시지가 발송되었습니다`
+                  : `${selectedEmployees.length}명에게 초대 메시지가 발송되었습니다`
                 }
               </Text>
-              <Text style={styles.modalText2}>초대 메시지가 발송되었습니다!</Text>
               
               <Pressable
                 style={({ pressed }) => [
@@ -84,7 +86,6 @@ const ActionModal = ({ visible, onClose, onConfirm, selectedEmployees, type, new
     );
   }
 
-  // Add employee modal
   return (
     <Modal
       transparent={true}
@@ -95,10 +96,10 @@ const ActionModal = ({ visible, onClose, onConfirm, selectedEmployees, type, new
       <View style={styles.modalOverlay}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText1}>
-              {newEmployeeName} 님을
+            <Text style={styles.modalTitle}>직원 추가</Text>
+            <Text style={styles.modalSubtitle}>
+              {newEmployeeName} 님을 초대 목록에 추가하시겠습니까?
             </Text>
-            <Text style={styles.modalText2}>초대 목록에 추가하시겠습니까?</Text>
             
             <View style={styles.buttonRow}>
               <Pressable
@@ -135,9 +136,10 @@ export default function EmployeeSearch() {
   const [modalType, setModalType] = useState<'invite' | 'add'>('invite');
   const [newEmployeeName, setNewEmployeeName] = useState('');
 
-  // 더미 데이터 - 실제로는 API 호출
+  // 더미 데이터
   const searchResults: Employee[] = searchText.length > 0 ? [
-    { id: '1', name: '알바생 1', phone: '010-1234-5678', salary: '10,000원' }
+    { id: '1', name: '김민수', phone: '010-1234-5678', salary: '10,000원' },
+    { id: '2', name: '이영희', phone: '010-2345-6789', salary: '11,000원' }
   ] : [];
 
   const handleBack = () => {
@@ -150,16 +152,13 @@ export default function EmployeeSearch() {
 
   const handleSelectEmployee = (employee: Employee) => {
     if (selectedEmployees.find(emp => emp.id === employee.id)) {
-      // 이미 선택된 직원이면 제거
       handleRemoveEmployee(employee.id);
     } else {
-      // 새로운 직원 선택
       setSelectedEmployees(prev => [...prev, employee]);
     }
   };
 
   const handleAddNewEmployee = (name: string) => {
-    // 전화번호 형식 검증
     const phoneRegex = /^010-?\d{4}-?\d{4}$/;
     if (!phoneRegex.test(name.replace(/-/g, ''))) {
       Alert.alert('알림', '올바른 전화번호 형식을 입력해주세요.\n예: 010-1234-5678');
@@ -183,7 +182,6 @@ export default function EmployeeSearch() {
   const handleModalConfirm = () => {
     setShowModal(false);
     if (modalType === 'add') {
-      // 새 직원을 선택된 목록에 추가
       const newEmployee: Employee = {
         id: `new_${Date.now()}`,
         name: newEmployeeName,
@@ -191,15 +189,12 @@ export default function EmployeeSearch() {
         salary: '미정'
       };
       setSelectedEmployees(prev => [...prev, newEmployee]);
-      setSearchText(''); // 검색창 초기화
+      setSearchText('');
       setNewEmployeeName('');
-      console.log('새 직원 추가:', newEmployeeName);
     } else {
-      // 초대 완료 로직
       setSelectedEmployees([]);
       setSearchText('');
       console.log('초대 완료', selectedEmployees);
-      // 이전 페이지로 돌아가기 또는 성공 페이지 이동
     }
   };
 
@@ -232,123 +227,145 @@ export default function EmployeeSearch() {
           <View style={{ width: 40 }} />
         </View>
 
-        {/* 선택된 직원들 태그 */}
+        {/* 검색 카드 */}
+        <View style={styles.searchSection}>
+          <View style={styles.searchCard}>
+            <Text style={styles.searchLabel}>전화번호로 직원 검색</Text>
+            <View style={styles.searchInputContainer}>
+              <Ionicons 
+                name="search-outline" 
+                size={20} 
+                color={colors.text.secondary} 
+                style={styles.searchIcon}
+              />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="010-1234-5678"
+                placeholderTextColor={colors.text.secondary}
+                value={searchText}
+                onChangeText={setSearchText}
+                keyboardType="phone-pad"
+                returnKeyType="search"
+              />
+              {searchText.length > 0 && (
+                <Pressable
+                  style={styles.clearButton}
+                  onPress={() => setSearchText('')}
+                >
+                  <Ionicons name="close-circle" size={20} color={colors.text.secondary} />
+                </Pressable>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* 선택된 직원들 카드 */}
         {selectedEmployees.length > 0 && (
           <View style={styles.selectedSection}>
-            <View style={styles.selectedHeader}>
-              <Text style={styles.selectedTitle}>
-                선택된 직원 ({selectedEmployees.length}명)
-              </Text>
-            </View>
-            <View style={styles.tagContainer}>
-              {selectedEmployees.map((employee) => (
-                <View key={employee.id} style={styles.employeeTag}>
-                  <Text style={styles.employeeTagText}>
-                    {employee.name}
-                  </Text>
-                  <Pressable
-                    style={styles.removeButton}
-                    onPress={() => handleRemoveEmployee(employee.id)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <Ionicons name="close" size={16} color={colors.text.secondary} />
-                  </Pressable>
-                </View>
-              ))}
+            <View style={styles.selectedCard}>
+              <View style={styles.selectedHeader}>
+                <Text style={styles.selectedTitle}>
+                  선택된 직원
+                </Text>
+                <Text style={styles.selectedCount}>
+                  {selectedEmployees.length}명
+                </Text>
+              </View>
+              <View style={styles.tagContainer}>
+                {selectedEmployees.map((employee) => (
+                  <View key={employee.id} style={styles.employeeTag}>
+                    <Text style={styles.employeeTagText}>
+                      {employee.name}
+                    </Text>
+                    <Pressable
+                      style={styles.removeButton}
+                      onPress={() => handleRemoveEmployee(employee.id)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Ionicons name="close" size={16} color={colors.text.secondary} />
+                    </Pressable>
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
         )}
 
-        {/* 검색 입력 */}
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInputContainer}>
-            <Ionicons 
-              name="search-outline" 
-              size={20} 
-              color={colors.text.secondary} 
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="전화번호를 입력해주세요 (예: 010-1234-5678)"
-              placeholderTextColor={colors.text.secondary}
-              value={searchText}
-              onChangeText={setSearchText}
-              keyboardType="phone-pad"
-              returnKeyType="search"
-            />
-            {searchText.length > 0 && (
-              <Pressable
-                style={styles.clearButton}
-                onPress={() => setSearchText('')}
-              >
-                <Ionicons name="close-circle" size={20} color={colors.text.secondary} />
-              </Pressable>
+        {/* 검색 결과 카드 */}
+        <View style={styles.resultSection}>
+          <View style={styles.resultCard}>
+            {searchResults.length > 0 ? (
+              <>
+                <Text style={styles.resultTitle}>검색 결과</Text>
+                <FlatList
+                  data={searchResults}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <Pressable
+                      style={[
+                        styles.resultItem,
+                        isEmployeeSelected(item.id) && styles.selectedResultItem
+                      ]}
+                      onPress={() => handleSelectEmployee(item)}
+                    >
+                      <View style={styles.resultLeft}>
+                        <View style={[
+                          styles.checkbox,
+                          isEmployeeSelected(item.id) && styles.checkedBox
+                        ]}>
+                          {isEmployeeSelected(item.id) && (
+                            <Ionicons name="checkmark" size={16} color={colors.text.reverse} />
+                          )}
+                        </View>
+                        <View style={styles.employeeInfo}>
+                          <Text style={styles.resultName}>{item.name}</Text>
+                          <Text style={styles.resultPhone}>
+                            {formatPhoneNumber(item.phone)}
+                          </Text>
+                        </View>
+                      </View>
+                      <View style={styles.salaryBadge}>
+                        <Text style={styles.resultSalary}>시급 {item.salary}</Text>
+                      </View>
+                    </Pressable>
+                  )}
+                  showsVerticalScrollIndicator={false}
+                />
+              </>
+            ) : searchText.length > 0 ? (
+              <>
+                <Text style={styles.resultTitle}>새 직원 추가</Text>
+                <Pressable
+                  style={styles.addNewEmployee}
+                  onPress={() => handleAddNewEmployee(searchText)}
+                >
+                  <View style={styles.addNewLeft}>
+                    <View style={styles.addIconContainer}>
+                      <Ionicons name="person-add-outline" size={24} color={colors.accent} />
+                    </View>
+                    <View style={styles.addNewInfo}>
+                      <Text style={styles.addNewText}>{searchText}</Text>
+                      <Text style={styles.addNewSubText}>초대 목록에 추가하기</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={colors.text.secondary} />
+                </Pressable>
+              </>
+            ) : (
+              <View style={styles.emptyState}>
+                <View style={styles.emptyIconContainer}>
+                  <Ionicons name="search" size={48} color={colors.text.secondary} />
+                </View>
+                <Text style={styles.emptyStateTitle}>직원을 찾아보세요</Text>
+                <Text style={styles.emptyStateText}>
+                  전화번호를 입력하여 직원을 검색하거나{'\n'}새로운 직원을 초대할 수 있습니다
+                </Text>
+              </View>
             )}
           </View>
         </View>
 
-        {/* 검색 결과 리스트 */}
-        <View style={styles.resultContainer}>
-          {searchResults.length > 0 ? (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <Pressable
-                  style={[
-                    styles.resultItem,
-                    isEmployeeSelected(item.id) && styles.selectedResultItem
-                  ]}
-                  onPress={() => handleSelectEmployee(item)}
-                >
-                  <View style={styles.resultLeft}>
-                    <View style={[
-                      styles.checkbox,
-                      isEmployeeSelected(item.id) && styles.checkedBox
-                    ]}>
-                      {isEmployeeSelected(item.id) && (
-                        <Ionicons name="checkmark" size={16} color={colors.text.reverse} />
-                      )}
-                    </View>
-                    <View style={styles.employeeInfo}>
-                      <Text style={styles.resultName}>{item.name}</Text>
-                      <Text style={styles.resultPhone}>
-                        {formatPhoneNumber(item.phone)}
-                      </Text>
-                    </View>
-                  </View>
-                  <Text style={styles.resultSalary}>시급 {item.salary}</Text>
-                </Pressable>
-              )}
-              showsVerticalScrollIndicator={false}
-            />
-          ) : searchText.length > 0 ? (
-            // 검색어가 있지만 결과가 없을 때 새 직원 추가 옵션
-            <Pressable
-              style={styles.addNewEmployee}
-              onPress={() => handleAddNewEmployee(searchText)}
-            >
-              <View style={styles.addNewLeft}>
-                <View style={styles.addIcon}>
-                  <Ionicons name="person-add-outline" size={20} color={colors.accent} />
-                </View>
-                <Text style={styles.addNewText}>{searchText} 님을</Text>
-              </View>
-              <Text style={styles.addNewSubText}>초대 목록에 추가</Text>
-            </Pressable>
-          ) : (
-            // 검색어가 없을 때 안내 메시지
-            <View style={styles.emptyState}>
-              <Ionicons name="search" size={48} color={colors.text.secondary} />
-              <Text style={styles.emptyStateText}>
-                전화번호를 입력하여{'\n'}직원을 찾아보세요
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/* 초대 메시지 보내기 버튼 */}
+        {/* 하단 고정 버튼 */}
         <View style={styles.bottomSection}>
           <Pressable
             style={({ pressed }) => [
@@ -394,79 +411,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SIDE_PADDING,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.disable,
+    paddingVertical: 20,
   },
   backButton: {
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 12,
   },
   backButtonPressed: {
     backgroundColor: colors.disable,
   },
   title: {
-    fontSize: sizes.normalText,
+    fontSize: sizes.smallTitle,
     fontFamily: FONTS.jamsil.bold5,
     color: colors.text.primary,
   },
 
-  // 선택된 직원 태그들
-  selectedSection: {
+  // 검색 섹션
+  searchSection: {
     paddingHorizontal: SIDE_PADDING,
-    paddingVertical: 16,
-    backgroundColor: colors.disable,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E8E6E0',
+    marginBottom: SECTION_SPACING,
   },
-  selectedHeader: {
-    marginBottom: 12,
+  searchCard: {
+    backgroundColor: colors.text.reverse,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
-  selectedTitle: {
-    fontSize: sizes.smallText,
+  searchLabel: {
+    fontSize: sizes.normalText,
     fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
-  },
-  tagContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  employeeTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.text.reverse,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-    borderWidth: 1,
-    borderColor: colors.main,
-  },
-  employeeTagText: {
-    fontSize: sizes.smallText,
-    fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.primary,
-  },
-  removeButton: {
-    padding: 2,
-  },
-
-  // 검색 영역
-  searchContainer: {
-    paddingHorizontal: SIDE_PADDING,
-    paddingVertical: 20,
+    marginBottom: 16,
   },
   searchInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colors.disable,
-    borderRadius: 12,
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
   },
   searchIcon: {
     marginRight: 12,
@@ -481,10 +471,86 @@ const styles = StyleSheet.create({
     padding: 4,
   },
 
-  // 검색 결과
-  resultContainer: {
+  // 선택된 직원 섹션
+  selectedSection: {
+    paddingHorizontal: SIDE_PADDING,
+    marginBottom: SECTION_SPACING,
+  },
+  selectedCard: {
+    backgroundColor: colors.text.reverse,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  selectedHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  selectedTitle: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.medium4,
+    color: colors.text.primary,
+  },
+  selectedCount: {
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.accent,
+    backgroundColor: colors.disable,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  employeeTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.disable,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 8,
+  },
+  employeeTagText: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
+  },
+  removeButton: {
+    padding: 2,
+  },
+
+  // 검색 결과 섹션
+  resultSection: {
     flex: 1,
     paddingHorizontal: SIDE_PADDING,
+    marginBottom: SECTION_SPACING,
+  },
+  resultCard: {
+    flex: 1,
+    backgroundColor: colors.text.reverse,
+    borderRadius: 20,
+    padding: 24,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  resultTitle: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.medium4,
+    color: colors.text.primary,
+    marginBottom: 16,
   },
   resultItem: {
     flexDirection: 'row',
@@ -492,10 +558,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.disable,
-    borderRadius: 8,
-    marginBottom: 4,
+    borderRadius: 12,
+    marginBottom: 8,
   },
   selectedResultItem: {
     backgroundColor: colors.disable,
@@ -506,11 +570,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   checkbox: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     borderWidth: 2,
-    borderColor: colors.disable,
-    borderRadius: 4,
+    borderColor: colors.text.secondary,
+    borderRadius: 6,
     marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -524,19 +588,25 @@ const styles = StyleSheet.create({
   },
   resultName: {
     fontSize: sizes.normalText,
-    fontFamily: FONTS.jamsil.regular3,
+    fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
-    marginBottom: 2,
+    marginBottom: 4,
   },
   resultPhone: {
     fontSize: sizes.smallText,
     fontFamily: FONTS.jamsil.regular3,
     color: colors.text.secondary,
   },
+  salaryBadge: {
+    backgroundColor: colors.disable,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
   resultSalary: {
     fontSize: sizes.smallText,
     fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.secondary,
+    color: colors.text.primary,
   },
 
   // 새 직원 추가
@@ -546,27 +616,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 20,
     paddingHorizontal: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     backgroundColor: colors.disable,
-    marginTop: 8,
   },
   addNewLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  addIcon: {
-    marginRight: 12,
+  addIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.text.reverse,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  addNewInfo: {
+    flex: 1,
   },
   addNewText: {
     fontSize: sizes.normalText,
-    fontFamily: FONTS.jamsil.regular3,
+    fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
+    marginBottom: 2,
   },
   addNewSubText: {
     fontSize: sizes.smallText,
     fontFamily: FONTS.jamsil.regular3,
-    color: colors.accent,
+    color: colors.text.secondary,
   },
 
   // 빈 상태
@@ -576,35 +655,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 60,
   },
-  emptyStateText: {
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.disable,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  emptyStateTitle: {
     fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.medium4,
+    color: colors.text.primary,
+    marginBottom: 8,
+  },
+  emptyStateText: {
+    fontSize: sizes.smallText,
     fontFamily: FONTS.jamsil.regular3,
     color: colors.text.secondary,
     textAlign: 'center',
-    marginTop: 16,
-    lineHeight: sizes.normalText * 1.4,
+    lineHeight: sizes.smallText * 1.5,
   },
 
-  // 하단 버튼 영역
+  // 하단 버튼
   bottomSection: {
     paddingHorizontal: SIDE_PADDING,
     paddingVertical: 20,
-    borderTopWidth: 1,
-    borderTopColor: colors.disable,
   },
   inviteButton: {
-    backgroundColor: colors.subAccent,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: colors.accent,
+    borderRadius: 20,
+    paddingVertical: 20,
     alignItems: 'center',
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowRadius: 8,
+    elevation: 8,
   },
   inviteButtonPressed: {
-    backgroundColor: '#0995A3',
+    backgroundColor: colors.main,
     transform: [{ scale: 0.98 }],
   },
   inviteButtonDisabled: {
@@ -621,7 +712,7 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
 
-  // 모달 스타일
+  // 모달
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -630,15 +721,14 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: colors.text.reverse,
-    borderRadius: 16,
-    padding: 0,
+    borderRadius: 20,
     margin: 20,
     maxWidth: 320,
     width: '90%',
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 10,
   },
   modalContent: {
@@ -647,7 +737,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   mascotContainer: {
-    marginBottom: 20,
+    marginBottom: 24,
   },
   mascotCircle: {
     width: 80,
@@ -662,19 +752,20 @@ const styles = StyleSheet.create({
     height: 60,
     resizeMode: 'contain',
   },
-  modalText1: {
-    fontSize: sizes.normalText,
-    fontFamily: FONTS.jamsil.regular3,
+  modalTitle: {
+    fontSize: sizes.smallTitle,
+    fontFamily: FONTS.jamsil.bold5,
     color: colors.text.primary,
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
   },
-  modalText2: {
+  modalSubtitle: {
     fontSize: sizes.normalText,
     fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.primary,
+    color: colors.text.secondary,
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
+    lineHeight: sizes.normalText * 1.4,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -682,8 +773,8 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     backgroundColor: colors.accent,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingVertical: 16,
     paddingHorizontal: 32,
   },
   confirmButtonPressed: {
@@ -697,8 +788,8 @@ const styles = StyleSheet.create({
   },
   addButton: {
     backgroundColor: colors.accent,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingVertical: 16,
     paddingHorizontal: 24,
   },
   addButtonPressed: {
@@ -712,8 +803,8 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     backgroundColor: colors.disable,
-    borderRadius: 12,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingVertical: 16,
     paddingHorizontal: 24,
   },
   cancelButtonPressed: {

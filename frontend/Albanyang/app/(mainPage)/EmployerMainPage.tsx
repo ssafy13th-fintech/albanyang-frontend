@@ -20,10 +20,10 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
-// ====== 레이아웃 상수 ======
+// ====== 레이아웃 상수 (AlbaMainPage와 통일) ======
 const TOP_PADDING = 24;
-const SIDE_PADDING = 16;
-const EXTRA_BOTTOM = 40;
+const SIDE_PADDING = 20;
+const SECTION_SPACING = 32;
 const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -63,13 +63,6 @@ interface NotificationCount {
 // ====== API 함수들 ======
 const fetchAccountInfo = async (): Promise<AccountInfo> => {
   try {
-    // TODO: 실제 API 호출
-    // const response = await fetch('/api/employer/account', {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // });
-    // return await response.json();
-    
-    // 임시 데이터
     return {
       bankName: "국민",
       accountNumber: "000-0000-000000",
@@ -83,13 +76,6 @@ const fetchAccountInfo = async (): Promise<AccountInfo> => {
 
 const fetchStores = async (): Promise<Store[]> => {
   try {
-    // TODO: 실제 API 호출
-    // const response = await fetch('/api/employer/stores', {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // });
-    // return await response.json();
-    
-    // 임시 데이터
     return [
       {
         id: 1,
@@ -102,7 +88,7 @@ const fetchStores = async (): Promise<Store[]> => {
         albas: [
           {
             id: 1,
-            name: '알바 1',
+            name: '김알바',
             checkInTime: '07:50',
             scheduledStartTime: '08:00',
             scheduledEndTime: '13:00',
@@ -111,7 +97,7 @@ const fetchStores = async (): Promise<Store[]> => {
           },
           {
             id: 2,
-            name: '알바 2',
+            name: '이알바',
             checkInTime: '08:10',
             scheduledStartTime: '08:00',
             scheduledEndTime: '13:00',
@@ -120,11 +106,20 @@ const fetchStores = async (): Promise<Store[]> => {
           },
           {
             id: 3,
-            name: '알바 3',
+            name: '박알바',
             scheduledStartTime: '08:00',
             scheduledEndTime: '13:00',
             status: 'absent',
             isWorking: false
+          },
+          {
+            id: 4,
+            name: '최알바',
+            checkInTime: '09:00',
+            scheduledStartTime: '09:00',
+            scheduledEndTime: '14:00',
+            status: 'present',
+            isWorking: true
           }
         ]
       },
@@ -147,12 +142,6 @@ const fetchStores = async (): Promise<Store[]> => {
 
 const fetchNotificationCount = async (): Promise<NotificationCount> => {
   try {
-    // TODO: 실제 API 호출
-    // const response = await fetch('/api/notifications/count', {
-    //   headers: { Authorization: `Bearer ${token}` }
-    // });
-    // return await response.json();
-    
     return { unreadCount: 3 };
   } catch (error) {
     console.error('알림 개수 조회 실패:', error);
@@ -160,47 +149,9 @@ const fetchNotificationCount = async (): Promise<NotificationCount> => {
   }
 };
 
-const createNotice = async (storeId: number, content: string): Promise<void> => {
-  try {
-    // TODO: 실제 API 호출
-    // await fetch('/api/employer/notices', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: `Bearer ${token}`
-    //   },
-    //   body: JSON.stringify({ storeId, content })
-    // });
-    
-    console.log('공지사항 생성:', { storeId, content });
-  } catch (error) {
-    console.error('공지사항 생성 실패:', error);
-    throw error;
-  }
-};
-
-const inviteEmployee = async (storeId: number, phoneNumber: string): Promise<void> => {
-  try {
-    // TODO: 실제 API 호출
-    // await fetch('/api/employer/invite', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     Authorization: `Bearer ${token}`
-    //   },
-    //   body: JSON.stringify({ storeId, phoneNumber })
-    // });
-    
-    console.log('직원 초대:', { storeId, phoneNumber });
-  } catch (error) {
-    console.error('직원 초대 실패:', error);
-    throw error;
-  }
-};
-
 // ====== 컴포넌트들 ======
 
-// 상단 섹션: 알림 버튼 + 계좌/고양이
+// 상단 섹션: 알림 버튼 + 계좌/마스코트
 const TopSection = ({ 
   accountInfo, 
   notificationCount, 
@@ -211,8 +162,8 @@ const TopSection = ({
   onNotificationPress: () => void;
 }) => {
   return (
-    <View style={styles.topSectionContainer}>
-      {/* 알림 버튼 행 */}
+    <View style={styles.section}>
+      {/* 알림 버튼 */}
       <View style={styles.notificationRow}>
         <View style={{ flex: 1 }} />
         <Pressable
@@ -233,10 +184,10 @@ const TopSection = ({
         </Pressable>
       </View>
 
-      {/* 계좌 + 고양이 행 */}
-      <View style={styles.accountMascotRow}>
-        {/* 계좌 정보 카드 (왼쪽) */}
-        <View style={styles.accountCard}>
+      {/* 계좌 정보 + 마스코트 카드 */}
+      <View style={styles.accountCard}>
+        <View style={styles.accountInfo}>
+          <Text style={styles.accountLabel}>계좌 잔액</Text>
           <Text style={styles.accountNumber}>
             {accountInfo ? `${accountInfo.bankName} ${accountInfo.accountNumber}` : '계좌 정보 로딩중...'}
           </Text>
@@ -247,10 +198,9 @@ const TopSection = ({
             <Text style={styles.currencyText}>원</Text>
           </View>
         </View>
-
-        {/* 고양이 마스코트 (오른쪽) */}
+        
         <View style={styles.mascotContainer}>
-          <Text style={styles.mascotMessage}>좋은 하루예요! 😊</Text>
+          <Text style={styles.mascotMessage}>좋은 하루예요!</Text>
           <Image
             source={require("@/assets/images/mascot/mascot_basic_boss.png")}
             style={styles.mascotImage}
@@ -261,8 +211,8 @@ const TopSection = ({
   );
 };
 
-// 매장 탭 + 현황 섹션
-const StoreTabSection = ({ 
+// 매장 선택 섹션
+const StoreSelectionSection = ({ 
   stores, 
   selectedStoreIndex, 
   onStoreSelect, 
@@ -273,60 +223,12 @@ const StoreTabSection = ({
   onStoreSelect: (index: number) => void;
   onAddStore: () => void;
 }) => {
-  const getStatusColor = (status: 'present' | 'late' | 'absent') => {
-    switch (status) {
-      case 'present': return '#4CAF50';
-      case 'late': return colors.main;
-      case 'absent': return colors.reject;
-      default: return colors.text.secondary;
-    }
-  };
-
-  const formatTime = (alba: AlbaStatus) => {
-    const checkIn = alba.checkInTime || '----';
-    const checkOut = alba.checkOutTime || '----';
-    return `${checkIn} / ${checkOut}`;
-  };
-
-  const formatScheduleTime = (alba: AlbaStatus) => {
-    return `(${alba.scheduledStartTime} / ${alba.scheduledEndTime})`;
-  };
-
-  const renderAlbaList = (store: Store) => {
-    if (store.albas.length === 0) {
-      return (
-        <View style={styles.emptyAlbaContainer}>
-          <Text style={styles.emptyAlbaText}>알바가 없습니다</Text>
-        </View>
-      );
-    }
-
-    return (
-      <ScrollView style={styles.albaScrollView} showsVerticalScrollIndicator={false}>
-        {store.albas.map((alba) => (
-          <View key={alba.id} style={styles.statusRow}>
-            <View style={styles.nameSection}>
-              <View style={[styles.statusDot, { backgroundColor: getStatusColor(alba.status) }]} />
-              <Text style={styles.workerName}>{alba.name}</Text>
-            </View>
-            <View style={styles.timeSection}>
-              <Text style={styles.workTime}>{formatTime(alba)}</Text>
-              <Text style={styles.scheduleTime}>{formatScheduleTime(alba)}</Text>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-    );
-  };
-
   return (
-    <View style={styles.storeTabContainer}>
-      {/* 매장 탭들 */}
+    <View style={styles.section}>
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
-        style={styles.tabScrollView}
-        contentContainerStyle={styles.tabContainer}
+        contentContainerStyle={styles.storeTabContainer}
       >
         {stores.map((store, index) => (
           <Pressable
@@ -346,32 +248,81 @@ const StoreTabSection = ({
           </Pressable>
         ))}
         
-        {/* 매장 추가 탭 */}
-        <Pressable
-          style={styles.addStoreTab}
-          onPress={onAddStore}
-        >
+        <Pressable style={styles.addStoreTab} onPress={onAddStore}>
           <Text style={styles.addStoreTabText}>매장 추가+</Text>
         </Pressable>
       </ScrollView>
-
-      {/* 선택된 매장의 상세 정보 */}
-      {stores[selectedStoreIndex] && (
-        <View style={styles.storeDetailCard}>
-          <View style={styles.statusHeader}>
-            <Text style={styles.headerText}>이름</Text>
-            <Text style={styles.headerText}>출근시간 / 퇴근시간</Text>
-          </View>
-
-          {renderAlbaList(stores[selectedStoreIndex])}
-        </View>
-      )}
     </View>
   );
 };
 
-// 액션 버튼 컴포넌트
-const ActionButtonsComponent = ({ 
+// 매장 현황 카드
+const StoreStatusSection = ({ store }: { store: Store | null }) => {
+  const getStatusColor = (status: 'present' | 'late' | 'absent') => {
+    switch (status) {
+      case 'present': return '#4CAF50';
+      case 'late': return colors.main;
+      case 'absent': return colors.reject;
+      default: return colors.text.secondary;
+    }
+  };
+
+  const formatTime = (alba: AlbaStatus) => {
+    const checkIn = alba.checkInTime || '----';
+    const checkOut = alba.checkOutTime || '----';
+    return `${checkIn} / ${checkOut}`;
+  };
+
+  const formatScheduleTime = (alba: AlbaStatus) => {
+    return `(${alba.scheduledStartTime} / ${alba.scheduledEndTime})`;
+  };
+
+  if (!store) return null;
+
+  return (
+    <View style={styles.section}>
+      <View style={styles.statusCard}>
+        <View style={styles.statusHeader}>
+          <Text style={styles.statusTitle}>{store.name} 현황</Text>
+          <View style={styles.statusSummary}>
+            <Text style={styles.statusCount}>
+              출근 {store.presentCount} · 지각 {store.lateCount} · 결근 {store.absentCount}
+            </Text>
+          </View>
+        </View>
+
+        {store.albas.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>등록된 직원이 없습니다</Text>
+          </View>
+        ) : (
+          <ScrollView style={styles.albaList} showsVerticalScrollIndicator={false}>
+            <View style={styles.listHeader}>
+              <Text style={styles.headerText}>이름</Text>
+              <Text style={styles.headerText}>출근시간 / 퇴근시간</Text>
+            </View>
+            
+            {store.albas.map((alba) => (
+              <View key={alba.id} style={styles.albaRow}>
+                <View style={styles.nameSection}>
+                  <View style={[styles.statusDot, { backgroundColor: getStatusColor(alba.status) }]} />
+                  <Text style={styles.albaName}>{alba.name}</Text>
+                </View>
+                <View style={styles.timeSection}>
+                  <Text style={styles.workTime}>{formatTime(alba)}</Text>
+                  <Text style={styles.scheduleTime}>{formatScheduleTime(alba)}</Text>
+                </View>
+              </View>
+            ))}
+          </ScrollView>
+        )}
+      </View>
+    </View>
+  );
+};
+
+// 액션 버튼 섹션
+const ActionSection = ({ 
   selectedStore, 
   onWriteNotice, 
   onInvite 
@@ -381,28 +332,34 @@ const ActionButtonsComponent = ({
   onInvite: () => void;
 }) => {
   return (
-    <View style={styles.actionContainer}>
-      <Pressable
-        style={({ pressed }) => [
-          styles.actionButton,
-          pressed && styles.actionButtonPressed
-        ]}
-        onPress={onWriteNotice}
-      >
-        <Text style={styles.actionIcon}>📢</Text>
-        <Text style={styles.actionText}>공지 쓰기</Text>
-      </Pressable>
+    <View style={styles.section}>
+      <View style={styles.actionContainer}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.actionButton,
+            pressed && styles.actionButtonPressed
+          ]}
+          onPress={onWriteNotice}
+        >
+          <View style={styles.actionIconContainer}>
+            <Text style={styles.actionIcon}>📢</Text>
+          </View>
+          <Text style={styles.actionText}>공지 쓰기</Text>
+        </Pressable>
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.actionButton,
-          pressed && styles.actionButtonPressed
-        ]}
-        onPress={onInvite}
-      >
-        <Text style={styles.actionIcon}>✉️</Text>
-        <Text style={styles.actionText}>초대하기</Text>
-      </Pressable>
+        <Pressable
+          style={({ pressed }) => [
+            styles.actionButton,
+            pressed && styles.actionButtonPressed
+          ]}
+          onPress={onInvite}
+        >
+          <View style={styles.actionIconContainer}>
+            <Text style={styles.actionIcon}>✉️</Text>
+          </View>
+          <Text style={styles.actionText}>초대하기</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
@@ -411,7 +368,6 @@ const ActionButtonsComponent = ({
 export default function EmployerMainPage() {
   const router = useRouter();
   
-  // 상태 관리
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStoreIndex, setSelectedStoreIndex] = useState(0);
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
@@ -419,7 +375,6 @@ export default function EmployerMainPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // 초기 데이터 로딩
   useEffect(() => {
     loadInitialData();
   }, []);
@@ -444,7 +399,6 @@ export default function EmployerMainPage() {
     }
   };
 
-  // 새로고침
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
@@ -454,7 +408,6 @@ export default function EmployerMainPage() {
     }
   }, []);
 
-  // 이벤트 핸들러들
   const handleStoreSelect = (index: number) => {
     setSelectedStoreIndex(index);
   };
@@ -491,24 +444,6 @@ export default function EmployerMainPage() {
     });
   };
 
-  const handleNavPress = (key: string) => {
-    switch (key) {
-      case 'home':
-        // 현재 페이지
-        break;
-      case 'schedule':
-        router.push("/schedule");
-        break;
-      case 'salary':
-        router.push("/salary");
-        break;
-      case 'mypage':
-        router.push("/mypage");
-        break;
-    }
-  };
-
-  // 로딩 상태
   if (loading) {
     return (
       <SafeAreaView style={styles.rootContainer}>
@@ -534,30 +469,26 @@ export default function EmployerMainPage() {
           notificationCount={notificationCount}
           onNotificationPress={handleNotificationPress}
         />
-        <StoreTabSection 
+        <StoreSelectionSection 
           stores={stores}
           selectedStoreIndex={selectedStoreIndex}
           onStoreSelect={handleStoreSelect}
           onAddStore={handleAddStore}
         />
-        <ActionButtonsComponent 
+        <StoreStatusSection store={stores[selectedStoreIndex] || null} />
+        <ActionSection 
           selectedStore={stores[selectedStoreIndex] || null}
           onWriteNotice={handleWriteNotice}
           onInvite={handleInvite}
         />
       </ScrollView>
 
-      <View style={styles.navBarWrapper}>
-        <NavBar
-          role="sajang"
-          activeKey="home"
-          onTabPress={handleNavPress}
-        />
-      </View>
+      <NavBar role="sajang" activeKey="home" />
     </SafeAreaView>
   );
 }
 
+// ====== 스타일 (AlbaMainPage와 통일된 디자인) ======
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
@@ -565,16 +496,20 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     flex: 1,
-    backgroundColor: colors.text.reverse,
   },
   contentContainer: {
     flexGrow: 1,
     paddingTop: TOP_PADDING,
-    paddingBottom: NAVBAR_HEIGHT + EXTRA_BOTTOM,
-    minHeight: '100%',
+    paddingBottom: NAVBAR_HEIGHT + 40,
   },
 
-  // --- 로딩 ---
+  // 공통 섹션 스타일
+  section: {
+    marginBottom: SECTION_SPACING,
+    paddingHorizontal: SIDE_PADDING,
+  },
+
+  // 로딩
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -586,15 +521,11 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
 
-  // --- 상단 섹션 (알림 + 계좌/고양이) ---
-  topSectionContainer: {
-    paddingHorizontal: SIDE_PADDING,
-    marginBottom: 16,
-  },
+  // 알림 버튼
   notificationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 24,
   },
   notificationButton: {
     padding: 8,
@@ -620,37 +551,38 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: FONTS.jamsil.bold5,
   },
-  accountMascotRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 20,
-    minHeight: 160,
-  },
+
+  // 계좌 정보 카드
   accountCard: {
-    flex: 1.2,
+    flexDirection: 'row',
     backgroundColor: colors.text.reverse,
     borderRadius: 20,
-    borderWidth: 2,
-    borderColor: colors.main,
-    paddingVertical: 32,
-    paddingHorizontal: 28,
+    padding: 24,
     alignItems: 'center',
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  accountInfo: {
+    flex: 1,
+  },
+  accountLabel: {
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+    marginBottom: 4,
   },
   accountNumber: {
-    fontSize: sizes.smallText + 2,
+    fontSize: sizes.smallText,
     color: colors.text.secondary,
-    marginBottom: 16,
+    marginBottom: 8,
     fontFamily: FONTS.jamsil.regular3,
   },
   balanceContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 8,
   },
   accountBalance: {
     fontSize: sizes.middleTitle,
@@ -664,16 +596,8 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
   },
   mascotContainer: {
-    flex: 0.8,
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingVertical: 16,
-  },
-  mascotImage: {
-    width: 120,
-    height: 120,
-    resizeMode: 'contain',
-    marginTop: 8,
+    justifyContent: 'center',
   },
   mascotMessage: {
     fontSize: sizes.smallText,
@@ -684,21 +608,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: -16,
+    marginBottom: 8,
+  },
+  mascotImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
 
-  // --- 매장 탭 섹션 ---
+  // 매장 선택
   storeTabContainer: {
-    marginBottom: 32,
-  },
-  tabScrollView: {
-    flexGrow: 0,
-  },
-  tabContainer: {
     flexDirection: 'row',
-    paddingHorizontal: SIDE_PADDING,
-    gap: 0,
+    gap: 8,
+    paddingHorizontal: 4,
   },
   storeTab: {
     paddingHorizontal: 20,
@@ -736,40 +658,63 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // --- 매장 상세 카드 ---
-  storeDetailCard: {
+  // 매장 현황 카드
+  statusCard: {
     backgroundColor: colors.text.reverse,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: colors.main,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    marginHorizontal: SIDE_PADDING,
-    marginTop: 16,
+    borderRadius: 20,
+    padding: 24,
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    height: 260,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
   statusHeader: {
+    marginBottom: 20,
+  },
+  statusTitle: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.medium4,
+    color: colors.text.primary,
+    marginBottom: 8,
+  },
+  statusSummary: {
+    flexDirection: 'row',
+  },
+  statusCount: {
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+  },
+  albaList: {
+    maxHeight: 200,
+  },
+  listHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
-    paddingHorizontal: 8,
+    marginBottom: 16,
+    paddingHorizontal: 4,
   },
   headerText: {
     fontSize: sizes.smallText,
     color: colors.text.secondary,
     fontFamily: FONTS.jamsil.regular3,
   },
-  statusRow: {
+  albaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 4,
     borderBottomWidth: 1,
     borderBottomColor: colors.disable,
   },
@@ -784,7 +729,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginRight: 12,
   },
-  workerName: {
+  albaName: {
     fontSize: sizes.normalText,
     color: colors.text.primary,
     fontFamily: FONTS.jamsil.regular3,
@@ -805,66 +750,36 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.regular3,
   },
 
-  // --- 알바 스크롤 영역 ---
-  albaScrollView: {
-    maxHeight: 180,
-  },
-  
-  // --- 빈 알바 상태 ---
-  emptyAlbaContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyAlbaText: {
-    fontSize: sizes.normalText,
-    fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.secondary,
-  },
-
-  // --- 액션 버튼 ---
+  // 액션 버튼
   actionContainer: {
     flexDirection: 'row',
     gap: 16,
-    paddingHorizontal: SIDE_PADDING,
-    marginBottom: 24,
   },
   actionButton: {
     flex: 1,
     backgroundColor: colors.text.reverse,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: colors.main,
-    paddingVertical: 20,
-    paddingHorizontal: 12,
+    borderRadius: 20,
+    padding: 24,
     alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
     shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    minHeight: 70,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 6,
   },
   actionButtonPressed: {
     backgroundColor: colors.disable,
     transform: [{ scale: 0.98 }],
   },
+  actionIconContainer: {
+    marginBottom: 8,
+  },
   actionIcon: {
-    fontSize: 28,
+    fontSize: 32,
   },
   actionText: {
     fontSize: sizes.normalText,
     color: colors.text.primary,
     fontFamily: FONTS.jamsil.medium4,
-  },
-
-  // --- NavBar 고정 ---
-  navBarWrapper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: EXTRA_BOTTOM,
   },
 });
