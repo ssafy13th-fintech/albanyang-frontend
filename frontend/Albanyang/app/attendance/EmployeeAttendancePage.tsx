@@ -251,7 +251,7 @@ export default function EmployeeAttendancePage(){
         />
 
         <NavBar
-        role="alba"
+        role="sajang"
         />
         </SafeAreaView>
     );
