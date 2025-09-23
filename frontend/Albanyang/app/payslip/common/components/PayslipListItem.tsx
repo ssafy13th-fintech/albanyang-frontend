@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { colors as COLORS } from '../../../constants/colors/ColorTheme';
-import { FONTS } from '../../../constants/fonts/Fonts';
+import { colors as COLORS } from '@/constants/colors/ColorTheme';
+import { FONTS } from '@/constants/fonts/Fonts';
 
 interface Props {
   month: number;
