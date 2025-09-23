@@ -3,7 +3,7 @@ export const colors = {
   // 주요 색상 (이미지 기반)
   main: "#FCC373",         // 메인 색 (이미지: FCC373)
   accent: "#FF9500",       // 강조 / 포커스 (이미지: FF9500)
-  disable: "#F9F7F1",       // 패널 배경 (이미지: F9F7F1)
+  disable: "#f8e6afff",       // 패널 배경 (이미지: F9F7F1)
   reject: "#FF3C3C",       // 거절 / 위험 버튼 (이미지: FF3C3C)
 
   // 텍스트 색상

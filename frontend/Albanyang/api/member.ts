@@ -45,7 +45,7 @@ export interface RegisterRequest {
   name: string; // *r
   phone: string; // *r
   gender?: number;
-  age?: number;
+  age?: number | null;
   role?: number;
   token?: string;
 }

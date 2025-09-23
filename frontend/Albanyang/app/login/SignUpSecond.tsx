@@ -6,7 +6,7 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -22,27 +22,36 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function Signup() {
     const insets = useSafeAreaInsets();
-    const [name, setName] = useState("");
-    const [age, setAge] = useState(0);
-    const [frontPhoneNum, setFrontPhoneNum] = useState("");
-    const [phoneNum, setPhoneNum] = useState("");
-    //  female : 1, male : 2
-    const [gender, setGender] = useState<number|null>(null);
-    // employee : 1 , employer : 2, admin : 100
-    const [isAlba, setIsAlba] = useState<number|null>(null);
-
     const router = useRouter();
     const signUpStore = useSignUpStore();
 
-    
+
+    const [name, setName] = useState(signUpStore.registerForm.name ?? "");
+    const [age, setAge] = useState(signUpStore.registerForm.age ?? null);
+    const [frontPhoneNum, setFrontPhoneNum] = useState("010");
+    const [phoneNum, setPhoneNum] = useState("");
+    //  female : 1, male : 2
+    const [gender, setGender] = useState<number|null>(signUpStore.registerForm.gender ?? null);
+    // employee : 1 , employer : 2, admin : 100
+    const [isAlba, setIsAlba] = useState<number|null>(signUpStore.registerForm.role ?? null);
+
+    const [isDisabled, setIsDisabled] = useState(true);
+
+    useEffect(() => {
+      setIsDisabled(!(name && age && frontPhoneNum && phoneNum && gender && isAlba));
+    })
+
+
     return (
 
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
-            <Text> {signUpStore.registerForm.email} </Text>      
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
               <Pressable
-              onPress={() => {router.back();}}
+              onPress={() => {
+                router.back();
+
+              }}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
               })}>
@@ -168,6 +177,7 @@ export default function Signup() {
                   signUpStore.setForm({age : age,  gender:gender!, phone:frontPhoneNum+phoneNum, role:isAlba!, name:name})
                   router.push("/login/SignUpThird")
                 }}
+                disabled = {isDisabled}
               />
           </View>
           </View>
