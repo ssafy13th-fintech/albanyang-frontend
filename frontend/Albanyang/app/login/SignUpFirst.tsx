@@ -2,6 +2,7 @@ import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from 'expo-router';
 import { useState } from "react";
 import {
@@ -18,8 +19,10 @@ export default function Signup() {
     const insets = useSafeAreaInsets();
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
-    const [confirmPw, setcConfirmPw] = useState("");
+    const [confirmPw, setConfirmPw] = useState("");
     const router = useRouter();
+    const signUpStore = useSignUpStore();
+
     return (
         
         <SafeAreaView style = {styles.rootContainer}>
@@ -82,13 +85,15 @@ export default function Signup() {
                       value={pw}
                       onChangeText={setPw}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
+                      secureTextEntry
                       />
                     <TextInput
                       style={styles.inputField}
                       placeholder="비밀번호 확인"
                       value={confirmPw}
-                      onChangeText={setcConfirmPw}
+                      onChangeText={setConfirmPw}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
+                      secureTextEntry  //비밀번호 안보이게 막기
                       />
                       </View>
                       <Text style = {styles.inputError}>비밀번호가 일치하지 않습니다.</Text>
@@ -105,15 +110,15 @@ export default function Signup() {
             </View>
               <BottomActionButton
                 label ="다음으로"
-                mode="spacer"
-                onPress = {() => router.push("/login/SignUpSecond")}
+                onPress = {() => {
+                  signUpStore.setForm({email : id, password : pw})
+                  router.push("/login/SignUpSecond")
+                }}
               />
           </View>
           </View>
 
         </SafeAreaView>
-
-
     );
 }
 

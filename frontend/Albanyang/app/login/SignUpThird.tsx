@@ -1,6 +1,20 @@
+/*
+export interface RegisterRequest {
+  email: string; // *r
+  password: string; // *r
+  name: string; // *r
+  phone: string; // *r
+  gender?: number;
+  age?: number;
+  role?: number;
+  token?: string;
+}
+*/
+
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -21,6 +35,7 @@ export default function Signup() {
     const [bankName, setBankName] = useState("");
     const [accountNum, setAccountNum] = useState("");
     const router = useRouter();
+    const signUpStore = useSignUpStore();
     return (
         
         <SafeAreaView style = {styles.rootContainer}>
@@ -91,7 +106,9 @@ export default function Signup() {
                         
             <View style ={styles.rowDirectionInput}>
               <Pressable
-                onPress={() => {router.push("/login/SignUpComplete")}}
+                onPress={() => {
+                  router.push("/login/SignUpComplete")
+                }}
                 style={({ pressed }) => [    
                 { 
                   borderColor: pressed ? colors.accent :colors.main,

@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 
 // Axios 인스턴스 설정 (필요하면 baseURL을 프로젝트에 맞게 바꾸세요)
 const api: AxiosInstance = axios.create({
-  baseURL: 'https://your-api-domain.com', // <-- 프로젝트에 맞게 수정
+  baseURL: 'https://j13a605.p.ssafy.io', // <-- 프로젝트에 맞게 수정
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

@@ -1,4 +1,3 @@
-
 import { Image, StyleSheet, Text, View } from 'react-native'
 
 import BottomActionButton from '@/components/buttons/BottomButton'

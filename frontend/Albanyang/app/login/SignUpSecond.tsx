@@ -4,6 +4,7 @@ import PhoneNumDropdown from "@/components/dropdown/PhoneNumDropDown";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -22,7 +23,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 export default function Signup() {
     const insets = useSafeAreaInsets();
     const [name, setName] = useState("");
-    const [age, setAge] = useState("");
+    const [age, setAge] = useState(0);
     const [phoneNum, setPhoneNum] = useState("");
     //  female : 1, male : 2
     const [gender, setGender] = useState<number|null>(null);
@@ -30,11 +31,14 @@ export default function Signup() {
     const [isAlba, setIsAlba] = useState<number|null>(null);
 
     const router = useRouter();
+    const signUpStore = useSignUpStore();
+
+    
     return (
-        
+
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
-            
+            <Text> {signUpStore.registerForm.email} </Text>      
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
               <Pressable
               onPress={() => {router.back();}}
@@ -158,8 +162,10 @@ export default function Signup() {
             </View>
               <BottomActionButton
                 label ="다음으로"
-                mode="spacer"
-                onPress = {() => router.push("/login/SignUpThird")}
+                onPress = {() => {
+                  signUpStore.setForm({age : age,  gender:gender!, phone:phoneNum, role:isAlba!, name:name})
+                  router.push("/login/SignUpThird")
+                }}
               />
           </View>
           </View>
