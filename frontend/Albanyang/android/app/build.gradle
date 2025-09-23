@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-
+apply plugin: 'com.google.gms.google-services'
 def projectRoot = rootDir.getAbsoluteFile().getParentFile().getAbsolutePath()
 
 /**
@@ -88,6 +88,13 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace 'com.anonymous.Albanyang'
+
+    externalNativeBuild{
+        cmake{
+            buildStagingDirectory "C:/tmp/cxx"
+        }
+    }
+
     defaultConfig {
         applicationId 'com.anonymous.Albanyang'
         minSdkVersion rootProject.ext.minSdkVersion
@@ -126,6 +133,7 @@ android {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
     }
 }
+
 
 // Apply static values from `gradle.properties` to the `android.packagingOptions`
 // Accepts values in comma delimited lists, example:

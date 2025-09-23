@@ -67,7 +67,7 @@ export async function logout() {
   } catch (err) {
     handleAxiosError(err);
   }
-}
+}7
 
 export default {
   api,
