@@ -18,10 +18,14 @@ const routes = [
   { name: '급여명세서(사장)', path: '/payslip/PayslipListOwner'},
   { name: '급여명세서(직원)', path: '/payslip/PayslipListEmployee'},
   { name: '사업자등록', path: '/store/StoreRegistration'},
-  { name: '알바 초대1', path: '/FindAlba'},
+  { name: '알바 초대', path: '/FindAlba'},
+  { name: '송금', path: '/CheckMemberListPage'},
+  { name: '공지 쓰기', path: '/WriteNotification'},
+  { name: '공지 조회', path: '/ViewNotification'},
+  { name: '공지 조회 디테일', path: '/ViewNotificationDetail'},
   { name: '직원 근태 관리', path: '/attendance/EmployeeAttendancePage'},
   { name: '내 근태 관리', path: '/attendance/MyAttendancePage'},
-  { name :'직원 근태 수정', path :'/attendance/EmployeeAttendanceInsertPage'}
+  { name :'직원 근태 수정', path :'/attendance/EmployeeAttendanceInsertPage'},
 ];
 
 export default function DevMenu() {
