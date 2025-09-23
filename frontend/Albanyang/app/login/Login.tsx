@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import auth from "@/api/auth";
 import LoginTextInput from "@/components/TextInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -20,6 +21,8 @@ export default function Login() {
   const [pw, setPw] = useState("");
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+
   return (
       <SafeAreaView style={styles.rootcontainer}>
         <View style = 
@@ -52,7 +55,11 @@ export default function Login() {
               <Text style = {styles.inputError}>잘못된 정보를 입력하셨습니다.</Text>
     
             <Pressable
-            onPress={() => console.log("클릭")}
+            onPress={async() => {
+              console.log("login pressed2 : " + id + " / " + pw);
+              const response = await auth.login({email : id, password : pw});
+              console.log("response2 : " + JSON.stringify(response));
+            }}
             style={({ pressed }) => [
               styles.button,
               { 
