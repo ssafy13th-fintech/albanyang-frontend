@@ -15,13 +15,17 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+
 export default function Signup() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const insets = useSafeAreaInsets();
     const [id, setId] = useState("");
     const [pw, setPw] = useState("");
     const [confirmPw, setConfirmPw] = useState("");
+    const [isSamePw, setIsSamePw] = useState(false);
     const router = useRouter();
     const signUpStore = useSignUpStore();
+    const isDisabled = !id || !pw || !confirmPw || !isSamePw
 
     return (
         
@@ -57,9 +61,10 @@ export default function Signup() {
                     <View style={[styles.emailInput]}>
                      <TextInput
                       style={[styles.inputField,  {flex : 2 }]}
-                      placeholder="이메일 주소"
+                      placeholder="이메일 주소 (최대 40글자)"
                       value={id}
                       onChangeText={setId}
+                      maxLength={40}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       />
                       <Pressable
@@ -83,7 +88,13 @@ export default function Signup() {
                       style={styles.inputField}
                       placeholder="비밀번호"
                       value={pw}
-                      onChangeText={setPw}
+                      onChangeText={
+                        (v) =>{
+                        setPw(v)
+                        console.log(confirmPw , pw)
+                        setIsSamePw(confirmPw === pw);
+                        }
+                      }
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       secureTextEntry
                       />
@@ -91,12 +102,20 @@ export default function Signup() {
                       style={styles.inputField}
                       placeholder="비밀번호 확인"
                       value={confirmPw}
-                      onChangeText={setConfirmPw}
+                      onChangeText={(v) => {
+
+                        setConfirmPw(v)
+                         console.log(confirmPw , pw)
+                        setIsSamePw(confirmPw === pw);
+                      }}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       secureTextEntry  //비밀번호 안보이게 막기
                       />
                       </View>
-                      <Text style = {styles.inputError}>비밀번호가 일치하지 않습니다.</Text>
+                      <Text style = {[styles.inputError,
+                        {opacity : confirmPw === pw || confirmPw.length === 0 ? 0 : 1} 
+                      ]}
+                      >비밀번호가 일치하지 않습니다.</Text>
                 </View>
             </View>
 
@@ -114,6 +133,7 @@ export default function Signup() {
                   signUpStore.setForm({email : id, password : pw})
                   router.push("/login/SignUpSecond")
                 }}
+                disabled = {isDisabled}
               />
           </View>
           </View>

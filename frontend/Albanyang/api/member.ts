@@ -102,10 +102,11 @@ export async function registerMember(body: RegisterRequest) {
     throw new Error('email, password, name, phone are required');
   }
   try {
-    const res = await api.post<ApiResponse<string>>('/api/v1/members', body);
+    const res = await api.post<ApiResponse<string>>('/v1/members', body);
     return res.data;
   } catch (err) {
-    handleAxiosError(err);
+    console.error("회원가입 에러! :",err);
+    handleAxiosError( err);
   }
 }
 

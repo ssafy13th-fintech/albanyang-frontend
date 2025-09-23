@@ -24,6 +24,7 @@ export default function Signup() {
     const insets = useSafeAreaInsets();
     const [name, setName] = useState("");
     const [age, setAge] = useState(0);
+    const [frontPhoneNum, setFrontPhoneNum] = useState("");
     const [phoneNum, setPhoneNum] = useState("");
     //  female : 1, male : 2
     const [gender, setGender] = useState<number|null>(null);
@@ -86,8 +87,8 @@ export default function Signup() {
                     <View style = {styles.rowDirectionInput}>
                       <PhoneNumDropdown
                       containerStyle={[styles.inputField,{flex:0.3}]}
-                      value={phoneNum}
-                      onChange={(v) => {setPhoneNum(v)}}
+                      value={frontPhoneNum}
+                      onChange={(v) => {setFrontPhoneNum(v)}}
                       placeholder="010"
                       />
                       <TextInput
@@ -163,7 +164,8 @@ export default function Signup() {
               <BottomActionButton
                 label ="다음으로"
                 onPress = {() => {
-                  signUpStore.setForm({age : age,  gender:gender!, phone:phoneNum, role:isAlba!, name:name})
+                  console.log(frontPhoneNum)
+                  signUpStore.setForm({age : age,  gender:gender!, phone:frontPhoneNum+phoneNum, role:isAlba!, name:name})
                   router.push("/login/SignUpThird")
                 }}
               />

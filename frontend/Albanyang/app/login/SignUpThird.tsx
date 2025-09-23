@@ -11,6 +11,8 @@ export interface RegisterRequest {
 }
 */
 
+import { registerMember } from '@/api/Member';
+import { getFcmToken } from '@/app/_layout';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -28,8 +30,6 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
-
-
 export default function Signup() {
     const insets = useSafeAreaInsets();
     const [bankName, setBankName] = useState("");
@@ -40,7 +40,6 @@ export default function Signup() {
         
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
-            
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
               <Pressable
               onPress={() => {router.back()}}
@@ -106,7 +105,16 @@ export default function Signup() {
                         
             <View style ={styles.rowDirectionInput}>
               <Pressable
-                onPress={() => {
+                onPress={async() => {
+                  const fcmtoken = await getFcmToken();
+                  signUpStore.setForm({token : fcmtoken});
+                  
+                  console.log( "registerForm :" ,signUpStore.registerForm)
+                  
+                  await registerMember(signUpStore.registerForm);
+
+            
+
                   router.push("/login/SignUpComplete")
                 }}
                 style={({ pressed }) => [    
