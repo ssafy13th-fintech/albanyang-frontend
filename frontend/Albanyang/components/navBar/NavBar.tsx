@@ -131,7 +131,7 @@ function NavBar({
     // 현재 활성 탭이 아닐 때만 라우팅
     if (activeKey !== key) {
       try {
-        router.push(route);
+        // router.push(route);
       } catch (error) {
         console.warn(`Failed to navigate to ${route}:`, error);
       }

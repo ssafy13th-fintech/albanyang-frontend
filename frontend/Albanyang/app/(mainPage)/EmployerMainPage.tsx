@@ -21,9 +21,9 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
 // ====== 레이아웃 상수 (AlbaMainPage와 통일) ======
-const TOP_PADDING = 24;
+const TOP_PADDING = 16;
 const SIDE_PADDING = 20;
-const SECTION_SPACING = 32;
+const SECTION_SPACING = 16;
 const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -413,11 +413,11 @@ export default function EmployerMainPage() {
   };
 
   const handleAddStore = () => {
-    router.push("/store/StoreRegistration");
+    // router.push("/store/StoreRegistration");
   };
 
   const handleNotificationPress = () => {
-    router.push("/notifications");
+    // router.push("/notifications");
   };
 
   const handleWriteNotice = () => {
@@ -426,10 +426,10 @@ export default function EmployerMainPage() {
       Alert.alert('알림', '매장을 선택해주세요.');
       return;
     }
-    router.push({
-      pathname: "/notice/WriteNotice",
-      params: { storeId: selectedStore.id, storeName: selectedStore.name }
-    });
+    // router.push({
+    //   pathname: "/notice/WriteNotice",
+    //   params: { storeId: selectedStore.id, storeName: selectedStore.name }
+    // });
   };
 
   const handleInvite = () => {
@@ -438,10 +438,10 @@ export default function EmployerMainPage() {
       Alert.alert('알림', '매장을 선택해주세요.');
       return;
     }
-    router.push({
-      pathname: "/invite/InviteEmployee",
-      params: { storeId: selectedStore.id, storeName: selectedStore.name }
-    });
+    // router.push({
+    //   pathname: "/invite/InviteEmployee",
+    //   params: { storeId: selectedStore.id, storeName: selectedStore.name }
+    // });
   };
 
   if (loading) {

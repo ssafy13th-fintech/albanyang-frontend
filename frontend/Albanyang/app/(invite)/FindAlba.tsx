@@ -680,8 +680,21 @@ const styles = StyleSheet.create({
 
   // 하단 버튼
   bottomSection: {
+    // paddingHorizontal: SIDE_PADDING,
+    // paddingVertical: 20,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: colors.text.reverse,
     paddingHorizontal: SIDE_PADDING,
     paddingVertical: 20,
+    // 그림자 추가로 시각적 분리
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   inviteButton: {
     backgroundColor: colors.accent,

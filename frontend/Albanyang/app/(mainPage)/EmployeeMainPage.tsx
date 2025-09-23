@@ -26,7 +26,7 @@ import { sizes } from '@/constants/size/FontSize';
 // ====== 레이아웃 상수 (수정됨) ======
 const TOP_PADDING = 24;
 const SIDE_PADDING = 20;  // 16 -> 20으로 증가
-const SECTION_SPACING = 32;  // 섹션 간 간격 통일
+const SECTION_SPACING = 40;  // 섹션 간 간격 통일
 const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -417,7 +417,7 @@ const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo }) => {
             styles.notificationButton,
             pressed && styles.notificationButtonPressed
           ]}
-          onPress={() => router.push('/notifications')}
+          // onPress={() => router.push('/notifications')}
         >
           <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
         </Pressable>
@@ -884,7 +884,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: NAVBAR_HEIGHT + 24,  // 네비바 위 여백만 24
+    bottom: NAVBAR_HEIGHT + 40,  // 네비바 위 여백만 40
   },
   buttonSection: {
     paddingHorizontal: SIDE_PADDING,
