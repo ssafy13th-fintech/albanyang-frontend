@@ -121,8 +121,4 @@ export default {
   deleteStore,
   getStores,
   createStore,
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 012d896cf701817bc4dd4c7e33f9dd7c74de1207
