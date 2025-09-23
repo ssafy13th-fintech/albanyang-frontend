@@ -1,6 +1,6 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { colors as COLORS } from '../../../constants/colors/ColorTheme';
-import { FONTS } from '../../../constants/fonts/Fonts';
+import { colors as COLORS } from '@/constants/colors/ColorTheme';
+import { FONTS } from '@/constants/fonts/Fonts';
 
 interface Props {
   tabs: string[];
@@ -48,10 +48,7 @@ const styles = StyleSheet.create({
   },
   tabItem: {
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingLeft: 20,
-    // paddingHorizontal: 20,
-    position: 'relative',
+    paddingBottom: 10,
     minWidth: 120, // 최소 너비 설정
     // borderColor: 'pink',
     // borderWidth: 1
@@ -64,15 +61,16 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.thin1,
     color: COLORS.text.secondary,
     textAlign: 'center',
+    paddingHorizontal: 8
   },
   activeTabText: {
     color: COLORS.accent,
   },
   activeIndicator: {
     position: 'absolute',
-    bottom: -16,
+    bottom: -10,
     height: 2,
-    width: '100%', // 탭 전체 밑줄
+    width: '90%', // 탭 전체 줄
     backgroundColor: COLORS.accent,
   },
 });
