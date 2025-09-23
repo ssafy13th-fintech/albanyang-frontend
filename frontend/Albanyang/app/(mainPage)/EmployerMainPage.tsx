@@ -20,34 +20,45 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
-// ====== 레이아웃 상수 (AlbaMainPage와 통일) ======
-const TOP_PADDING = 16;
+// API imports
+import { getMe } from '@/api/Member';
+import { getStores } from '@/api/Stores';
+import { getStaffList } from '@/api/Staff';
+import { getStoreSchedules } from '@/api/Schedule';
+import { getTimesheetsByDate } from '@/api/Timesheet';
+import { getNotifications } from '@/api/Notifications';
+
+// ====== 레이아웃 상수 (수정된 값들) ======
+const TOP_PADDING = 8; // 16 → 8로 줄임
 const SIDE_PADDING = 20;
-const SECTION_SPACING = 16;
+const SECTION_SPACING = 12; // 16 → 12로 줄임
 const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ====== 타입 정의 ======
-interface AlbaStatus {
+interface StaffStatus {
   id: number;
   name: string;
+  nickname: string;
   checkInTime?: string;
   checkOutTime?: string;
-  scheduledStartTime: string;
-  scheduledEndTime: string;
-  status: 'present' | 'late' | 'absent';
+  scheduledStartTime?: string;
+  scheduledEndTime?: string;
+  status: 'present' | 'late' | 'absent' | 'no-schedule';
   isWorking: boolean;
+  hasSchedule: boolean;
 }
 
 interface Store {
   id: number;
   name: string;
   address?: string;
-  albas: AlbaStatus[];
-  totalAlbas: number;
+  staffs: StaffStatus[];
+  totalStaffs: number;
   presentCount: number;
   lateCount: number;
   absentCount: number;
+  noScheduleCount: number;
 }
 
 interface AccountInfo {
@@ -60,89 +71,185 @@ interface NotificationCount {
   unreadCount: number;
 }
 
+// ====== 싸피 API 함수 ======
+const fetchAccountBalance = async (accountNumber: string): Promise<number> => {
+  try {
+    // 싸피 API 호출
+    const response = await fetch('https://finopenapi.ssafy.io/ssafy/api/v1/edu/demandDeposit/inquireDemandDepositAccount', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        Header: {
+          apiName: 'inquireDemandDepositAccount',
+          transmissionDate: new Date().toISOString().slice(0, 8),
+          transmissionTime: new Date().toTimeString().slice(0, 6),
+          institutionCode: '00100',
+          fintechAppNo: '001',
+          apiServiceCode: 'inquireDemandDepositAccount',
+          institutionTransactionUniqueNo: Date.now().toString(),
+          apiKey: 'YOUR_API_KEY', // 실제 API 키로 교체 필요
+          userKey: 'YOUR_USER_KEY' // 실제 USER 키로 교체 필요
+        },
+        accountNo: accountNumber
+      })
+    });
+
+    const data = await response.json();
+    return data.REC?.accountBalance || 0;
+  } catch (error) {
+    console.error('계좌 잔액 조회 실패:', error);
+    return 0;
+  }
+};
+
 // ====== API 함수들 ======
 const fetchAccountInfo = async (): Promise<AccountInfo> => {
   try {
+    const memberData = await getMe();
+    const accountNumber = memberData.data.account || '계좌 미등록';
+    
+    let balance = 0;
+    if (accountNumber !== '계좌 미등록') {
+      balance = await fetchAccountBalance(accountNumber);
+    }
+
     return {
-      bankName: "국민",
-      accountNumber: "000-0000-000000",
-      balance: 7000000
+      bankName: "싸피",
+      accountNumber: accountNumber,
+      balance: balance
     };
   } catch (error) {
     console.error('계좌 정보 조회 실패:', error);
-    throw error;
+    return {
+      bankName: "싸피",
+      accountNumber: '계좌 미등록',
+      balance: 0
+    };
   }
 };
 
-const fetchStores = async (): Promise<Store[]> => {
+const fetchStoresWithStaffStatus = async (): Promise<Store[]> => {
   try {
-    return [
-      {
-        id: 1,
-        name: '메가커피 선릉점',
-        address: '서울시 강남구 선릉동',
-        totalAlbas: 6,
-        presentCount: 3,
-        lateCount: 1,
-        absentCount: 2,
-        albas: [
-          {
-            id: 1,
-            name: '김알바',
-            checkInTime: '07:50',
-            scheduledStartTime: '08:00',
-            scheduledEndTime: '13:00',
-            status: 'present',
-            isWorking: true
-          },
-          {
-            id: 2,
-            name: '이알바',
-            checkInTime: '08:10',
-            scheduledStartTime: '08:00',
-            scheduledEndTime: '13:00',
-            status: 'late',
-            isWorking: true
-          },
-          {
-            id: 3,
-            name: '박알바',
-            scheduledStartTime: '08:00',
-            scheduledEndTime: '13:00',
-            status: 'absent',
-            isWorking: false
-          },
-          {
-            id: 4,
-            name: '최알바',
-            checkInTime: '09:00',
-            scheduledStartTime: '09:00',
-            scheduledEndTime: '14:00',
-            status: 'present',
-            isWorking: true
-          }
-        ]
-      },
-      {
-        id: 2,
-        name: '스타벅스 강남점',
-        address: '서울시 강남구 역삼동',
-        totalAlbas: 0,
-        presentCount: 0,
-        lateCount: 0,
-        absentCount: 0,
-        albas: []
-      }
-    ];
+    const storesData = await getStores();
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+    const storesWithStatus = await Promise.all(
+      storesData.data.stores.map(async (store) => {
+        try {
+          // 해당 매장의 전체 직원 목록 조회
+          const staffData = await getStaffList(store.id);
+          
+          // 해당 매장의 오늘 스케줄 조회
+          const scheduleData = await getStoreSchedules(store.id, undefined, today);
+          
+          // 해당 매장의 오늘 출근 기록 조회
+          const timesheetData = await getTimesheetsByDate(store.id, today);
+
+          const staffsWithStatus: StaffStatus[] = staffData.data.staffInfoRes.map((staff: any) => {
+            // 해당 직원의 오늘 스케줄 찾기
+            const todaySchedule = scheduleData.data.schedules.find(
+              (schedule) => schedule.staffId === staff.id
+            );
+
+            // 해당 직원의 오늘 출근 기록 찾기
+            const todayTimesheet = timesheetData.data.timesheets.find(
+              (timesheet) => timesheet.staffId === staff.id
+            );
+
+            if (!todaySchedule) {
+              // 스케줄이 없는 경우
+              return {
+                id: staff.id,
+                name: staff.name,
+                nickname: staff.nickname,
+                checkInTime: undefined,
+                checkOutTime: undefined,
+                scheduledStartTime: undefined,
+                scheduledEndTime: undefined,
+                status: 'no-schedule' as const,
+                isWorking: false,
+                hasSchedule: false
+              };
+            }
+
+            // 스케줄이 있는 경우 출근 상태 판단
+            let status: 'present' | 'late' | 'absent' = 'absent';
+            let isWorking = false;
+
+            if (todayTimesheet?.arrivedAt) {
+              const arrivedTime = new Date(`${today}T${todayTimesheet.arrivedAt}`);
+              const scheduledTime = new Date(`${today}T${todaySchedule.workStartTime}`);
+              
+              if (arrivedTime <= scheduledTime) {
+                status = 'present';
+              } else {
+                status = 'late';
+              }
+              
+              isWorking = !todayTimesheet.leftAt; // 퇴근 기록이 없으면 근무 중
+            }
+
+            return {
+              id: staff.id,
+              name: staff.name,
+              nickname: staff.nickname,
+              checkInTime: todayTimesheet?.arrivedAt,
+              checkOutTime: todayTimesheet?.leftAt,
+              scheduledStartTime: todaySchedule.workStartTime,
+              scheduledEndTime: todaySchedule.workEndTime,
+              status,
+              isWorking,
+              hasSchedule: true
+            };
+          });
+
+          // 상태별 카운트
+          const presentCount = staffsWithStatus.filter(s => s.status === 'present').length;
+          const lateCount = staffsWithStatus.filter(s => s.status === 'late').length;
+          const absentCount = staffsWithStatus.filter(s => s.status === 'absent').length;
+          const noScheduleCount = staffsWithStatus.filter(s => s.status === 'no-schedule').length;
+
+          return {
+            id: store.id,
+            name: store.name,
+            staffs: staffsWithStatus,
+            totalStaffs: staffsWithStatus.length,
+            presentCount,
+            lateCount,
+            absentCount,
+            noScheduleCount
+          };
+        } catch (error) {
+          console.error(`매장 ${store.id} 직원 상태 조회 실패:`, error);
+          return {
+            id: store.id,
+            name: store.name,
+            staffs: [],
+            totalStaffs: 0,
+            presentCount: 0,
+            lateCount: 0,
+            absentCount: 0,
+            noScheduleCount: 0
+          };
+        }
+      })
+    );
+
+    return storesWithStatus;
   } catch (error) {
     console.error('매장 정보 조회 실패:', error);
-    throw error;
+    return [];
   }
 };
 
-const fetchNotificationCount = async (): Promise<NotificationCount> => {
+const fetchNotificationCount = async (storeId?: number): Promise<NotificationCount> => {
   try {
-    return { unreadCount: 3 };
+    if (!storeId) return { unreadCount: 0 };
+    
+    const notificationData = await getNotifications(storeId);
+    return { unreadCount: notificationData.data.infos.length };
   } catch (error) {
     console.error('알림 개수 조회 실패:', error);
     return { unreadCount: 0 };
@@ -211,7 +318,7 @@ const TopSection = ({
   );
 };
 
-// 매장 선택 섹션
+// 매장 선택 섹션 (간격 조정)
 const StoreSelectionSection = ({ 
   stores, 
   selectedStoreIndex, 
@@ -256,25 +363,33 @@ const StoreSelectionSection = ({
   );
 };
 
-// 매장 현황 카드
+// 매장 현황 카드 (전체 직원 표시 + 스케줄 없음 상태 추가)
 const StoreStatusSection = ({ store }: { store: Store | null }) => {
-  const getStatusColor = (status: 'present' | 'late' | 'absent') => {
+  const getStatusColor = (status: 'present' | 'late' | 'absent' | 'no-schedule') => {
     switch (status) {
       case 'present': return '#4CAF50';
       case 'late': return colors.main;
       case 'absent': return colors.reject;
+      case 'no-schedule': return colors.text.secondary;
       default: return colors.text.secondary;
     }
   };
 
-  const formatTime = (alba: AlbaStatus) => {
-    const checkIn = alba.checkInTime || '----';
-    const checkOut = alba.checkOutTime || '----';
+  const getStatusText = (staff: StaffStatus) => {
+    if (!staff.hasSchedule) {
+      return '스케줄 없음';
+    }
+    
+    const checkIn = staff.checkInTime || '----';
+    const checkOut = staff.checkOutTime || '----';
     return `${checkIn} / ${checkOut}`;
   };
 
-  const formatScheduleTime = (alba: AlbaStatus) => {
-    return `(${alba.scheduledStartTime} / ${alba.scheduledEndTime})`;
+  const getScheduleText = (staff: StaffStatus) => {
+    if (!staff.hasSchedule) {
+      return '';
+    }
+    return `(${staff.scheduledStartTime} / ${staff.scheduledEndTime})`;
   };
 
   if (!store) return null;
@@ -287,11 +402,12 @@ const StoreStatusSection = ({ store }: { store: Store | null }) => {
           <View style={styles.statusSummary}>
             <Text style={styles.statusCount}>
               출근 {store.presentCount} · 지각 {store.lateCount} · 결근 {store.absentCount}
+              {store.noScheduleCount > 0 && ` · 스케줄없음 ${store.noScheduleCount}`}
             </Text>
           </View>
         </View>
 
-        {store.albas.length === 0 ? (
+        {store.staffs.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>등록된 직원이 없습니다</Text>
           </View>
@@ -302,15 +418,15 @@ const StoreStatusSection = ({ store }: { store: Store | null }) => {
               <Text style={styles.headerText}>출근시간 / 퇴근시간</Text>
             </View>
             
-            {store.albas.map((alba) => (
-              <View key={alba.id} style={styles.albaRow}>
+            {store.staffs.map((staff) => (
+              <View key={staff.id} style={styles.albaRow}>
                 <View style={styles.nameSection}>
-                  <View style={[styles.statusDot, { backgroundColor: getStatusColor(alba.status) }]} />
-                  <Text style={styles.albaName}>{alba.name}</Text>
+                  <View style={[styles.statusDot, { backgroundColor: getStatusColor(staff.status) }]} />
+                  <Text style={styles.albaName}>{staff.name}</Text>
                 </View>
                 <View style={styles.timeSection}>
-                  <Text style={styles.workTime}>{formatTime(alba)}</Text>
-                  <Text style={styles.scheduleTime}>{formatScheduleTime(alba)}</Text>
+                  <Text style={styles.workTime}>{getStatusText(staff)}</Text>
+                  <Text style={styles.scheduleTime}>{getScheduleText(staff)}</Text>
                 </View>
               </View>
             ))}
@@ -321,14 +437,16 @@ const StoreStatusSection = ({ store }: { store: Store | null }) => {
   );
 };
 
-// 액션 버튼 섹션
+// 액션 버튼 섹션 (3개 동그라미 버튼으로 변경)
 const ActionSection = ({ 
   selectedStore, 
   onWriteNotice, 
+  onSchedule,
   onInvite 
 }: { 
   selectedStore: Store | null;
   onWriteNotice: () => void;
+  onSchedule: () => void;
   onInvite: () => void;
 }) => {
   return (
@@ -336,12 +454,12 @@ const ActionSection = ({
       <View style={styles.actionContainer}>
         <Pressable
           style={({ pressed }) => [
-            styles.actionButton,
+            styles.circleActionButton,
             pressed && styles.actionButtonPressed
           ]}
           onPress={onWriteNotice}
         >
-          <View style={styles.actionIconContainer}>
+          <View style={styles.circleActionIconContainer}>
             <Text style={styles.actionIcon}>📢</Text>
           </View>
           <Text style={styles.actionText}>공지 쓰기</Text>
@@ -349,12 +467,25 @@ const ActionSection = ({
 
         <Pressable
           style={({ pressed }) => [
-            styles.actionButton,
+            styles.circleActionButton,
+            pressed && styles.actionButtonPressed
+          ]}
+          onPress={onSchedule}
+        >
+          <View style={styles.circleActionIconContainer}>
+            <Text style={styles.actionIcon}>📅</Text>
+          </View>
+          <Text style={styles.actionText}>스케줄</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.circleActionButton,
             pressed && styles.actionButtonPressed
           ]}
           onPress={onInvite}
         >
-          <View style={styles.actionIconContainer}>
+          <View style={styles.circleActionIconContainer}>
             <Text style={styles.actionIcon}>✉️</Text>
           </View>
           <Text style={styles.actionText}>초대하기</Text>
@@ -382,15 +513,19 @@ export default function EmployerMainPage() {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [storesData, accountData, notificationData] = await Promise.all([
-        fetchStores(),
-        fetchAccountInfo(),
-        fetchNotificationCount()
+      const [storesData, accountData] = await Promise.all([
+        fetchStoresWithStaffStatus(),
+        fetchAccountInfo()
       ]);
       
       setStores(storesData);
       setAccountInfo(accountData);
-      setNotificationCount(notificationData.unreadCount);
+      
+      // 첫 번째 매장의 알림 개수 조회
+      if (storesData.length > 0) {
+        const notificationData = await fetchNotificationCount(storesData[0].id);
+        setNotificationCount(notificationData.unreadCount);
+      }
     } catch (error) {
       console.error('데이터 로딩 실패:', error);
       Alert.alert('오류', '데이터를 불러오는데 실패했습니다.');
@@ -408,16 +543,28 @@ export default function EmployerMainPage() {
     }
   }, []);
 
-  const handleStoreSelect = (index: number) => {
+  const handleStoreSelect = async (index: number) => {
     setSelectedStoreIndex(index);
+    
+    // 선택된 매장의 알림 개수 업데이트
+    if (stores[index]) {
+      const notificationData = await fetchNotificationCount(stores[index].id);
+      setNotificationCount(notificationData.unreadCount);
+    }
   };
 
   const handleAddStore = () => {
-    // router.push("/store/StoreRegistration");
+    router.push("./StoreRegistration");
   };
 
   const handleNotificationPress = () => {
-    // router.push("/notifications");
+    const selectedStore = stores[selectedStoreIndex];
+    if (selectedStore) {
+      router.push({
+        pathname: "./ViewNotification",
+        params: { storeId: selectedStore.id }
+      });
+    }
   };
 
   const handleWriteNotice = () => {
@@ -426,10 +573,22 @@ export default function EmployerMainPage() {
       Alert.alert('알림', '매장을 선택해주세요.');
       return;
     }
-    // router.push({
-    //   pathname: "/notice/WriteNotice",
-    //   params: { storeId: selectedStore.id, storeName: selectedStore.name }
-    // });
+    router.push({
+      pathname: "./WriteNotification",
+      params: { storeId: selectedStore.id, storeName: selectedStore.name }
+    });
+  };
+
+  const handleSchedule = () => {
+    const selectedStore = stores[selectedStoreIndex];
+    if (!selectedStore) {
+      Alert.alert('알림', '매장을 선택해주세요.');
+      return;
+    }
+    router.push({
+      pathname: "./ScheduleManagement",
+      params: { storeId: selectedStore.id, storeName: selectedStore.name }
+    });
   };
 
   const handleInvite = () => {
@@ -438,10 +597,10 @@ export default function EmployerMainPage() {
       Alert.alert('알림', '매장을 선택해주세요.');
       return;
     }
-    // router.push({
-    //   pathname: "/invite/InviteEmployee",
-    //   params: { storeId: selectedStore.id, storeName: selectedStore.name }
-    // });
+    router.push({
+      pathname: "./FindAlba",
+      params: { storeId: selectedStore.id, storeName: selectedStore.name }
+    });
   };
 
   if (loading) {
@@ -479,6 +638,7 @@ export default function EmployerMainPage() {
         <ActionSection 
           selectedStore={stores[selectedStoreIndex] || null}
           onWriteNotice={handleWriteNotice}
+          onSchedule={handleSchedule}
           onInvite={handleInvite}
         />
       </ScrollView>
@@ -488,7 +648,7 @@ export default function EmployerMainPage() {
   );
 }
 
-// ====== 스타일 (AlbaMainPage와 통일된 디자인) ======
+// ====== 스타일 ======
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
@@ -525,7 +685,7 @@ const styles = StyleSheet.create({
   notificationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16, // 24 → 16으로 줄임
   },
   notificationButton: {
     padding: 8,
@@ -616,10 +776,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // 매장 선택
+  // 매장 선택 (간격 조정)
   storeTabContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 4, // 8 → 4로 줄임
     paddingHorizontal: 4,
   },
   storeTab: {
@@ -750,36 +910,40 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.regular3,
   },
 
-  // 액션 버튼
+  // 액션 버튼 (3개 동그라미)
   actionContainer: {
     flexDirection: 'row',
-    gap: 16,
+    justifyContent: 'space-around',
+    gap: 12,
   },
-  actionButton: {
+  circleActionButton: {
     flex: 1,
     backgroundColor: colors.text.reverse,
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: 30, // 원형으로 만들기 위해 큰 값
+    padding: 20,
     alignItems: 'center',
+    justifyContent: 'center',
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 6,
+    aspectRatio: 1, // 정사각형으로 만들어 원형 효과
   },
   actionButtonPressed: {
     backgroundColor: colors.disable,
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 0.95 }],
   },
-  actionIconContainer: {
+  circleActionIconContainer: {
     marginBottom: 8,
   },
   actionIcon: {
-    fontSize: 32,
+    fontSize: 28,
   },
   actionText: {
-    fontSize: sizes.normalText,
+    fontSize: sizes.smallText,
     color: colors.text.primary,
     fontFamily: FONTS.jamsil.medium4,
+    textAlign: 'center',
   },
 });

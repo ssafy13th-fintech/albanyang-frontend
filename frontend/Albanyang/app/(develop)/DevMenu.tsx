@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { Button, Text, View } from 'react-native';
+import { Button, ScrollView, Text, View } from 'react-native';
 
 
 const routes = [
@@ -26,21 +26,23 @@ const routes = [
   { name: '직원 근태 관리', path: '/attendance/EmployeeAttendancePage'},
   { name: '내 근태 관리', path: '/attendance/MyAttendancePage'},
   { name :'직원 근태 수정', path :'/attendance/EmployeeAttendanceInsertPage'},
+  { name :'챗봇', path :'/ChatBot'},
 ];
 
 export default function DevMenu() {
   const router = useRouter();
 
   return (
-    <View style={{ padding: 20 }}>
+    <ScrollView>
       <Text>🛠 Dev Menu</Text>
       {routes.map(r => (
-        <Button
-          key={r.path}
-          title={r.name}
-          onPress={() => router.push(r.path as any)} // navigation 활용
-        />
+        <View key={r.path} style={{ marginVertical: 5 }}>
+          <Button
+            title={r.name}
+            onPress={() => router.push(r.path as any)}
+          />
+        </View>
       ))}
-    </View>
+    </ScrollView>
   );
 }
