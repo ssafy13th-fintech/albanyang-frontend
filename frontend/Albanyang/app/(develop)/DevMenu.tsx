@@ -28,7 +28,7 @@ const routes = [
   { name :'직원 근태 수정', path :'/attendance/EmployeeAttendanceInsertPage'},
   { name :'챗봇', path :'/ChatBot'},
   { name :'스캐줄 등록', path :'/Schedule'},
-  { name :'사업장 등록', path :'/Registration'},
+  { name :'사업장 등록', path :'/RegistrationWrite'},
   { name :'사장 메인페이지 to 정보', path :'/NextToEmployerMainPage'},
 ];
 

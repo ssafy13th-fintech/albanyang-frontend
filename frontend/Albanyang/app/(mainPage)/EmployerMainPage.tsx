@@ -386,10 +386,12 @@ const StoreSelectionSection = ({
 // 매장 현황 카드 (직원 클릭 기능 추가)
 const StoreStatusSection = ({ 
   store, 
-  onStaffPress 
+  onStaffPress,
+  onPressStoreOverview,
 }: { 
   store: Store | null;
   onStaffPress: (staff: StaffStatus) => void;
+  onPressStoreOverview: (store: Store) => void;
 }) => {
   const getStatusColor = (status: 'present' | 'late' | 'absent' | 'no-schedule') => {
     switch (status) {
@@ -418,13 +420,21 @@ const StoreStatusSection = ({
     return `(${staff.scheduledStartTime} / ${staff.scheduledEndTime})`;
   };
 
+  
   if (!store) return null;
 
   return (
     <View style={styles.section}>
       <View style={styles.statusCard}>
         <View style={styles.statusHeader}>
-          <Text style={styles.statusTitle}>{store.name} 현황</Text>
+           <Pressable
+            onPress={() => store && onPressStoreOverview(store)}
+            hitSlop={8}
+            style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center' }, pressed && { opacity: 0.7 }]}
+          >
+            <Text style={styles.statusTitle}>{store.name} 현황</Text>
+            <Ionicons name="chevron-forward" size={16} color={colors.text.secondary} />
+          </Pressable>
           <View style={styles.statusSummary}>
             <Text style={styles.statusCount}>
               출근 {store.presentCount} · 지각 {store.lateCount} · 결근 {store.absentCount}
@@ -589,6 +599,13 @@ export default function EmployerMainPage() {
     setSelectedStoreIndex(index);
   };
 
+  const handlePressStoreOverview = (store: Store) => {
+    router.push({
+      pathname: "./NextToEmployerMainPage",        // 새 화면(아래 3번 참고)
+      params: { storeId: store.id, storeName: store.name },
+    });
+  };
+
   const handleAddStore = () => {
     router.push("./StoreRegistration");
   };
@@ -680,6 +697,7 @@ export default function EmployerMainPage() {
         <StoreStatusSection 
           store={stores[selectedStoreIndex] || null} 
           onStaffPress={handleStaffPress}
+          onPressStoreOverview={handlePressStoreOverview}
         />
         <ActionSection 
           selectedStore={stores[selectedStoreIndex] || null}
