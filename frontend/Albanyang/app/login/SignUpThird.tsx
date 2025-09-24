@@ -1,6 +1,22 @@
+/*
+export interface RegisterRequest {
+  email: string; // *r
+  password: string; // *r
+  name: string; // *r
+  phone: string; // *r
+  gender?: number;
+  age?: number;
+  role?: number;
+  token?: string;
+}
+*/
+
+import { registerMember } from '@/api/member';
+import { getFcmToken } from '@/app/_layout';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -14,18 +30,16 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
-
-
 export default function Signup() {
     const insets = useSafeAreaInsets();
     const [bankName, setBankName] = useState("");
     const [accountNum, setAccountNum] = useState("");
     const router = useRouter();
+    const signUpStore = useSignUpStore();
     return (
         
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
-            
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
               <Pressable
               onPress={() => {router.back()}}
@@ -91,7 +105,18 @@ export default function Signup() {
                         
             <View style ={styles.rowDirectionInput}>
               <Pressable
-                onPress={() => {router.push("/login/SignUpComplete")}}
+                onPress={async() => {
+                  const fcmtoken = await getFcmToken();
+                  signUpStore.setForm({token : fcmtoken});
+                  
+                  console.log( "registerForm :" ,signUpStore.registerForm)
+                  
+                  await registerMember(signUpStore.registerForm);
+
+            
+
+                  router.push("/login/SignUpComplete")
+                }}
                 style={({ pressed }) => [    
                 { 
                   borderColor: pressed ? colors.accent :colors.main,

@@ -6,24 +6,24 @@ import { Dropdown } from "react-native-element-dropdown";
 
 type AgeOption = {
   label: string;
-  value: string;
+  value: number;
 };
 
 type AgeDropdownProps = {
-  value: string | null;
-  onChange: (value: string) => void;
+  value: number | null;
+  onChange: (value: number) => void;
   containerStyle?: StyleProp<ViewStyle>;
   placeholder?: string;
   // styles.inputField을 바로 덮어쓰지 않도록 button처럼 덧붙일 수 있음
 };
 
 const DATA: AgeOption[] = [
-  { label: "10대", value: "10s" },
-  { label: "20대", value: "20s" },
-  { label: "30대", value: "30s" },
-  { label: "40대", value: "40s" },
-  { label: "50대", value: "50s" },
-  { label: "60대 이상", value: "60plus" },
+  { label: "10대", value: 10 },
+  { label: "20대", value: 20 },
+  { label: "30대", value: 30 },
+  { label: "40대", value: 40 },
+  { label: "50대", value: 50 },
+  { label: "60대 이상", value: 60 },
 ];
 
 export default function AgeDropdown({

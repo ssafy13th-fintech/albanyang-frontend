@@ -4,8 +4,9 @@ import PhoneNumDropdown from "@/components/dropdown/PhoneNumDropDown";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -21,23 +22,36 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function Signup() {
     const insets = useSafeAreaInsets();
-    const [name, setName] = useState("");
-    const [age, setAge] = useState("");
+    const router = useRouter();
+    const signUpStore = useSignUpStore();
+
+
+    const [name, setName] = useState(signUpStore.registerForm.name ?? "");
+    const [age, setAge] = useState(signUpStore.registerForm.age ?? null);
+    const [frontPhoneNum, setFrontPhoneNum] = useState("010");
     const [phoneNum, setPhoneNum] = useState("");
     //  female : 1, male : 2
-    const [gender, setGender] = useState<number|null>(null);
+    const [gender, setGender] = useState<number|null>(signUpStore.registerForm.gender ?? null);
     // employee : 1 , employer : 2, admin : 100
-    const [isAlba, setIsAlba] = useState<number|null>(null);
+    const [isAlba, setIsAlba] = useState<number|null>(signUpStore.registerForm.role ?? null);
 
-    const router = useRouter();
+    const [isDisabled, setIsDisabled] = useState(true);
+
+    useEffect(() => {
+      setIsDisabled(!(name && age && frontPhoneNum && phoneNum && gender && isAlba));
+    })
+
+
     return (
-        
+
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
-            
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
               <Pressable
-              onPress={() => {router.back();}}
+              onPress={() => {
+                router.back();
+
+              }}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
               })}>
@@ -82,8 +96,8 @@ export default function Signup() {
                     <View style = {styles.rowDirectionInput}>
                       <PhoneNumDropdown
                       containerStyle={[styles.inputField,{flex:0.3}]}
-                      value={phoneNum}
-                      onChange={(v) => {setPhoneNum(v)}}
+                      value={frontPhoneNum}
+                      onChange={(v) => {setFrontPhoneNum(v)}}
                       placeholder="010"
                       />
                       <TextInput
@@ -158,8 +172,12 @@ export default function Signup() {
             </View>
               <BottomActionButton
                 label ="다음으로"
-                mode="spacer"
-                onPress = {() => router.push("/login/SignUpThird")}
+                onPress = {() => {
+                  console.log(frontPhoneNum)
+                  signUpStore.setForm({age : age,  gender:gender!, phone:frontPhoneNum+phoneNum, role:isAlba!, name:name})
+                  router.push("/login/SignUpThird")
+                }}
+                disabled = {isDisabled}
               />
           </View>
           </View>

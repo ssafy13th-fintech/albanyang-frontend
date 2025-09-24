@@ -2,7 +2,7 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 
 // Axios 인스턴스 설정 (필요하면 baseURL을 프로젝트에 맞게 바꾸세요)
 const api: AxiosInstance = axios.create({
-  baseURL: 'https://your-api-domain.com', // <-- 프로젝트에 맞게 수정
+  baseURL: 'https://j13a605.p.ssafy.io', // <-- 프로젝트에 맞게 수정
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export interface RegisterRequest {
   name: string; // *r
   phone: string; // *r
   gender?: number;
-  age?: number;
+  age?: number | null;
   role?: number;
   token?: string;
 }
@@ -102,10 +102,11 @@ export async function registerMember(body: RegisterRequest) {
     throw new Error('email, password, name, phone are required');
   }
   try {
-    const res = await api.post<ApiResponse<string>>('/api/v1/members', body);
+    const res = await api.post<ApiResponse<string>>('/v1/members', body);
     return res.data;
   } catch (err) {
-    handleAxiosError(err);
+    console.error("회원가입 에러! :",err);
+    handleAxiosError( err);
   }
 }
 

@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Image, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import PayslipTabBar from "../payslip/components/PayslipTabBar";
+import PayslipTabBar from "../payslip/common/components/PayslipTabBar";
 
 
 const datas : string[]  = [
