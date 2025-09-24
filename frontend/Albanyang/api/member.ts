@@ -1,8 +1,6 @@
 import { AxiosError } from 'axios';
 import { api, api_noheader } from './authorization/AuthHeader';
 
-
-
 // 토큰 등록/해제 유틸 (react-native에서 로그인 토큰을 여기에 설정해서 사용)
 // export function setAuthToken(token: string | null) {
 //   if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;

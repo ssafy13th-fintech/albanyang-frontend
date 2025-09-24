@@ -39,7 +39,7 @@ export default function Signup() {
 
     useEffect(() => {
       setIsDisabled(!(name && age && frontPhoneNum && phoneNum && gender && isAlba));
-    })
+    },[name, age, frontPhoneNum, phoneNum, gender, isAlba])
 
 
     return (

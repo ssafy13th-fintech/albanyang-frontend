@@ -18,7 +18,7 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -34,8 +34,15 @@ export default function Signup() {
     const insets = useSafeAreaInsets();
     const [bankName, setBankName] = useState("");
     const [accountNum, setAccountNum] = useState("");
+    const [isDisabled, setIsDisabled] = useState(true);
+    
     const router = useRouter();
     const signUpStore = useSignUpStore();
+
+    useEffect(()=>{
+      setIsDisabled(!bankName  || !accountNum);
+    }, [bankName, accountNum])
+
     return (
         
         <SafeAreaView style = {styles.rootContainer}>
@@ -79,6 +86,7 @@ export default function Signup() {
 
                      <TextInput
                       style={[styles.inputField]}
+                      keyboardType='numeric'
                       placeholder="계좌번호"
                       value={accountNum}
                       onChangeText={setAccountNum}
@@ -113,7 +121,6 @@ export default function Signup() {
 
                   await registerMember(signUpStore.registerForm);
                   signUpStore.resetForm();
-                    
                   router.push("/login/SignUpComplete")
                   }catch(e){
                     console.error(e)
@@ -137,7 +144,7 @@ export default function Signup() {
               <Pressable
                 style={({ pressed }) => [    
                 { 
-                  backgroundColor: pressed ?  colors.accent : colors.main,
+                  backgroundColor: isDisabled ? colors.disable : pressed ?  colors.accent : colors.main,
                   borderRadius : 30,
                   flex : 1,
                   justifyContent : "center",
