@@ -19,26 +19,21 @@ import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
-// API imports (주석 처리)
-// import { getStores } from '@/api/Stores';
-// import { getStaffList } from '@/api/Staff';
-// import { createSchedule, getStoreSchedules, updateSchedule, deleteSchedule } from '@/api/Schedule';
-
 // 목업 데이터
-const mockStores: StoreInfo[] = [
+const mockStores = [
   { id: 1, name: 'GS25 강남점' },
   { id: 2, name: 'CU 홍대점' },
   { id: 3, name: '세븐일레븐 신촌점' },
 ];
 
-const mockStaffList: StaffInfo[] = [
+const mockStaffList = [
   { id: 1, name: '김알바', nickname: '김김', status: 'SCHEDULED' },
   { id: 2, name: '이직원', nickname: '이이', status: 'SCHEDULED' },
   { id: 3, name: '박근무', nickname: '박박', status: 'SCHEDULED' },
   { id: 4, name: '정사원', nickname: '정정', status: 'SCHEDULED' },
 ];
 
-const mockSchedules: ScheduleInfo[] = [
+const mockSchedules = [
   {
     id: 1,
     staffId: 1,
@@ -50,20 +45,6 @@ const mockSchedules: ScheduleInfo[] = [
     breakTime: 60,
     overtimeHours: 0,
     nightShiftHours: 0,
-    scheduleType: 'NORMAL',
-    editable: true
-  },
-  {
-    id: 2,
-    staffId: 2,
-    staffNickname: '이이',
-    commuteDate: '2025-01-15',
-    workStartTime: '14:00',
-    workEndTime: '22:00',
-    workHours: 8,
-    breakTime: 60,
-    overtimeHours: 1,
-    nightShiftHours: 2,
     scheduleType: 'NORMAL',
     editable: true
   }
@@ -97,39 +78,31 @@ interface ScheduleInfo {
   editable: boolean;
 }
 
-interface ScheduleFormData {
-  staffId: number;
-  workStartTime: string;
-  workEndTime: string;
-  workHours: number;
-  breakTime: number;
-  overtimeHours: number;
-  nightShiftHours: number;
-}
-
 export default function ScheduleManagementPage() {
   const router = useRouter();
   const params = useLocalSearchParams();
   const insets = useSafeAreaInsets();
 
   // 상태 관리
-  const [stores, setStores] = useState<StoreInfo[]>([]);
+  const [stores, setStores] = useState(mockStores);
   const [selectedStore, setSelectedStore] = useState<StoreInfo | null>(null);
-  const [staffList, setStaffList] = useState<StaffInfo[]>([]);
-  const [schedules, setSchedules] = useState<ScheduleInfo[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
+  const [staffList, setStaffList] = useState(mockStaffList);
+  const [schedules, setSchedules] = useState(mockSchedules);
+  
+  // 직원 중심 상태
+  const [selectedStaff, setSelectedStaff] = useState<StaffInfo | null>(null);
+  const [selectedDates, setSelectedDates] = useState<string[]>([]);
+  const [currentMonth, setCurrentMonth] = useState(() => {
     const today = new Date();
-    return today.toISOString().slice(0, 10);
+    return today.toISOString().slice(0, 7); // YYYY-MM
   });
   
   // 모달 상태
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedDateForModal, setSelectedDateForModal] = useState<string>('');
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingScheduleId, setEditingScheduleId] = useState<number | null>(null);
   
-  // 폼 데이터
-  const [selectedStaff, setSelectedStaff] = useState<StaffInfo | null>(null);
+  // 스케줄 정보
   const [workStartTime, setWorkStartTime] = useState('09:00');
   const [workEndTime, setWorkEndTime] = useState('18:00');
   const [workHours, setWorkHours] = useState(8);
@@ -137,8 +110,7 @@ export default function ScheduleManagementPage() {
   const [overtimeHours, setOvertimeHours] = useState(0);
   const [nightShiftHours, setNightShiftHours] = useState(0);
 
-  // 로딩 상태
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [focus, setFocus] = useState(false);
 
   // 초기 데이터 로드
@@ -150,18 +122,15 @@ export default function ScheduleManagementPage() {
   useEffect(() => {
     if (selectedStore) {
       loadStaffList();
-      loadSchedules();
     }
-  }, [selectedStore, selectedDate]);
+  }, [selectedStore]);
 
   const loadInitialData = async () => {
     try {
       setLoading(true);
       
-      // 목업 데이터 사용
       setStores(mockStores);
       
-      // URL 파라미터에서 매장 정보가 있으면 설정
       if (params.storeId) {
         const paramStore = mockStores.find(store => store.id === Number(params.storeId));
         if (paramStore) {
@@ -184,7 +153,6 @@ export default function ScheduleManagementPage() {
     if (!selectedStore) return;
     
     try {
-      // 목업 데이터 사용
       setStaffList(mockStaffList);
       console.log('목업 직원 데이터 로드:', mockStaffList);
     } catch (error) {
@@ -192,66 +160,55 @@ export default function ScheduleManagementPage() {
     }
   };
 
-  const loadSchedules = async () => {
-    if (!selectedStore || !selectedDate) return;
-    
-    try {
-      // 선택된 날짜의 스케줄만 필터링
-      const filteredSchedules = mockSchedules.filter(
-        schedule => schedule.commuteDate === selectedDate
-      );
-      setSchedules(filteredSchedules);
-      console.log(`${selectedDate} 스케줄 로드:`, filteredSchedules);
-    } catch (error) {
-      console.error('스케줄 로드 실패:', error);
-      setSchedules([]);
-    }
-  };
-
   // 날짜별 스케줄 표시를 위한 마킹 데이터 생성
   const getMarkedDates = () => {
     const marked: any = {};
     
-    // 선택된 날짜 마킹
-    marked[selectedDate] = {
-      selected: true,
-      selectedColor: colors.accent,
-      selectedTextColor: colors.text.reverse
-    };
-    
-    // 스케줄이 있는 날짜 마킹 (여기서는 현재 날짜만 표시하지만, 
-    // 실제로는 월별 데이터를 받아와서 처리해야 함)
-    if (schedules.length > 0) {
-      marked[selectedDate] = {
-        ...marked[selectedDate],
-        marked: true,
-        dotColor: colors.main
+    // 선택된 날짜들 마킹 (다중 선택)
+    selectedDates.forEach(date => {
+      marked[date] = {
+        selected: true,
+        selectedColor: colors.accent,
+        selectedTextColor: colors.text.reverse
       };
+    });
+    
+    // 선택된 직원의 기존 스케줄이 있는 날짜 마킹
+    if (selectedStaff) {
+      const staffSchedules = mockSchedules.filter(s => s.staffId === selectedStaff.id);
+      staffSchedules.forEach(schedule => {
+        if (!marked[schedule.commuteDate]) {
+          marked[schedule.commuteDate] = {};
+        }
+        marked[schedule.commuteDate] = {
+          ...marked[schedule.commuteDate],
+          marked: true,
+          dotColor: colors.main
+        };
+      });
     }
     
     return marked;
   };
 
-  // 날짜 선택 핸들러
-  const handleDateSelect = (day: any) => {
-    console.log('날짜 선택:', day.dateString);
-    setSelectedDate(day.dateString);
-  };
-
-  // 날짜 클릭하여 날짜 변경 (모달은 열지 않음)
+  // 날짜 다중 선택 핸들러
   const handleDatePress = (day: any) => {
-    console.log('날짜 프레스:', day.dateString);
-    setSelectedDate(day.dateString);
-    // 모달 관련 코드 제거
-    // setSelectedDateForModal(day.dateString);
-    // resetForm();
-    // setIsEditMode(false);
-    // setModalVisible(true);
+    const dateString = day.dateString;
+    
+    setSelectedDates(prev => {
+      if (prev.includes(dateString)) {
+        // 이미 선택된 날짜면 제거
+        return prev.filter(date => date !== dateString);
+      } else {
+        // 새로운 날짜 추가
+        return [...prev, dateString].sort();
+      }
+    });
   };
 
   // 폼 리셋
   const resetForm = () => {
-    setSelectedStaff(null);
+    setSelectedDates([]);
     setWorkStartTime('09:00');
     setWorkEndTime('18:00');
     setWorkHours(8);
@@ -261,41 +218,32 @@ export default function ScheduleManagementPage() {
     setEditingScheduleId(null);
   };
 
-  // 스케줄 추가/수정 (목업)
+  // 스케줄 추가
   const handleSaveSchedule = async () => {
-    if (!selectedStore || !selectedStaff || !selectedDateForModal) {
-      Alert.alert('알림', '필수 정보를 모두 입력해주세요.');
+    if (!selectedStore || !selectedStaff || selectedDates.length === 0) {
+      Alert.alert('알림', '직원과 날짜를 선택해주세요.');
       return;
     }
 
     try {
-      console.log('스케줄 저장:', {
+      console.log('다중 날짜 스케줄 저장:', {
         store: selectedStore.name,
         staff: selectedStaff.name,
-        date: selectedDateForModal,
+        dates: selectedDates,
         workTime: `${workStartTime} - ${workEndTime}`,
-        isEditMode
       });
 
-      // 목업 데이터 처리
-      if (isEditMode && editingScheduleId) {
-        Alert.alert('성공', '스케줄이 수정되었습니다. (목업)');
-      } else {
-        Alert.alert('성공', '스케줄이 추가되었습니다. (목업)');
-      }
-
+      Alert.alert('성공', `${selectedStaff.name}의 ${selectedDates.length}일 스케줄이 추가되었습니다. (목업)`);
       setModalVisible(false);
-      // loadSchedules(); // 실제로는 새로고침 필요
+      resetForm();
     } catch (error) {
       console.error('스케줄 저장 실패:', error);
       Alert.alert('오류', '스케줄 저장에 실패했습니다.');
     }
   };
 
-  // 스케줄 삭제 (목업)
+  // 스케줄 삭제
   const handleDeleteSchedule = async (scheduleId: number, staffId: number) => {
-    if (!selectedStore) return;
-
     Alert.alert(
       '삭제 확인',
       '정말로 이 스케줄을 삭제하시겠습니까?',
@@ -308,7 +256,6 @@ export default function ScheduleManagementPage() {
             try {
               console.log('스케줄 삭제:', scheduleId);
               Alert.alert('성공', '스케줄이 삭제되었습니다. (목업)');
-              // loadSchedules(); // 실제로는 새로고침 필요
             } catch (error) {
               console.error('스케줄 삭제 실패:', error);
               Alert.alert('오류', '스케줄 삭제에 실패했습니다.');
@@ -319,35 +266,28 @@ export default function ScheduleManagementPage() {
     );
   };
 
-  // 스케줄 수정 모드로 전환
-  const handleEditSchedule = (schedule: ScheduleInfo) => {
-    const staff = staffList.find(s => s.id === schedule.staffId);
-    if (staff) {
-      setSelectedStaff(staff);
-      setWorkStartTime(schedule.workStartTime);
-      setWorkEndTime(schedule.workEndTime);
-      setWorkHours(schedule.workHours);
-      setBreakTime(schedule.breakTime);
-      setOvertimeHours(schedule.overtimeHours);
-      setNightShiftHours(schedule.nightShiftHours);
-      setEditingScheduleId(schedule.id);
-      setSelectedDateForModal(schedule.commuteDate);
-      setIsEditMode(true);
-      setModalVisible(true);
-    }
+  // 전체 선택된 날짜 해제
+  const clearSelectedDates = () => {
+    setSelectedDates([]);
   };
 
-  // 매장 드롭다운 데이터 변환
+  // 매장 드롭다운 데이터
   const storeDropdownData = stores.map(store => ({
     label: store.name,
     value: store.id
   }));
 
-  // 직원 드롭다운 데이터 변환
+  // 직원 드롭다운 데이터
   const staffDropdownData = staffList.map(staff => ({
     label: `${staff.name} (${staff.nickname})`,
     value: staff.id
   }));
+
+  // 선택된 직원의 스케줄 필터링
+  const getStaffSchedules = () => {
+    if (!selectedStaff) return [];
+    return mockSchedules.filter(s => s.staffId === selectedStaff.id);
+  };
 
   if (loading) {
     return (
@@ -371,7 +311,7 @@ export default function ScheduleManagementPage() {
       />
 
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
-        {/* 매장 선택 드롭다운 */}
+        {/* 매장 선택 */}
         <View style={{ marginHorizontal: 16, marginVertical: 16 }}>
           <Dropdown
             data={storeDropdownData}
@@ -381,6 +321,8 @@ export default function ScheduleManagementPage() {
             onChange={(item) => {
               const store = stores.find(s => s.id === item.value);
               setSelectedStore(store || null);
+              setSelectedStaff(null); // 매장 변경시 직원 선택 초기화
+              resetForm();
               console.log('매장 선택:', store?.name);
             }}
             onFocus={() => setFocus(true)}
@@ -407,13 +349,87 @@ export default function ScheduleManagementPage() {
           />
         </View>
 
-        {/* 월별 달력 */}
+        {/* 직원 선택 */}
         {selectedStore && (
           <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
+            <Text style={{
+              fontFamily: FONTS.jamsil.regular3,
+              fontSize: sizes.normalText,
+              color: colors.text.primary,
+              marginBottom: 8
+            }}>직원 선택</Text>
+            <Dropdown
+              data={staffDropdownData}
+              labelField="label"
+              valueField="value"
+              value={selectedStaff?.id}
+              onChange={(item) => {
+                const staff = staffList.find(s => s.id === item.value);
+                setSelectedStaff(staff || null);
+                resetForm(); // 직원 변경시 선택된 날짜 초기화
+                console.log('직원 선택:', staff?.name);
+              }}
+              placeholder="직원을 선택하세요"
+              style={{
+                borderColor: colors.main,
+                borderWidth: 1,
+                borderRadius: 10,
+                backgroundColor: "transparent",
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+              }}
+              selectedTextStyle={{
+                fontFamily: FONTS.jamsil.regular3,
+                fontSize: sizes.normalText,
+                color: colors.text.primary
+              }}
+              placeholderStyle={{
+                fontFamily: FONTS.jamsil.light2,
+                fontSize: sizes.normalText,
+                color: colors.text.secondary
+              }}
+            />
+          </View>
+        )}
+
+        {/* 달력 */}
+        {selectedStaff && (
+          <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
+            <View style={{ 
+              flexDirection: 'row', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: 12 
+            }}>
+              <Text style={{
+                fontFamily: FONTS.jamsil.regular3,
+                fontSize: sizes.normalText,
+                color: colors.text.primary
+              }}>
+                근무 날짜 선택 ({selectedDates.length}일 선택됨)
+              </Text>
+              {selectedDates.length > 0 && (
+                <TouchableOpacity
+                  onPress={clearSelectedDates}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    backgroundColor: colors.text.secondary,
+                    borderRadius: 6,
+                  }}
+                >
+                  <Text style={{
+                    fontFamily: FONTS.jamsil.regular3,
+                    fontSize: sizes.smallText,
+                    color: colors.text.reverse
+                  }}>전체 해제</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
             <Calendar
-              current={selectedDate}
+              current={currentMonth}
               onDayPress={handleDatePress}
-              onDayLongPress={handleDatePress}
               markedDates={getMarkedDates()}
               firstDay={0}
               theme={{
@@ -445,45 +461,83 @@ export default function ScheduleManagementPage() {
           </View>
         )}
 
-        {/* 선택된 날짜의 스케줄 목록 */}
-        {selectedStore && (
-          <View style={{ marginHorizontal: 16, marginBottom: 100 }}>
-            <View style={{ 
-              flexDirection: 'row', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: 16 
-            }}>
-              <Text style={{
-                fontFamily: FONTS.jamsil.regular3,
-                fontSize: sizes.normalText,
-                color: colors.text.primary
-              }}>
-                {selectedDate} 스케줄
-              </Text>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: colors.main,
-                  paddingHorizontal: 16,
-                  paddingVertical: 8,
-                  borderRadius: 8,
-                }}
-                onPress={() => {
-                  setSelectedDateForModal(selectedDate);
-                  resetForm();
-                  setIsEditMode(false);
-                  setModalVisible(true);
-                }}
-              >
-                <Text style={{
-                  fontFamily: FONTS.jamsil.regular3,
-                  fontSize: sizes.smallText,
-                  color: colors.text.reverse
-                }}>+ 추가</Text>
-              </TouchableOpacity>
-            </View>
+        {/* 선택된 날짜 리스트 */}
+        {selectedDates.length > 0 && (
+          <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
+            <Text style={{
+              fontFamily: FONTS.jamsil.regular3,
+              fontSize: sizes.normalText,
+              color: colors.text.primary,
+              marginBottom: 8
+            }}>선택된 날짜</Text>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              style={{
+                backgroundColor: colors.disable,
+                borderRadius: 8,
+                padding: 8,
+              }}
+            >
+              {selectedDates.map(date => (
+                <TouchableOpacity
+                  key={date}
+                  onPress={() => handleDatePress({ dateString: date })}
+                  style={{
+                    backgroundColor: colors.main,
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 6,
+                    marginRight: 8,
+                  }}
+                >
+                  <Text style={{
+                    fontFamily: FONTS.jamsil.regular3,
+                    fontSize: sizes.smallText,
+                    color: colors.text.reverse
+                  }}>{date} ✕</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
 
-            {schedules.length === 0 ? (
+        {/* 스케줄 입력 및 저장 버튼 */}
+        {selectedDates.length > 0 && (
+          <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: colors.accent,
+                paddingVertical: 16,
+                borderRadius: 10,
+                alignItems: 'center',
+              }}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={{
+                fontFamily: FONTS.jamsil.medium4,
+                fontSize: sizes.normalText,
+                color: colors.text.reverse
+              }}>
+                스케줄 시간 설정하기
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* 선택된 직원의 기존 스케줄 목록 */}
+        {selectedStaff && (
+          <View style={{ marginHorizontal: 16, marginBottom: 100 }}>
+            <Text style={{
+              fontFamily: FONTS.jamsil.regular3,
+              fontSize: sizes.normalText,
+              color: colors.text.primary,
+              marginBottom: 12
+            }}>
+              {selectedStaff.name}의 기존 스케줄
+            </Text>
+
+            {getStaffSchedules().length === 0 ? (
               <View style={{
                 backgroundColor: 'white',
                 borderRadius: 10,
@@ -499,7 +553,7 @@ export default function ScheduleManagementPage() {
               </View>
             ) : (
               <FlatList
-                data={schedules}
+                data={getStaffSchedules()}
                 keyExtractor={(item) => item.id.toString()}
                 scrollEnabled={false}
                 renderItem={({ item }) => (
@@ -509,10 +563,6 @@ export default function ScheduleManagementPage() {
                     padding: 16,
                     marginBottom: 8,
                     elevation: 2,
-                    shadowColor: colors.shadow,
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 4,
                   }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                       <View style={{ flex: 1 }}>
@@ -522,56 +572,31 @@ export default function ScheduleManagementPage() {
                           color: colors.text.primary,
                           marginBottom: 4
                         }}>
-                          {item.staffNickname}
+                          {item.commuteDate}
                         </Text>
                         <Text style={{
                           fontFamily: FONTS.jamsil.light2,
                           fontSize: sizes.smallText,
                           color: colors.text.secondary,
-                          marginBottom: 2
                         }}>
-                          근무시간: {item.workStartTime} - {item.workEndTime} ({item.workHours}시간)
+                          {item.workStartTime} - {item.workEndTime} ({item.workHours}시간)
                         </Text>
+                      </View>
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor: colors.reject,
+                          paddingHorizontal: 12,
+                          paddingVertical: 6,
+                          borderRadius: 6,
+                        }}
+                        onPress={() => handleDeleteSchedule(item.id, item.staffId)}
+                      >
                         <Text style={{
-                          fontFamily: FONTS.jamsil.light2,
+                          fontFamily: FONTS.jamsil.regular3,
                           fontSize: sizes.smallText,
-                          color: colors.text.secondary
-                        }}>
-                          휴게: {item.breakTime}분 | 연장: {item.overtimeHours}시간 | 야간: {item.nightShiftHours}시간
-                        </Text>
-                      </View>
-                      <View style={{ flexDirection: 'row', gap: 8 }}>
-                        <TouchableOpacity
-                          style={{
-                            backgroundColor: colors.subAccent,
-                            paddingHorizontal: 12,
-                            paddingVertical: 6,
-                            borderRadius: 6,
-                          }}
-                          onPress={() => handleEditSchedule(item)}
-                        >
-                          <Text style={{
-                            fontFamily: FONTS.jamsil.regular3,
-                            fontSize: sizes.smallText,
-                            color: colors.text.reverse
-                          }}>수정</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={{
-                            backgroundColor: colors.reject,
-                            paddingHorizontal: 12,
-                            paddingVertical: 6,
-                            borderRadius: 6,
-                          }}
-                          onPress={() => handleDeleteSchedule(item.id, item.staffId)}
-                        >
-                          <Text style={{
-                            fontFamily: FONTS.jamsil.regular3,
-                            fontSize: sizes.smallText,
-                            color: colors.text.reverse
-                          }}>삭제</Text>
-                        </TouchableOpacity>
-                      </View>
+                          color: colors.text.reverse
+                        }}>삭제</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )}
@@ -581,7 +606,7 @@ export default function ScheduleManagementPage() {
         )}
       </ScrollView>
 
-      {/* 스케줄 추가/수정 모달 */}
+      {/* 스케줄 시간 설정 모달 */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -615,35 +640,18 @@ export default function ScheduleManagementPage() {
                 marginBottom: 20,
                 textAlign: 'center'
               }}>
-                {isEditMode ? '스케줄 수정' : '스케줄 추가'} - {selectedDateForModal}
+                {selectedStaff?.name}의 스케줄 설정
               </Text>
 
-              {/* 직원 선택 */}
               <Text style={{
-                fontFamily: FONTS.jamsil.regular3,
+                fontFamily: FONTS.jamsil.light2,
                 fontSize: sizes.smallText,
-                color: colors.text.primary,
-                marginBottom: 8
-              }}>직원 선택</Text>
-              <Dropdown
-                data={staffDropdownData}
-                labelField="label"
-                valueField="value"
-                value={selectedStaff?.id}
-                onChange={(item) => {
-                  const staff = staffList.find(s => s.id === item.value);
-                  setSelectedStaff(staff || null);
-                }}
-                placeholder="직원을 선택하세요"
-                style={{
-                  borderColor: colors.main,
-                  borderWidth: 1,
-                  borderRadius: 8,
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
-                  marginBottom: 16,
-                }}
-              />
+                color: colors.text.secondary,
+                marginBottom: 16,
+                textAlign: 'center'
+              }}>
+                선택된 {selectedDates.length}일에 동일한 스케줄이 적용됩니다
+              </Text>
 
               {/* 근무 시간 */}
               <View style={{ flexDirection: 'row', gap: 10, marginBottom: 16 }}>
@@ -819,7 +827,7 @@ export default function ScheduleManagementPage() {
                     fontSize: sizes.normalText,
                     color: colors.text.reverse
                   }}>
-                    {isEditMode ? '수정' : '추가'}
+                    {selectedDates.length}일 스케줄 저장
                   </Text>
                 </TouchableOpacity>
               </View>
