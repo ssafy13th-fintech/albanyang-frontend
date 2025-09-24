@@ -1,19 +1,20 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
+import { api } from './authorization/AuthHeader';
 
 // Axios 인스턴스 설정 (필요하면 baseURL을 프로젝트에 맞게 바꾸세요)
-const api: AxiosInstance = axios.create({
-  baseURL: 'https://j13a605.p.ssafy.io', // <-- 프로젝트에 맞게 수정
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// const api: AxiosInstance = axios.create({
+//   baseURL: 'https://j13a605.p.ssafy.io', // <-- 프로젝트에 맞게 수정
+//   timeout: 10000,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// });
 
 // 토큰 등록/해제 유틸 (react-native에서 로그인 토큰을 여기에 설정해서 사용)
-export function setAuthToken(token: string | null) {
-  if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  else delete api.defaults.headers.common['Authorization'];
-}
+// export function setAuthToken(token: string | null) {
+//   if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+//   else delete api.defaults.headers.common['Authorization'];
+// }
 
 // 공통 타입
 export interface ApiResponse<T = any> {
@@ -140,7 +141,7 @@ export async function patchAccount(body: AccountPatchRequest) {
 // 내 정보 조회
 export async function getMe() {
   try {
-    const res = await api.get<ApiResponse<MemberData>>('/api/1/members/me');
+    const res = await api.get<ApiResponse<MemberData>>('/v1/members/me');
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -150,7 +151,7 @@ export async function getMe() {
 // 편의용 default export
 export default {
   api,
-  setAuthToken,
+  // setAuthToken,
   getMemberByPhone,
   updateMember,
   registerMember,

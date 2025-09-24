@@ -9,6 +9,8 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/auth";
+import { deleteToken, loadToken, saveToken } from "@/api/authorization/AuthTokenStorage";
+import { getMe } from "@/api/Member";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -56,9 +58,25 @@ export default function Login() {
     
             <Pressable
             onPress={async() => {
-              console.log("login pressed2 : " + id + " / " + pw);
-              const response = await login({email : id, password : pw});
-              console.log("response2 : " + JSON.stringify(response));
+              // console.log("login pressed2 : " + id + " / " + pw);
+              try{
+                await deleteToken();
+                console.log("toek n2 ", await loadToken());
+                const response = await login({email : id, password : pw});
+                console.log("success login ", response.data.accessToken)
+                await saveToken(response.data.accessToken)
+                // console.log("toek n ", await loadToken());
+                const me = await getMe();
+
+                console.log("response2 : " + JSON.stringify(response));
+                console.log("my uinfo ", me);
+                // router.replace("/(mainOa")
+              }
+              catch(e){
+                 console.log("error :", e);
+                // console.log("er ",(e as string).split(":"]);
+                
+              }
             }}
             style={({ pressed }) => [
               styles.button,
