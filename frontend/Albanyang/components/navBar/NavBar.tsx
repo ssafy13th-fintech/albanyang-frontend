@@ -42,8 +42,8 @@ const ICONS = {
 } as const;
 
 const LABELS: Record<Role, Record<TabKey, string>> = {
-  alba: { home: '홈', calendar: '캘린더', albot: 'AI 봇', sum: '급여 명세서', profile: '마이페이지' },
-  sajang: { home: '홈', calendar: '캘린더', albot: 'AI 봇', sum: '급여 관리', profile: '마이페이지' },
+  alba: { home: '홈', calendar: '근태 조회', albot: 'AI 봇', sum: '급여 명세서', profile: '마이페이지' },
+  sajang: { home: '홈', calendar: '근태 관리', albot: 'AI 봇', sum: '급여 관리', profile: '마이페이지' },
 };
 
 // 라우트 경로 정의

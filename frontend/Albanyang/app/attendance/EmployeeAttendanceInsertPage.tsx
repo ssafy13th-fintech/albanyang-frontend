@@ -1,6 +1,6 @@
 import BottomActionButton from "@/components/buttons/BottomButton";
 import SmallHeader from "@/components/header/SmallHeader";
-import LabelTextInput from "@/components/textInput/LabelTextInput";
+import LabelTextInput from "@/components/TextInput/LabelTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
@@ -148,7 +148,7 @@ export default function EmployeeAttendanceInsertPage(){
         <View style ={{marginBottom : insets.bottom + 16}}>
         <BottomActionButton
             label ="수정 완료"
-            onPress={ () => {router.push("/attendance/EmployeeAttendancePage")}}
+            onPress={ () => {router.push("./attendance/EmployeeAttendancePage")}}
         ></BottomActionButton>
         </View>
         </SafeAreaView>

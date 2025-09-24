@@ -1,8 +1,8 @@
 import BottomActionButton from "@/components/buttons/BottomButton";
 import AgeDropdown from "@/components/dropdown/AgeDropDownByElement";
 import SmallHeader from "@/components/header/SmallHeader";
-import LabelTextInput from "@/components/textInput/LabelTextInput";
-import PhoneNumInput from "@/components/textInput/PhoneNumInput";
+import LabelTextInput from "@/components/TextInput/LabelTextInput";
+import PhoneNumInput from "@/components/TextInput/PhoneNumInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
