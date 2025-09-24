@@ -1,6 +1,6 @@
 import BottomActionButton from "@/components/buttons/BottomButton";
 import SmallHeader from "@/components/header/SmallHeader";
-import LabelTextInput from "@/components/TextInput/LabelTextInput";
+import LabelTextInput from "@/components/textInput/LabelTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
