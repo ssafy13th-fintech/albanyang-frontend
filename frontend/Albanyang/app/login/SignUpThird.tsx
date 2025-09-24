@@ -11,7 +11,7 @@ export interface RegisterRequest {
 }
 */
 
-import { registerMember } from '@/api/member';
+import { registerMember } from '@/api/Member';
 import { getFcmToken } from '@/app/_layout';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -106,16 +106,18 @@ export default function Signup() {
             <View style ={styles.rowDirectionInput}>
               <Pressable
                 onPress={async() => {
+                  try{
                   const fcmtoken = await getFcmToken();
+                  // console.log("fcm token zz " ,fcmtoken)
                   signUpStore.setForm({token : fcmtoken});
-                  
-                  console.log( "registerForm :" ,signUpStore.registerForm)
-                  
+
                   await registerMember(signUpStore.registerForm);
-
-            
-
+                  signUpStore.resetForm();
+                    
                   router.push("/login/SignUpComplete")
+                  }catch(e){
+                    console.error(e)
+                  }
                 }}
                 style={({ pressed }) => [    
                 { 
