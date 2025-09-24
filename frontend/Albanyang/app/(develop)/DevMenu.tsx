@@ -27,6 +27,7 @@ const routes = [
   { name: '내 근태 관리', path: '/attendance/MyAttendancePage'},
   { name :'직원 근태 수정', path :'/attendance/EmployeeAttendanceInsertPage'},
   { name :'챗봇', path :'/ChatBot'},
+  { name :'스캐줄 등록', path :'/Schedule'},
 ];
 
 export default function DevMenu() {
