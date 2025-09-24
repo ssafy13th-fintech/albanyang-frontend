@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import auth from "@/api/auth";
+import { login } from "@/api/auth";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -57,7 +57,7 @@ export default function Login() {
             <Pressable
             onPress={async() => {
               console.log("login pressed2 : " + id + " / " + pw);
-              const response = await auth.login({email : id, password : pw});
+              const response = await login({email : id, password : pw});
               console.log("response2 : " + JSON.stringify(response));
             }}
             style={({ pressed }) => [

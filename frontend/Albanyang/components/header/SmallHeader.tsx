@@ -14,7 +14,7 @@ interface SmallHeaderProps{
     headerText :string,
     headerTextFont : string,
     headerTextSize : number,
-    isAblaBack : boolean,
+    isAblaBack? : boolean,
     style? : StyleProp<ViewStyle>
 }
 
