@@ -9,16 +9,20 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/auth";
+import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
+import { getMe } from "@/api/Member";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { useRouter } from "expo-router";
+import { jwtDecode } from "jwt-decode";
 
 
 export default function Login() {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
+  const [loginStatus, setLoginStatus] = useState("")
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -56,9 +60,30 @@ export default function Login() {
     
             <Pressable
             onPress={async() => {
-              console.log("login pressed2 : " + id + " / " + pw);
-              const response = await login({email : id, password : pw});
-              console.log("response2 : " + JSON.stringify(response));
+              // console.log("login pressed2 : " + id + " / " + pw);
+              try{
+                await deleteToken();
+                // console.log("toek n2 ", await loadToken());
+                const response = await login({email : id, password : pw});
+                // console.log("success login ", response.data.accessToken)
+                await saveToken(response.data.accessToken)
+                
+                const decode =  jwtDecode(response.data.accessToken)
+              
+                console.log("decode msg ",decode);
+                // console.log("toek n ", await loadToken());
+                const me = await getMe();
+                
+                // console.log("response2 : " + JSON.stringify(response));
+                console.log("my uinfo ", me);
+                // router.replace("/(mainOa")
+              }
+              catch(e){
+                 
+                 console.log("error :", e);
+                // console.log("er ",(e as string).split(":"]);
+                
+              }
             }}
             style={({ pressed }) => [
               styles.button,
