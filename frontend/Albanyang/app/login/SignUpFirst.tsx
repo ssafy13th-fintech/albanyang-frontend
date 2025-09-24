@@ -1,3 +1,4 @@
+import { deleteToken } from "@/api/authorization/AuthTokenStorage";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -34,6 +35,7 @@ export default function Signup() {
     const [validPw, setValidPw] = useState(true);
     const [isSamePw, setIsSamePw] = useState(false);
     const [isDisabled, setIsDisabled] = useState(true);
+
     
     useEffect(() => {
       // console.log("pw : " + pw + " confirmPw : " + confirmPw
@@ -174,7 +176,8 @@ export default function Signup() {
             </View>
               <BottomActionButton
                 label ="다음으로"
-                onPress = {() => {
+                onPress = {async () => {
+                  await deleteToken();
                   signUpStore.setForm({email : id, password : pw})
                   router.push("/login/SignUpSecond")
                 }}

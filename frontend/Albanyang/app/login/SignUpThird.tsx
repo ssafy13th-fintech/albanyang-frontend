@@ -106,16 +106,18 @@ export default function Signup() {
             <View style ={styles.rowDirectionInput}>
               <Pressable
                 onPress={async() => {
+                  try{
                   const fcmtoken = await getFcmToken();
+                  // console.log("fcm token zz " ,fcmtoken)
                   signUpStore.setForm({token : fcmtoken});
-                  
-                  console.log( "registerForm :" ,signUpStore.registerForm)
-                  
+
                   await registerMember(signUpStore.registerForm);
-
-            
-
+                  signUpStore.resetForm();
+                    
                   router.push("/login/SignUpComplete")
+                  }catch(e){
+                    console.error(e)
+                  }
                 }}
                 style={({ pressed }) => [    
                 { 
