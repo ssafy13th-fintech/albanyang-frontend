@@ -12,7 +12,9 @@ export interface RegisterRequest {
 */
 
 import { registerMember } from '@/api/Member';
+import { inquireTransactionHistoryList, openAccountAuth } from '@/api/SSAFYOpenapi';
 import { getFcmToken } from '@/app/_layout';
+import AccountAuthModal from '@/components/modal/AccountAuthModal';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -35,6 +37,10 @@ export default function Signup() {
     const [bankName, setBankName] = useState("");
     const [accountNum, setAccountNum] = useState("");
     const [isDisabled, setIsDisabled] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [isSent, setIsSent] = useState(false);
+    const [inputAccountAuth, setInputAccountAuth] = useState("");
+    let accountAuth:string = "";
     
     const router = useRouter();
     const signUpStore = useSignUpStore();
@@ -118,7 +124,7 @@ export default function Signup() {
                   const fcmtoken = await getFcmToken();
                   // console.log("fcm token zz " ,fcmtoken)
                   signUpStore.setForm({token : fcmtoken});
-
+                      
                   await registerMember(signUpStore.registerForm);
                   signUpStore.resetForm();
                   router.push("/login/SignUpComplete")
@@ -142,6 +148,44 @@ export default function Signup() {
               <Text style ={{fontSize : sizes.normalText, color : colors.main, fontWeight : 600}}>건너뛰기 (완료) </Text>
               </Pressable>  
               <Pressable
+                onPress={async () => {
+                  try{
+                  setIsSent(true);
+
+                  if(!isSent){
+                    const open = await openAccountAuth({
+                      apiKey :"329cd788721e4017a38fcee4e74fbe93",
+                      userKey :"d7771a25-3fc3-4a17-ad32-301969f3ea16",
+                      accountNo : accountNum,
+                      authText : 'SSAFY'
+                    })
+                  
+                    const now = new Date();
+                    const pad = (n: number) => n.toString().padStart(2, '0');
+                    const today = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+
+                    const res = await inquireTransactionHistoryList({
+                              apiKey: '329cd788721e4017a38fcee4e74fbe93',
+                              userKey: 'd7771a25-3fc3-4a17-ad32-301969f3ea16',
+                              accountNo: accountNum,
+                              startDate: today,
+                              endDate: today,
+                            });
+                  console.log("res : ", res);
+                  }
+                  else
+                    console.log("이미 보냈습니다. 계좌를 확인하세요")
+                  
+                  setModalVisible(true);
+
+                  
+                }catch(err : any){
+                    console.error(err)
+                }
+                
+
+                }}
+                disabled = {isDisabled}
                 style={({ pressed }) => [    
                 { 
                   backgroundColor: isDisabled ? colors.disable : pressed ?  colors.accent : colors.main,
@@ -151,6 +195,7 @@ export default function Signup() {
                   alignItems :"center",
                   paddingBottom : 4
                 },
+                
                 ]}>
               <Text style ={{fontSize : sizes.normalText, color : colors.text.reverse}}>계좌인증</Text>
               </Pressable>  
@@ -159,6 +204,16 @@ export default function Signup() {
           </View>
           </View>
 
+      <AccountAuthModal
+      ansAccountAuth={accountAuth}
+      inputAccountAuth={inputAccountAuth}
+      modalVisible={modalVisible}
+      setInputAccountAuth={setInputAccountAuth}
+      setModalVisible={setModalVisible}
+      footerButtonStyle={styles.footerbutton}
+      inputFieldStyle={styles.inputField}
+      />
+      
         </SafeAreaView>
 
 
@@ -255,7 +310,6 @@ const styles = StyleSheet.create({
     borderRadius : 7
   },
   footerbutton :{
-      backgroundColor : colors.main,
       justifyContent : "center",
       alignItems : "center",
       height : 40,
@@ -281,5 +335,7 @@ const styles = StyleSheet.create({
   rightbutton: {
     borderTopRightRadius : 10,
     borderBottomRightRadius : 10,
-  }
+  },
+
+  
 });

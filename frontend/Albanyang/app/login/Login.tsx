@@ -64,22 +64,16 @@ export default function Login() {
               try{
                 const response = await login({email : id, password : pw});
                 // console.log("success login ", response.data.accessToken)
-                await saveToken(response.data.accessToken)
-                
+                await saveToken(response.data.accessToken) 
                 const decode = jwtDecode(response.data.accessToken)
-              
-                console.log("decode msg ",decode);
-
+                console.log("decode msg ",decode)
                 const me = await getMe();
 
                 console.log("my uinfo ", me);
                 // router.replace("/(mainOa")
               }
               catch(e){
-                 
                  console.log("error :", e);
-                // console.log("er ",(e as string).split(":"]);
-                
               }
             }}
             style={({ pressed }) => [
@@ -172,7 +166,5 @@ const styles = StyleSheet.create({
       fontFamily : FONTS.jamsil.regular3,
       fontSize : sizes.normalText,
       color : colors.main
-    
     }
-    
 });

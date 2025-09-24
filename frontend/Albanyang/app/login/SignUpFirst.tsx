@@ -59,7 +59,6 @@ export default function Signup() {
 
 
     return (
-        
         <SafeAreaView style = {styles.rootContainer}>
           <View style={[{ paddingHorizontal: insets.left ?? 16 }]}>
             
@@ -76,6 +75,7 @@ export default function Signup() {
                             source = {require("@/assets/images/icon/icon_back.png")}
                             style = {styles.icon}/>
                             </Pressable>
+
               <View style ={[styles.headerContainer]}>
                   <Text style ={styles.headerText}>회원가입</Text>
                   <Image
