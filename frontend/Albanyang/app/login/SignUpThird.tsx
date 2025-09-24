@@ -11,7 +11,7 @@ export interface RegisterRequest {
 }
 */
 
-import { registerMember } from '@/api/Member';
+import { registerMember } from '@/api/member';
 import { getFcmToken } from '@/app/_layout';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";

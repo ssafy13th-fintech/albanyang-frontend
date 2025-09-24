@@ -4,7 +4,7 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { useSignUpStore } from "@/store/useSignUpStore";
 import { useRouter } from 'expo-router';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -17,15 +17,44 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 
 export default function Signup() {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const router = useRouter();
     const insets = useSafeAreaInsets();
-    const [id, setId] = useState("");
+    const signUpStore = useSignUpStore();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!"#$%&'()*+,\-./:;<=>?@[₩\]^_`{|}~])[A-Za-z\d!"#$%&'()*+,\-./:;<=>?@[₩\]^_`{|}~]{8,30}$/;
+    // 이메일 형식, 특수문자/숫자/영문자 포함 8~30자리
+    // 허용 특수문자 : !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
+
+    const [id, setId] = useState(signUpStore.registerForm.email ?? "");
     const [pw, setPw] = useState("");
     const [confirmPw, setConfirmPw] = useState("");
+
+    //ID 가 유효한지
+    const [validID, setValidID] = useState(false);
+    const [validPw, setValidPw] = useState(true);
     const [isSamePw, setIsSamePw] = useState(false);
-    const router = useRouter();
-    const signUpStore = useSignUpStore();
-    const isDisabled = !id || !pw || !confirmPw || !isSamePw
+    const [isDisabled, setIsDisabled] = useState(true);
+    
+    useEffect(() => {
+      // console.log("pw : " + pw + " confirmPw : " + confirmPw
+      //   + " is same : " + (pw == confirmPw)
+      // )
+      const same = pw === confirmPw;
+      const validIdNow = emailRegex.test(id) && id.length > 0;
+      const validPwNow = pwRegex.test(pw);
+
+      setIsSamePw(same);
+      setValidID(validIdNow);
+      setValidPw(validPwNow);
+      setIsDisabled(!(validIdNow && validPwNow && same));
+
+      // console.log("disable : "  + isDisabled
+      //   + " validID : " + validID
+      //   + " validPw : " + validPw
+      //   + " isSamePw : " + isSamePw
+      // )
+    }, [id, pw, confirmPw]);
+
 
     return (
         
@@ -34,7 +63,10 @@ export default function Signup() {
             
             <View style = {[{marginTop : insets.top + 8, marginBottom : 24}]}>
                             <Pressable
-                            onPress={() => {router.back()}}
+                            onPress={() => {
+                              signUpStore.resetForm();
+                              router.back()
+                            }}
                             style={({ pressed }) => ({
                               opacity: pressed ? 0.5 : 1,
                             })}>
@@ -63,7 +95,10 @@ export default function Signup() {
                       style={[styles.inputField,  {flex : 2 }]}
                       placeholder="이메일 주소 (최대 40글자)"
                       value={id}
-                      onChangeText={setId}
+                      onChangeText={(s)=>{
+                        setId(s)
+                      }
+                      }
                       maxLength={40}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       />
@@ -79,11 +114,13 @@ export default function Signup() {
                           <Text style ={styles.buttonText}>중복 확인</Text>
                       </Pressable>
                     </View>
-                    <Text style = {styles.inputError}>이미 존재하는 아이디가 있습니다.</Text>
+                    <Text style = {styles.inputError}>이미 존재하는 이메일이 있습니다.</Text>
                 </View>
                 <View style = {styles.smallInputContainer}>
                     <Text style = {styles.smallInputText}>비밀번호</Text>
                     <View style = {{gap : 16}}>
+                      
+                      <View>
                       <TextInput
                       style={styles.inputField}
                       placeholder="비밀번호"
@@ -91,35 +128,43 @@ export default function Signup() {
                       onChangeText={
                         (v) =>{
                         setPw(v)
-                        console.log(confirmPw , pw)
-                        setIsSamePw(confirmPw === pw);
                         }
                       }
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       secureTextEntry
                       />
+                     <Text style = {[styles.inputError,
+                        {
+                          opacity : validPw ? 0 : 1,
+                          display : validPw ? "none" : "flex"
+                        } 
+                      ]}
+                    >비밀번호는 8자 이상, 영문자, 숫자, 특수문자를 포함해야 합니다.</Text>
+                    </View>
+                    <View>
                     <TextInput
                       style={styles.inputField}
                       placeholder="비밀번호 확인"
                       value={confirmPw}
                       onChangeText={(v) => {
-
+                 
                         setConfirmPw(v)
-                         console.log(confirmPw , pw)
-                        setIsSamePw(confirmPw === pw);
+                        console.log("confirmPw : " + confirmPw + " pw : " + pw)
                       }}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       secureTextEntry  //비밀번호 안보이게 막기
                       />
-                      </View>
+              
                       <Text style = {[styles.inputError,
-                        {opacity : confirmPw === pw || confirmPw.length === 0 ? 0 : 1} 
+                        {opacity : (confirmPw === pw || confirmPw.length === 0 ||  !validPw) ? 0 : 1} 
                       ]}
-                      >비밀번호가 일치하지 않습니다.</Text>
+                      >비밀번호가 일치하지 않습니다.
+                      </Text>
+                      </View>
                 </View>
             </View>
-
-
+          </View>
+          
           <View style ={{flex : 1}}/>
           <View style = {[styles.footerContainer, {marginBottom : insets.bottom + 10}]}>
             <View style ={styles.indicator}>
@@ -136,8 +181,8 @@ export default function Signup() {
                 disabled = {isDisabled}
               />
           </View>
-          </View>
 
+           </View>
         </SafeAreaView>
     );
 }
@@ -193,7 +238,7 @@ const styles = StyleSheet.create({
     inputError : {
       color : colors.reject,
       fontSize : sizes.smallText,
-      opacity : 0
+      opacity : 0,
     },
     button :{
       backgroundColor : colors.main,

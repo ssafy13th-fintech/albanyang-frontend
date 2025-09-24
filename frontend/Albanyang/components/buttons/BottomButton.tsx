@@ -68,8 +68,10 @@ export default function BottomActionButton({
         onPress={onPress}
         style={({ pressed }) => [
           styles.button,
-          { backgroundColor: pressed ? pressColor : mainColor, 
-            opacity: disabled ? 0.6 : 1 },
+          {
+            backgroundColor:
+              disabled ? colors.disable : pressed ? pressColor : mainColor,
+          },
           buttonStyle,
         ]}
         disabled={disabled || loading}
