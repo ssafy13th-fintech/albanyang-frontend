@@ -1,6 +1,6 @@
 // app/(mainPage)/EmployeeMainPage.tsx
 import { Ionicons } from '@expo/vector-icons';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Image,
   Pressable,
@@ -11,7 +11,9 @@ import {
   Modal,
   Animated,
   Dimensions,
-  PanResponder
+  PanResponder,
+  Alert,
+  RefreshControl
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -23,10 +25,17 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
+// API imports
+import { getMe } from '@/api/Member';
+import { getStores } from '@/api/Stores';
+import { getMyTimesheets, createMyTimesheet, postMyTimesheetAction } from '@/api/Timesheet';
+import { getStoreSchedules } from '@/api/Schedule';
+import { getMyPayslips } from '@/api/EmployeePaylips';
+
 // ====== 레이아웃 상수 (수정됨) ======
-const TOP_PADDING = 24;
-const SIDE_PADDING = 20;  // 16 -> 20으로 증가
-const SECTION_SPACING = 40;  // 섹션 간 간격 통일
+const TOP_PADDING = 16; // 24 → 16으로 줄임
+const SIDE_PADDING = 20;
+const SECTION_SPACING = 32; // 40 → 32로 줄임
 const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -43,6 +52,7 @@ interface WorkSession {
   isWorking: boolean;
   totalHours: number;
   targetHours: number;
+  currentTimesheetId?: number;
 }
 
 interface SalaryInfo {
@@ -129,37 +139,114 @@ const validateStoreTag = (tag: any): boolean => {
 
 // ====== API 호출 함수들 ======
 const fetchUserStores = async (): Promise<Store[]> => {
-  return [
-    { id: 1, name: '메가커피 선릉점' },
-    { id: 2, name: '스타벅스 강남점' },
-    { id: 3, name: '투썸플레이스 역삼점' }
-  ];
+  try {
+    const storesData = await getStores();
+    return storesData.data.stores.map(store => ({
+      id: store.id,
+      name: store.name
+    }));
+  } catch (error) {
+    console.error('매장 정보 조회 실패:', error);
+    return [];
+  }
 };
 
 const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
-  return {
-    storeId,
-    checkInTime: '10:12:25',
-    checkOutTime: undefined,
-    isWorking: true,
-    totalHours: 2.3,
-    targetHours: 8
-  };
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // 오늘의 출근 기록 조회
+    const timesheetData = await getMyTimesheets(storeId, { date: today });
+    const todayTimesheet = timesheetData.data.timesheets[0];
+    
+    // 오늘의 스케줄 조회
+    const scheduleData = await getStoreSchedules(storeId, undefined, today);
+    const mySchedule = scheduleData.data.schedules.find(s => s.staffId === todayTimesheet?.staffId);
+    
+    let totalHours = 0;
+    let isWorking = false;
+    
+    if (todayTimesheet) {
+      if (todayTimesheet.arrivedAt && todayTimesheet.leftAt) {
+        // 퇴근 완료
+        totalHours = todayTimesheet.commuteTime / 60; // 분을 시간으로 변환
+        isWorking = false;
+      } else if (todayTimesheet.arrivedAt) {
+        // 출근만 함 (퇴근 안함)
+        const checkInTime = new Date(`${today}T${todayTimesheet.arrivedAt}`);
+        const now = new Date();
+        totalHours = (now.getTime() - checkInTime.getTime()) / (1000 * 60 * 60);
+        isWorking = true;
+      }
+    }
+    
+    return {
+      storeId,
+      checkInTime: todayTimesheet?.arrivedAt,
+      checkOutTime: todayTimesheet?.leftAt,
+      isWorking,
+      totalHours: Math.max(totalHours, 0),
+      targetHours: mySchedule?.workHours || 8,
+      currentTimesheetId: todayTimesheet?.id
+    };
+  } catch (error) {
+    console.error('근무 세션 조회 실패:', error);
+    return {
+      storeId,
+      isWorking: false,
+      totalHours: 0,
+      targetHours: 8
+    };
+  }
 };
 
-const fetchSalaryInfo = async (): Promise<SalaryInfo> => {
-  return {
-    monthlyEarning: 1000000,
-    month: '8월'
-  };
+const fetchSalaryInfo = async (storeId: number): Promise<SalaryInfo> => {
+  try {
+    const currentYear = new Date().getFullYear().toString();
+    const currentMonth = new Date().getMonth() + 1;
+    
+    const payslipsData = await getMyPayslips(storeId, currentYear);
+    
+    // 이번 달 급여 계산
+    const monthlyPayslips = payslipsData.data.payslips.filter(payslip => {
+      const payDate = new Date(payslip.payDate);
+      return payDate.getMonth() + 1 === currentMonth;
+    });
+    
+    // 급여 합계 계산 (실제 급여명세서 API에서 상세 정보를 가져와야 함)
+    const monthlyEarning = monthlyPayslips.length > 0 ? 1000000 : 0; // 임시값
+    
+    return {
+      monthlyEarning,
+      month: `${currentMonth}월`
+    };
+  } catch (error) {
+    console.error('급여 정보 조회 실패:', error);
+    return {
+      monthlyEarning: 0,
+      month: `${new Date().getMonth() + 1}월`
+    };
+  }
 };
 
 const handleCheckIn = async (storeId: number): Promise<void> => {
-  console.log('출근 API 호출:', storeId);
+  try {
+    await createMyTimesheet(storeId);
+    console.log('출근 처리 완료:', storeId);
+  } catch (error) {
+    console.error('출근 처리 실패:', error);
+    throw error;
+  }
 };
 
-const handleCheckOut = async (storeId: number): Promise<void> => {
-  console.log('퇴근 API 호출:', storeId);
+const handleCheckOut = async (storeId: number, timesheetId: number): Promise<void> => {
+  try {
+    await postMyTimesheetAction(storeId, timesheetId);
+    console.log('퇴근 처리 완료:', storeId, timesheetId);
+  } catch (error) {
+    console.error('퇴근 처리 실패:', error);
+    throw error;
+  }
 };
 
 // ====== NFC 확인 모달 컴포넌트 ======
@@ -358,7 +445,7 @@ const NFCCheckModal = ({
           <View style={modalStyles.header}>
             <Text style={modalStyles.dayText}>월</Text>
             <View style={[modalStyles.dateCircle, { backgroundColor: isCheckIn ? colors.subAccent : colors.main }]}>
-              <Text style={modalStyles.dateText}>8</Text>
+              <Text style={modalStyles.dateText}>{new Date().getDate()}</Text>
             </View>
             <Text style={modalStyles.dayText}>화</Text>
           </View>
@@ -404,7 +491,7 @@ const NFCCheckModal = ({
 
 // ====== 컴포넌트들 (수정됨) ======
 // 상단 섹션: 알림 버튼 + 마스코트/수익 정보
-const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo }) => {
+const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo | null }) => {
   const router = useRouter();
 
   return (
@@ -417,7 +504,9 @@ const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo }) => {
             styles.notificationButton,
             pressed && styles.notificationButtonPressed
           ]}
-          // onPress={() => router.push('/notifications')}
+          onPress={() => {
+            // router.push('/notifications');
+          }}
         >
           <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
         </Pressable>
@@ -426,10 +515,10 @@ const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo }) => {
       {/* 수익 정보 카드 */}
       <View style={styles.salaryCard}>
         <View style={styles.salaryContent}>
-          <Text style={styles.monthText}>{salaryInfo.month}에</Text>
+          <Text style={styles.monthText}>{salaryInfo?.month || '이번 달'}에</Text>
           <View style={styles.salaryAmountRow}>
             <Text style={styles.salaryLabel}>총 </Text>
-            <Text style={styles.salaryAmount}>{salaryInfo.monthlyEarning.toLocaleString()}</Text>
+            <Text style={styles.salaryAmount}>{salaryInfo?.monthlyEarning.toLocaleString() || '0'}</Text>
             <Text style={styles.currencyText}>원</Text>
           </View>
           <Text style={styles.earnedText}>벌었습니다!</Text>
@@ -446,7 +535,7 @@ const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo }) => {
   );
 };
 
-// 매장 선택 섹션
+// 매장 선택 섹션 (간격 조정)
 const StoreSelectionSection = ({ 
   stores, 
   selectedStoreIndex, 
@@ -486,20 +575,20 @@ const StoreSelectionSection = ({
 };
 
 // 출퇴근 시간 섹션
-const TimeSection = ({ workSession }: { workSession: WorkSession }) => {
+const TimeSection = ({ workSession }: { workSession: WorkSession | null }) => {
   return (
     <View style={styles.section}>
       <View style={styles.timeCard}>
         <View style={styles.timeItem}>
           <Text style={styles.timeLabel}>출근시간</Text>
           <Text style={styles.timeValue}>
-            {workSession.checkInTime || '--:--:--'}
+            {workSession?.checkInTime || '--:--:--'}
           </Text>
         </View>
         <View style={styles.timeItem}>
           <Text style={styles.timeLabel}>퇴근시간</Text>
           <Text style={styles.timeValue}>
-            {workSession.checkOutTime || (workSession.isWorking ? '근무 중' : '--:--:--')}
+            {workSession?.checkOutTime || (workSession?.isWorking ? '근무 중' : '--:--:--')}
           </Text>
         </View>
       </View>
@@ -508,7 +597,9 @@ const TimeSection = ({ workSession }: { workSession: WorkSession }) => {
 };
 
 // 근무 진행 바 섹션
-const WorkProgressSection = ({ workSession }: { workSession: WorkSession }) => {
+const WorkProgressSection = ({ workSession }: { workSession: WorkSession | null }) => {
+  if (!workSession) return null;
+  
   const progress = workSession.totalHours / workSession.targetHours;
   const progressPercentage = Math.min(progress * 100, 100);
   
@@ -537,7 +628,7 @@ const AttendanceSection = ({
   storeId, 
   onAttendanceChange 
 }: { 
-  workSession: WorkSession, 
+  workSession: WorkSession | null, 
   storeId: number, 
   onAttendanceChange: () => void 
 }) => {
@@ -545,18 +636,21 @@ const AttendanceSection = ({
 
   const handleNFCSuccess = async () => {
     try {
-      if (workSession.isWorking) {
-        await handleCheckOut(storeId);
+      if (workSession?.isWorking) {
+        if (workSession.currentTimesheetId) {
+          await handleCheckOut(storeId, workSession.currentTimesheetId);
+        }
       } else {
         await handleCheckIn(storeId);
       }
       onAttendanceChange();
     } catch (error) {
       console.error('출퇴근 처리 중 오류:', error);
+      Alert.alert('오류', '출퇴근 처리 중 오류가 발생했습니다.');
     }
   };
 
-  const buttonText = workSession.isWorking ? '퇴근하기' : '출근하기';
+  const buttonText = workSession?.isWorking ? '퇴근하기' : '출근하기';
 
   return (
     <>
@@ -576,19 +670,20 @@ const AttendanceSection = ({
         visible={showNFCModal}
         onClose={() => setShowNFCModal(false)}
         onSuccess={handleNFCSuccess}
-        isCheckIn={!workSession.isWorking}
+        isCheckIn={!workSession?.isWorking}
       />
     </>
   );
 };
 
 // ====== 메인 컴포넌트 ======
-export default function AlbaMainPage() {
+export default function EmployeeMainPage() {
   const [stores, setStores] = useState<Store[]>([]);
   const [selectedStoreIndex, setSelectedStoreIndex] = useState(0);
   const [workSession, setWorkSession] = useState<WorkSession | null>(null);
   const [salaryInfo, setSalaryInfo] = useState<SalaryInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadInitialData();
@@ -597,25 +692,25 @@ export default function AlbaMainPage() {
   useEffect(() => {
     if (stores.length > 0) {
       loadWorkSession(stores[selectedStoreIndex].id);
+      loadSalaryInfo(stores[selectedStoreIndex].id);
     }
   }, [selectedStoreIndex, stores]);
 
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [storesData, salaryData] = await Promise.all([
-        fetchUserStores(),
-        fetchSalaryInfo()
-      ]);
-      
+      const storesData = await fetchUserStores();
       setStores(storesData);
-      setSalaryInfo(salaryData);
       
       if (storesData.length > 0) {
-        await loadWorkSession(storesData[0].id);
+        await Promise.all([
+          loadWorkSession(storesData[0].id),
+          loadSalaryInfo(storesData[0].id)
+        ]);
       }
     } catch (error) {
       console.error('데이터 로딩 중 오류:', error);
+      Alert.alert('오류', '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -630,6 +725,24 @@ export default function AlbaMainPage() {
     }
   };
 
+  const loadSalaryInfo = async (storeId: number) => {
+    try {
+      const salaryData = await fetchSalaryInfo(storeId);
+      setSalaryInfo(salaryData);
+    } catch (error) {
+      console.error('급여 정보 로딩 중 오류:', error);
+    }
+  };
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadInitialData();
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
   const handleStoreSelect = (index: number) => {
     setSelectedStoreIndex(index);
   };
@@ -640,11 +753,11 @@ export default function AlbaMainPage() {
     }
   };
 
-  if (loading || !workSession || !salaryInfo) {
+  if (loading) {
     return (
       <SafeAreaView style={styles.rootContainer}>
         <View style={styles.loadingContainer}>
-          <Text>로딩 중...</Text>
+          <Text style={styles.loadingText}>로딩 중...</Text>
         </View>
       </SafeAreaView>
     );
@@ -656,6 +769,9 @@ export default function AlbaMainPage() {
         style={styles.scrollContainer}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <TopSection salaryInfo={salaryInfo} />
         <StoreSelectionSection 
@@ -670,7 +786,7 @@ export default function AlbaMainPage() {
       <View style={styles.fixedButtonWrapper}>
         <AttendanceSection 
           workSession={workSession}
-          storeId={stores[selectedStoreIndex]?.id}
+          storeId={stores[selectedStoreIndex]?.id || 0}
           onAttendanceChange={handleAttendanceChange}
         />
       </View>
@@ -680,11 +796,11 @@ export default function AlbaMainPage() {
   );
 }
 
-// ====== 스타일 (완전히 재구성) ======
+// ====== 스타일 (수정된 버전) ======
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: colors.text.reverse,  // 원래대로 흰색 배경
+    backgroundColor: colors.text.reverse,
   },
   scrollContainer: {
     flex: 1,
@@ -692,7 +808,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
     paddingTop: TOP_PADDING,
-    paddingBottom: NAVBAR_HEIGHT + 120,  // 버튼 공간 확보
+    paddingBottom: NAVBAR_HEIGHT + 120,
   },
 
   // 공통 섹션 스타일
@@ -701,11 +817,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: SIDE_PADDING,
   },
 
+  // 로딩
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+  },
+
   // 알림 버튼
   notificationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 16, // 24 → 16으로 줄임
   },
   notificationButton: {
     padding: 8,
@@ -772,10 +900,10 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // 매장 선택
+  // 매장 선택 (간격 조정)
   storeTabContainer: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 4, // 8 → 4로 줄임
     paddingHorizontal: 4,
   },
   storeTab: {
@@ -872,19 +1000,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // 로딩
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
   // 출근 버튼
   fixedButtonWrapper: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: NAVBAR_HEIGHT + 40,  // 네비바 위 여백만 40
+    bottom: NAVBAR_HEIGHT + 40,
   },
   buttonSection: {
     paddingHorizontal: SIDE_PADDING,
