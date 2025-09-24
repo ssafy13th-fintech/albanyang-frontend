@@ -101,6 +101,7 @@ export default function Signup() {
                       placeholder="010"
                       />
                       <TextInput
+                      keyboardType="numeric"
                       style={[styles.inputField, {flex : 0.7}]}
                       placeholder="전화번호"
                       value={phoneNum}
