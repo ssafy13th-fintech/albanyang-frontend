@@ -140,6 +140,7 @@ export async function getMe() {
     return res.data;
   } catch (err) {
     handleAxiosError(err);
+    
   }
 }
 
