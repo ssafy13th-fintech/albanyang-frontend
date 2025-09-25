@@ -12,6 +12,7 @@ import { login } from "@/api/auth";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
+import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -57,32 +58,23 @@ export default function Login() {
               isSecure={true}
               />   
               <Text style = {styles.inputError}>잘못된 정보를 입력하셨습니다.</Text>
-    
+           
             <Pressable
             onPress={async() => {
               // console.log("login pressed2 : " + id + " / " + pw);
               try{
-                await deleteToken();
-                // console.log("toek n2 ", await loadToken());
                 const response = await login({email : id, password : pw});
                 // console.log("success login ", response.data.accessToken)
-                await saveToken(response.data.accessToken)
-                
-                const decode =  jwtDecode(response.data.accessToken)
-              
-                console.log("decode msg ",decode);
-                // console.log("toek n ", await loadToken());
+                await saveToken(response.data.accessToken) 
+                const decode = jwtDecode(response.data.accessToken)
+                console.log("decode msg ",decode)
                 const me = await getMe();
-                
-                // console.log("response2 : " + JSON.stringify(response));
+
                 console.log("my uinfo ", me);
                 // router.replace("/(mainOa")
               }
               catch(e){
-                 
                  console.log("error :", e);
-                // console.log("er ",(e as string).split(":"]);
-                
               }
             }}
             style={({ pressed }) => [
@@ -175,7 +167,5 @@ const styles = StyleSheet.create({
       fontFamily : FONTS.jamsil.regular3,
       fontSize : sizes.normalText,
       color : colors.main
-    
     }
-    
 });

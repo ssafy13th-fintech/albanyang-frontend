@@ -1,6 +1,12 @@
 import { AxiosError } from 'axios';
 import { api, api_noheader } from './authorization/AuthHeader';
 
+// 토큰 등록/해제 유틸 (react-native에서 로그인 토큰을 여기에 설정해서 사용)
+// export function setAuthToken(token: string | null) {
+//   if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+//   else delete api.defaults.headers.common['Authorization'];
+// }
+
 // 공통 타입
 export interface ApiResponse<T = any> {
   code: string;
@@ -118,6 +124,7 @@ export async function deleteMember() {
   }
 }
 
+<<<<<<< HEAD
 // 5) GET /api/v1/members/account - 계좌 비밀번호 확인 (새로 추가)
 export async function checkAccountPassword(body: AccountPasswordRequest) {
   if (!body.accountPassword) throw new Error('accountPassword (required)');
@@ -147,6 +154,10 @@ export async function updateAccountPassword(body: AccountPasswordRequest) {
 }
 
 // 7) PATCH /api/v1/members/account - 계좌번호 수정 (accountPassword 추가)
+=======
+// 5) PATCH /api/v1/members/account
+// 계좌 번호 수정 (계좌 번호가 없음 저장합니다.)
+>>>>>>> 9b5f350628ca5cfb55d0c58c49adf20651f1d0eb
 export async function patchAccount(body: AccountPatchRequest) {
   if (!body.account) throw new Error('account (required)');
   if (!body.accountPassword) throw new Error('accountPassword (required)');

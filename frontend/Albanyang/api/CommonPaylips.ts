@@ -1,11 +1,13 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
+import { api } from './authorization/AuthHeader';
+
 
 // Axios 인스턴스
-const api: AxiosInstance = axios.create({
-  baseURL: 'https://your-api-domain.com',
-  timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
-});
+// const api: AxiosInstance = axios.create({
+//   baseURL: 'https://your-api-domain.com',
+//   timeout: 10000,
+//   headers: { 'Content-Type': 'application/json' },
+// });
 
 // 공통 응답 타입
 export interface ApiResponse<T = any> {
