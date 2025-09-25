@@ -1,24 +1,24 @@
 // app/(mainPage)/EmployeeMainPage.tsx
 import { Ionicons } from '@expo/vector-icons';
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
+  Animated,
+  Dimensions,
   Image,
+  Modal,
+  PanResponder,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
-  View,
-  Modal,
-  Animated,
-  Dimensions,
-  PanResponder,
-  Alert,
-  RefreshControl
+  View
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 // 실제 NFC 라이브러리 import 추가
-import NfcManager, { NfcTech, Ndef } from 'react-native-nfc-manager';
+import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 
 import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
@@ -26,11 +26,10 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
 // API imports
-import { getMe } from '@/api/Member';
-import { getStores } from '@/api/Stores';
-import { getMyTimesheets, createMyTimesheet, postMyTimesheetAction } from '@/api/Timesheet';
-import { getStoreSchedules } from '@/api/Schedule';
 import { getMyPayslips } from '@/api/EmployeePaylips';
+import { getStoreSchedules } from '@/api/Schedule';
+import { getStores } from '@/api/Stores';
+import { createMyTimesheet, getMyTimesheets, postMyTimesheetAction } from "@/api/TimeSheet";
 
 // ====== 레이아웃 상수 (수정됨) ======
 const TOP_PADDING = 16; // 24 → 16으로 줄임
@@ -182,8 +181,8 @@ const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
     
     return {
       storeId,
-      checkInTime: todayTimesheet?.arrivedAt,
-      checkOutTime: todayTimesheet?.leftAt,
+      checkInTime: todayTimesheet?.arrivedAt!,
+      checkOutTime: todayTimesheet?.leftAt!,
       isWorking,
       totalHours: Math.max(totalHours, 0),
       targetHours: mySchedule?.workHours || 8,
