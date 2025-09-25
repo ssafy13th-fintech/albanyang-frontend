@@ -55,7 +55,7 @@ export default function Signup() {
       //   + " validPw : " + validPw
       //   + " isSamePw : " + isSamePw
       // )
-    }, [id, pw, confirmPw]);
+    }, [id, pw, confirmPw, emailRegex, pwRegex]);
 
 
     return (
@@ -151,7 +151,7 @@ export default function Signup() {
                       onChangeText={(v) => {
                  
                         setConfirmPw(v)
-                        console.log("confirmPw : " + confirmPw + " pw : " + pw)
+                        // console.log("confirmPw : " + confirmPw + " pw : " + pw)
                       }}
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       secureTextEntry  //비밀번호 안보이게 막기

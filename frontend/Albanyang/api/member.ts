@@ -39,6 +39,8 @@ export interface RegisterRequest {
   gender?: number;
   age?: number | null;
   role?: number;
+  account?: string | null;
+  accountPassword? :string | null;
   token?: string;
 }
 
@@ -94,6 +96,8 @@ export async function registerMember(body: RegisterRequest) {
     throw new Error('email, password, name, phone are required');
   }
   try {
+    console.log("body ",body);
+        
     const res = await api_noheader.post<ApiResponse<string>>('/v1/members', body);
     return res.data;
   } catch (err) {
