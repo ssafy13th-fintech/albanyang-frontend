@@ -31,6 +31,8 @@ export default function BusinessRegistration() {
   const [phone, setPhone] = useState('');
   const [employeeCount, setEmployeeCount] = useState<string>('');
   const [payday, setPayday] = useState<string>('');
+  const [showPaydayDropdown, setShowPaydayDropdown] = useState(false);
+  const [selectedPayday, setSelectedPayday] = useState<string>('');
   const [zipcode, setZipcode] = useState('');
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
@@ -101,6 +103,7 @@ export default function BusinessRegistration() {
           style={styles.formScroll}
           contentContainerStyle={{ paddingBottom: BOTTOM_BUTTON_HEIGHT + 24 + insets.bottom }}
           keyboardShouldPersistTaps="handled"
+          onScrollBeginDrag={() => {}}
         >
           {/* 카드 컨테이너 */}
           <View style={styles.card}>
@@ -209,20 +212,14 @@ export default function BusinessRegistration() {
             {/* 급여 지급일 */}
             <View style={styles.field}>
               <Text style={styles.label}>급여 지급일</Text>
-              <View style={styles.paydayRow}>
-                {['10', '15', '20', '25', '31'].map((d) => {
-                  const selected = payday === d;
-                  return (
-                    <Pressable
-                      key={d}
-                      style={[styles.dayChip, selected && styles.dayChipSelected]}
-                      onPress={() => setPayday(d)}
-                    >
-                      <Text style={[styles.dayChipText, selected && styles.dayChipTextSelected]}>{d}일</Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+              <Pressable 
+                style={styles.inputContainer}
+                onPress={() => setShowPaydayDropdown(true)}
+              >
+                <Text style={[styles.input, !payday && styles.placeholderText]}>
+                  {payday ? `${payday}일` : '급여 지급일 선택'}
+                </Text>
+              </Pressable>
             </View>
           </View>
         </ScrollView>
@@ -266,6 +263,81 @@ export default function BusinessRegistration() {
           />
         </SafeAreaView>
       </Modal>
+
+      {/* 급여 지급일 모달 */}
+      <Modal visible={showPaydayDropdown} animationType="slide" onRequestClose={() => setShowPaydayDropdown(false)}>
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.paydayModalHeader}>
+            <Pressable
+              style={({ pressed }) => [styles.backButton, pressed && styles.backButtonPressed]}
+              onPress={() => {
+                setShowPaydayDropdown(false);
+                setSelectedPayday('');
+              }}
+            >
+              <Ionicons name="close" size={24} color={colors.text.primary} />
+            </Pressable>
+            <Text style={styles.paydayModalTitle}>급여 지급일 선택</Text>
+            <View style={{ width: 40 }} />
+          </View>
+          
+          <View style={styles.paydayModalContent}>
+            <Text style={styles.paydayModalSubtitle}>매월 급여를 지급할 날짜를 선택해주세요</Text>
+            
+            <View style={styles.pickerContainer}>
+              <ScrollView 
+                style={styles.pickerScroll}
+                showsVerticalScrollIndicator={false}
+                snapToInterval={50}
+                decelerationRate="fast"
+                contentContainerStyle={styles.pickerScrollContent}
+              >
+                {/* 상단 패딩 */}
+                <View style={styles.pickerPadding} />
+                
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => {
+                  const dayStr = day.toString();
+                  const isSelected = selectedPayday === dayStr;
+                  const isConfirmed = payday === dayStr;
+                  
+                  return (
+                    <Pressable
+                      key={day}
+                      style={[styles.pickerItem, isSelected && styles.pickerItemSelected]}
+                      onPress={() => {
+                        if (selectedPayday === dayStr) {
+                          // 두 번째 클릭 - 확정하고 모달 닫기
+                          setPayday(dayStr);
+                          setShowPaydayDropdown(false);
+                          setSelectedPayday('');
+                        } else {
+                          // 첫 번째 클릭 - 선택 상태로 만들기
+                          setSelectedPayday(dayStr);
+                        }
+                      }}
+                    >
+                      <Text style={[
+                        styles.pickerItemText,
+                        (isSelected || isConfirmed) && styles.pickerItemTextSelected
+                      ]}>
+                        {day}일
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+                
+                {/* 하단 패딩 */}
+                <View style={styles.pickerPadding} />
+              </ScrollView>
+              
+              {/* 선택 영역 표시 */}
+              <View style={styles.pickerOverlay}>
+                <View style={styles.pickerIndicator} />
+              </View>
+            </View>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -307,10 +379,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.disable,
+    backgroundColor: 'transparent',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: colors.disable,
   },
   inputIcon: { marginRight: 8 },
   input: {
@@ -319,6 +393,9 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.regular3,
     color: colors.text.primary,
     paddingVertical: 0,
+  },
+  placeholderText: {
+    color: colors.text.secondary,
   },
   helperText: {
     marginTop: 6,
@@ -396,4 +473,90 @@ const styles = StyleSheet.create({
     backgroundColor: colors.text.reverse,
   },
   postcodeTitle: { fontSize: sizes.smallTitle, fontFamily: FONTS.jamsil.bold5, color: colors.text.primary },
+
+  // 급여 지급일 모달
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colors.text.reverse,
+  },
+  paydayModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SIDE_PADDING,
+    paddingVertical: 16,
+    backgroundColor: colors.text.reverse,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.disable,
+  },
+  paydayModalTitle: {
+    fontSize: sizes.smallTitle,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.text.primary,
+  },
+  paydayModalContent: {
+    flex: 1,
+    padding: SIDE_PADDING,
+    justifyContent: 'center',
+  },
+  paydayModalSubtitle: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  
+  // Picker 스타일
+  pickerContainer: {
+    height: 250,
+    position: 'relative',
+    backgroundColor: colors.disable,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  pickerScroll: {
+    flex: 1,
+  },
+  pickerScrollContent: {
+    paddingVertical: 0,
+  },
+  pickerPadding: {
+    height: 100, // 상하 2개 아이템만큼의 공간
+  },
+  pickerItem: {
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  pickerItemSelected: {
+    backgroundColor: 'transparent',
+  },
+  pickerItemText: {
+    fontSize: sizes.middleTitle,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+  },
+  pickerItemTextSelected: {
+    fontSize: sizes.bigTitle,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.text.primary,
+  },
+  pickerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    pointerEvents: 'none',
+  },
+  pickerIndicator: {
+    height: 50,
+    backgroundColor: 'rgba(255, 149, 0, 0.1)',
+    borderTopWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: colors.accent,
+  },
 });

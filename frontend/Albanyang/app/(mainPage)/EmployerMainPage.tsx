@@ -11,8 +11,6 @@ import {
   View,
   Alert,
   RefreshControl,
-  Modal,
-  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
@@ -22,7 +20,7 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
-// 목업 데이터 추가
+// 목업 데이터 수정 - 스케줄 없는 직원 추가
 const mockStoresWithStaff = [
   {
     id: 1,
@@ -75,13 +73,45 @@ const mockStoresWithStaff = [
         email: 'park@example.com',
         wage: 11500,
         joinDate: '2024-03-10'
+      },
+      {
+        id: 4,
+        name: '최직원',
+        nickname: '최최',
+        checkInTime: '10:00',
+        checkOutTime: undefined,
+        scheduledStartTime: '10:00',
+        scheduledEndTime: '19:00',
+        status: 'present' as const,
+        isWorking: true,
+        hasSchedule: true,
+        phone: '010-4567-8901',
+        email: 'choi@example.com',
+        wage: 12500,
+        joinDate: '2024-04-01'
+      },
+      {
+        id: 5,
+        name: '정알바',
+        nickname: '정정',
+        checkInTime: undefined,
+        checkOutTime: undefined,
+        scheduledStartTime: undefined,
+        scheduledEndTime: undefined,
+        status: 'no-schedule' as const,
+        isWorking: false,
+        hasSchedule: false,
+        phone: '010-5678-9012',
+        email: 'jung@example.com',
+        wage: 12000,
+        joinDate: '2024-05-01'
       }
     ],
-    totalStaffs: 3,
-    presentCount: 1,
+    totalStaffs: 5,
+    presentCount: 2,
     lateCount: 1,
     absentCount: 1,
-    noScheduleCount: 0
+    noScheduleCount: 1
   },
   {
     id: 2,
@@ -152,131 +182,6 @@ const fetchStoresWithStaffStatus = async (): Promise<Store[]> => {
 };
 
 // ====== 컴포넌트들 ======
-
-// 직원 상세 정보 모달
-const StaffDetailModal = ({ 
-  visible, 
-  staff, 
-  onClose 
-}: { 
-  visible: boolean;
-  staff: StaffStatus | null;
-  onClose: () => void;
-}) => {
-  if (!staff) return null;
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'present': return '정상 출근';
-      case 'late': return '지각';
-      case 'absent': return '결근';
-      case 'no-schedule': return '스케줄 없음';
-      default: return '알 수 없음';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'present': return '#4CAF50';
-      case 'late': return colors.main;
-      case 'absent': return colors.reject;
-      case 'no-schedule': return colors.text.secondary;
-      default: return colors.text.secondary;
-    }
-  };
-
-  return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* 헤더 */}
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>직원 정보</Text>
-              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                <Text style={styles.closeButtonText}>✕</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* 기본 정보 */}
-            <View style={styles.infoSection}>
-              <View style={styles.staffProfile}>
-                <View style={styles.profileImagePlaceholder}>
-                  <Text style={styles.profileInitial}>{staff.name[0]}</Text>
-                </View>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.staffNameLarge}>{staff.name}</Text>
-                  <Text style={styles.staffNickname}>닉네임: {staff.nickname}</Text>
-                  <View style={styles.statusContainer}>
-                    <View style={[styles.statusDotLarge, { backgroundColor: getStatusColor(staff.status) }]} />
-                    <Text style={styles.statusText}>{getStatusText(staff.status)}</Text>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {/* 연락처 정보 */}
-            <View style={styles.infoSection}>
-              <Text style={styles.sectionTitle}>연락처 정보</Text>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>전화번호</Text>
-                <Text style={styles.infoValue}>{staff.phone || '미등록'}</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>이메일</Text>
-                <Text style={styles.infoValue}>{staff.email || '미등록'}</Text>
-              </View>
-            </View>
-
-            {/* 근무 정보 */}
-            <View style={styles.infoSection}>
-              <Text style={styles.sectionTitle}>근무 정보</Text>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>시급</Text>
-                <Text style={styles.infoValue}>{staff.wage?.toLocaleString() || '미설정'}원</Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>입사일</Text>
-                <Text style={styles.infoValue}>{staff.joinDate || '미등록'}</Text>
-              </View>
-              {staff.hasSchedule && (
-                <>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>예정 근무시간</Text>
-                    <Text style={styles.infoValue}>
-                      {staff.scheduledStartTime} - {staff.scheduledEndTime}
-                    </Text>
-                  </View>
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>실제 출퇴근</Text>
-                    <Text style={styles.infoValue}>
-                      {staff.checkInTime || '미출근'} - {staff.checkOutTime || '미퇴근'}
-                    </Text>
-                  </View>
-                </>
-              )}
-            </View>
-
-            {/* 액션 버튼들 */}
-            <View style={styles.actionButtons}>
-              <TouchableOpacity style={[styles.actionButton, styles.editButton]}>
-                <Text style={styles.actionButtonText}>정보 수정</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={[styles.actionButton, styles.scheduleButton]}>
-                <Text style={styles.actionButtonText}>스케줄 관리</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
-  );
-};
 
 // 상단 섹션: 알림 버튼 + 계좌/마스코트
 const TopSection = ({ 
@@ -383,14 +288,14 @@ const StoreSelectionSection = ({
   );
 };
 
-// 매장 현황 카드 (직원 클릭 기능 추가)
+// 매장 현황 카드 (수정됨)
 const StoreStatusSection = ({ 
   store, 
-  onStaffPress,
+  stores,
   onPressStoreOverview,
 }: { 
   store: Store | null;
-  onStaffPress: (staff: StaffStatus) => void;
+  stores: Store[];
   onPressStoreOverview: (store: Store) => void;
 }) => {
   const getStatusColor = (status: 'present' | 'late' | 'absent' | 'no-schedule') => {
@@ -420,20 +325,45 @@ const StoreStatusSection = ({
     return `(${staff.scheduledStartTime} / ${staff.scheduledEndTime})`;
   };
 
-  
+  // 매장이 없는 경우
+  if (stores.length === 0) {
+    return (
+      <View style={styles.section}>
+        <View style={styles.statusCard}>
+          <View style={styles.emptyStoreContainer}>
+            <Text style={styles.emptyStoreTitle}>매장을 추가해보세요</Text>
+            <Text style={styles.emptyStoreSubtitle}>첫 매장을 등록하고 직원들을 관리해보세요</Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
   if (!store) return null;
+
+  // 금일 스케줄이 있는 직원들만 필터링
+  const todayStaffs = store.staffs.filter(staff => staff.hasSchedule);
 
   return (
     <View style={styles.section}>
       <View style={styles.statusCard}>
         <View style={styles.statusHeader}>
-           <Pressable
+          <Pressable
             onPress={() => store && onPressStoreOverview(store)}
             hitSlop={8}
-            style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center' }, pressed && { opacity: 0.7 }]}
+            style={({ pressed }) => [
+              styles.storeHeaderButton, 
+              pressed && styles.storeHeaderButtonPressed
+            ]}
           >
-            <Text style={styles.statusTitle}>{store.name} 현황</Text>
-            <Ionicons name="chevron-forward" size={16} color={colors.text.secondary} />
+            <View style={styles.storeHeaderContent}>
+              <Text style={styles.statusTitle}>{store.name} 현황</Text>
+              <View style={styles.moreIcon}>
+                <View style={styles.dot} />
+                <View style={styles.dot} />
+                <View style={styles.dot} />
+              </View>
+            </View>
           </Pressable>
           <View style={styles.statusSummary}>
             <Text style={styles.statusCount}>
@@ -443,15 +373,12 @@ const StoreStatusSection = ({
           </View>
         </View>
 
-        {/* 고정 높이 컨테이너 */}
+        {/* 고정 높이 컨테이너 수정 */}
         <View style={styles.staffListContainer}>
-          {store.staffs.length === 0 ? (
+          {todayStaffs.length === 0 ? (
             <View style={styles.emptyStaffContainer}>
-              <Text style={styles.emptyStaffTitle}>아직 직원이 없습니다</Text>
-              <Text style={styles.emptyStaffSubtitle}>직원을 초대해 보세요!</Text>
-              <TouchableOpacity style={styles.inviteButton}>
-                <Text style={styles.inviteButtonText}>직원 초대하기</Text>
-              </TouchableOpacity>
+              <Text style={styles.emptyStaffTitle}>오늘 스케줄된 직원이 없습니다</Text>
+              <Text style={styles.emptyStaffSubtitle}>스케줄을 등록해보세요</Text>
             </View>
           ) : (
             <>
@@ -461,13 +388,8 @@ const StoreStatusSection = ({
               </View>
               
               <ScrollView style={styles.scrollableStaffList} showsVerticalScrollIndicator={false}>
-                {store.staffs.map((staff) => (
-                  <TouchableOpacity 
-                    key={staff.id} 
-                    style={styles.albaRow}
-                    onPress={() => onStaffPress(staff)}
-                    activeOpacity={0.7}
-                  >
+                {todayStaffs.map((staff) => (
+                  <View key={staff.id} style={styles.albaRow}>
                     <View style={styles.nameSection}>
                       <View style={[styles.statusDot, { backgroundColor: getStatusColor(staff.status) }]} />
                       <Text style={styles.albaName}>{staff.name}</Text>
@@ -476,10 +398,7 @@ const StoreStatusSection = ({
                       <Text style={styles.workTime}>{getStatusText(staff)}</Text>
                       <Text style={styles.scheduleTime}>{getScheduleText(staff)}</Text>
                     </View>
-                    <View style={styles.arrowSection}>
-                      <Text style={styles.arrowText}>〉</Text>
-                    </View>
-                  </TouchableOpacity>
+                  </View>
                 ))}
               </ScrollView>
             </>
@@ -557,10 +476,6 @@ export default function EmployerMainPage() {
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  
-  // 직원 상세 모달 상태
-  const [selectedStaff, setSelectedStaff] = useState<StaffStatus | null>(null);
-  const [staffModalVisible, setStaffModalVisible] = useState(false);
 
   useEffect(() => {
     loadInitialData();
@@ -601,7 +516,7 @@ export default function EmployerMainPage() {
 
   const handlePressStoreOverview = (store: Store) => {
     router.push({
-      pathname: "./NextToEmployerMainPage",        // 새 화면(아래 3번 참고)
+      pathname: "./NextToEmployerMainPage",
       params: { storeId: store.id, storeName: store.name },
     });
   };
@@ -656,13 +571,6 @@ export default function EmployerMainPage() {
     });
   };
 
-  // 직원 클릭 핸들러
-  const handleStaffPress = (staff: StaffStatus) => {
-    console.log('직원 정보 조회:', staff.name);
-    setSelectedStaff(staff);
-    setStaffModalVisible(true);
-  };
-
   if (loading) {
     return (
       <SafeAreaView style={styles.rootContainer}>
@@ -696,7 +604,7 @@ export default function EmployerMainPage() {
         />
         <StoreStatusSection 
           store={stores[selectedStoreIndex] || null} 
-          onStaffPress={handleStaffPress}
+          stores={stores}
           onPressStoreOverview={handlePressStoreOverview}
         />
         <ActionSection 
@@ -706,13 +614,6 @@ export default function EmployerMainPage() {
           onInvite={handleInvite}
         />
       </ScrollView>
-
-      {/* 직원 상세 정보 모달 */}
-      <StaffDetailModal
-        visible={staffModalVisible}
-        staff={selectedStaff}
-        onClose={() => setStaffModalVisible(false)}
-      />
 
       <NavBar role="sajang" activeKey="home" />
     </SafeAreaView>
@@ -903,12 +804,40 @@ const styles = StyleSheet.create({
   statusHeader: {
     marginBottom: 20,
   },
+  
+  // 매장 헤더 버튼 (수정된 UI)
+  storeHeaderButton: {
+    borderRadius: 8,
+    padding: 4,
+    marginHorizontal: -4,
+  },
+  storeHeaderButtonPressed: {
+    backgroundColor: colors.disable,
+  },
+  storeHeaderContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   statusTitle: {
     fontSize: sizes.normalText,
     fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
     marginBottom: 8,
   },
+  moreIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    marginLeft: 8,
+  },
+  dot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.text.secondary,
+  },
+  
   statusSummary: {
     flexDirection: 'row',
   },
@@ -918,13 +847,13 @@ const styles = StyleSheet.create({
     color: colors.text.secondary,
   },
 
-  // 직원 리스트 컨테이너 (고정 높이)
+  // 직원 리스트 컨테이너 (높이 조정)
   staffListContainer: {
-    minHeight: 200, // 최소 높이 고정
-    maxHeight: 250, // 최대 높이 제한
+    minHeight: 200,
+    maxHeight: 300, // 높이 증가
   },
   
-  // 직원 없을 때 UI
+  // 직원/매장 없을 때 UI
   emptyStaffContainer: {
     flex: 1,
     alignItems: 'center',
@@ -936,23 +865,33 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
     marginBottom: 8,
+    textAlign: 'center',
   },
   emptyStaffSubtitle: {
     fontSize: sizes.smallText,
     fontFamily: FONTS.jamsil.regular3,
     color: colors.text.secondary,
-    marginBottom: 20,
+    textAlign: 'center',
   },
-  inviteButton: {
-    backgroundColor: colors.main,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
+  
+  // 매장 없을 때
+  emptyStoreContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
   },
-  inviteButtonText: {
+  emptyStoreTitle: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.medium4,
+    color: colors.text.primary,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStoreSubtitle: {
     fontSize: sizes.smallText,
     fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.reverse,
+    color: colors.text.secondary,
+    textAlign: 'center',
   },
 
   // 직원 리스트
@@ -990,12 +929,6 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginRight: 12,
   },
-  statusDotLarge: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
   albaName: {
     fontSize: sizes.normalText,
     color: colors.text.primary,
@@ -1015,14 +948,6 @@ const styles = StyleSheet.create({
     fontSize: sizes.smallText,
     color: colors.text.secondary,
     fontFamily: FONTS.jamsil.regular3,
-  },
-  arrowSection: {
-    marginLeft: 8,
-  },
-  arrowText: {
-    fontSize: sizes.normalText,
-    color: colors.text.secondary,
-    fontFamily: FONTS.jamsil.light2,
   },
 
   // 액션 버튼 (3개 동그라미)
@@ -1060,155 +985,5 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     fontFamily: FONTS.jamsil.medium4,
     textAlign: 'center',
-  },
-
-  // 모달 스타일
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
-    margin: 20,
-    maxHeight: '80%',
-    width: '90%',
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.disable,
-    paddingBottom: 15,
-  },
-  modalTitle: {
-    fontSize: sizes.smallTitle,
-    fontFamily: FONTS.jamsil.medium4,
-    color: colors.text.primary,
-  },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: colors.disable,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeButtonText: {
-    fontSize: sizes.normalText,
-    color: colors.text.secondary,
-    fontFamily: FONTS.jamsil.regular3,
-  },
-
-  // 직원 프로필
-  staffProfile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  profileImagePlaceholder: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.main,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 15,
-  },
-  profileInitial: {
-    fontSize: sizes.smallTitle,
-    fontFamily: FONTS.jamsil.bold5,
-    color: colors.text.reverse,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  staffNameLarge: {
-    fontSize: sizes.smallTitle,
-    fontFamily: FONTS.jamsil.medium4,
-    color: colors.text.primary,
-    marginBottom: 4,
-  },
-  staffNickname: {
-    fontSize: sizes.smallText,
-    fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.secondary,
-    marginBottom: 8,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statusText: {
-    fontSize: sizes.smallText,
-    fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.primary,
-  },
-
-  // 정보 섹션
-  infoSection: {
-    marginBottom: 20,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.disable,
-  },
-  sectionTitle: {
-    fontSize: sizes.normalText,
-    fontFamily: FONTS.jamsil.medium4,
-    color: colors.text.primary,
-    marginBottom: 12,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  infoLabel: {
-    fontSize: sizes.smallText,
-    fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.secondary,
-    flex: 1,
-  },
-  infoValue: {
-    fontSize: sizes.smallText,
-    fontFamily: FONTS.jamsil.regular3,
-    color: colors.text.primary,
-    flex: 2,
-    textAlign: 'right',
-  },
-
-  // 액션 버튼들
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 10,
-  },
-  actionButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  editButton: {
-    backgroundColor: colors.subAccent,
-  },
-  scheduleButton: {
-    backgroundColor: colors.main,
-  },
-  actionButtonText: {
-    fontSize: sizes.smallText,
-    fontFamily: FONTS.jamsil.medium4,
-    color: colors.text.reverse,
   },
 });
