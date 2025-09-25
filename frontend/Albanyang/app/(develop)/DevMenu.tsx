@@ -3,6 +3,7 @@ import { Button, ScrollView, Text, View } from 'react-native';
 
 
 const routes = [
+  { name: '시뮬레이션', path: '/login/Login' },
   { name: '로그인', path: '/login/Login' },
   { name :'회원가입1', path :'/login/SignUpFirst'},
   { name: '회원가입2', path : '/login/SignUpSecond'},

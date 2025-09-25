@@ -51,14 +51,14 @@ const ROUTES: Record<Role, Record<TabKey, string>> = {
   alba: {
     home: '/(mainPage)/EmployeeMainPage',
     calendar: '/schedule',
-    albot: '/ai-chat',
+    albot: '/(chatBot)/ChatBot',
     sum: '/salary',
     profile: '/myPage',
   },
   sajang: {
     home: '/(mainPage)/EmployerMainPage',
     calendar: '/schedule',
-    albot: '/ai-chat',
+    albot: '/(chatBot)/ChatBot',
     sum: '/salary-management',
     profile: '/myPage',
   },
@@ -131,7 +131,7 @@ function NavBar({
     // 현재 활성 탭이 아닐 때만 라우팅
     if (activeKey !== key) {
       try {
-        // router.push(route);
+        router.push(route as any);
       } catch (error) {
         console.warn(`Failed to navigate to ${route}:`, error);
       }
