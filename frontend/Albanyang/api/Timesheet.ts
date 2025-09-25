@@ -99,7 +99,7 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
   if ((!storeId && storeId !== 0) || !date) throw new Error('storeId and date (required)');
   try {
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
-      `/api/v1/stores/${storeId}/timesheets`,
+      `/v1/stores/${storeId}/timesheets`,
       { params: { date } }
     );
     return res.data;

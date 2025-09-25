@@ -1,4 +1,4 @@
-import { api, handleResponse } from "../api";
+import { api, handleResponse } from "../Api";
 
 {/* 직원용 급여명세서 리스트 조회 */}
 export interface PayslipSummary {

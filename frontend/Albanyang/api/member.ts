@@ -162,7 +162,7 @@ export async function updateAccountPassword(body: AccountPasswordRequest) {
 // 8) GET /api/v1/members/me - 내 정보 조회
 export async function getMe() {
   try {
-    const res = await api.get<ApiResponse<MemberData>>('/api/v1/members/me');
+    const res = await api.get<ApiResponse<MemberData>>('/v1/members/me'); // /api 제거
     return res.data;
   } catch (err) {
     handleAxiosError(err);

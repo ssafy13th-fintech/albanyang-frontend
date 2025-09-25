@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { login } from "@/api/auth";
+import { login } from "@/api/Auth";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";

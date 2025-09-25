@@ -1,4 +1,4 @@
-import { api, handleResponse } from "../api";
+import { api, handleResponse } from "../Api";
 
 export interface PayslipSummary {
   payslipId: number;

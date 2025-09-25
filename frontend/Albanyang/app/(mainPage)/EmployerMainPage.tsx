@@ -23,7 +23,7 @@ import { sizes } from '@/constants/size/FontSize';
 // API imports
 import { getMe } from '@/api/Member';
 import { getStores } from '@/api/Stores';
-import { getTimesheetsByDate } from '@/api/Timesheet';
+import { getTimesheetsByDate } from '@/api/TimeSheet';
 import { getStoreSchedules } from '@/api/Schedule';
 
 // ====== 레이아웃 상수 ======

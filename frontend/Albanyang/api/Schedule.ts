@@ -155,7 +155,7 @@ export async function getStoreSchedules(storeId: number, month?: string, date?: 
     if (date) params.date = date;
 
     const res = await api.get<ApiResponse<ScheduleListResponse>>(
-      `/api/v1/stores/${storeId}/schedule`,
+      `/v1/stores/${storeId}/schedule`,
       { params }
     );
     return res.data;

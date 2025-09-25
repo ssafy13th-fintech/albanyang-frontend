@@ -93,7 +93,7 @@ export async function deleteStore(storeId: number) {
 // 모든 사업장 조회
 export async function getStores() {
   try {
-    const res = await api.get<ApiResponse<StoreListResponse>>('/api/v1/stores');
+    const res = await api.get<ApiResponse<StoreListResponse>>('/v1/stores'); // /api 제거
     return res.data;
   } catch (err) {
     handleAxiosError(err);

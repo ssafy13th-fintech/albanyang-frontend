@@ -28,7 +28,7 @@ import { sizes } from '@/constants/size/FontSize';
 // API imports
 import { getMe } from '@/api/Member';
 import { getStores } from '@/api/Stores';
-import { getMyTimesheets, createMyTimesheet, patchMyTimesheetCheckout } from '@/api/Timesheet';
+import { getMyTimesheets, createMyTimesheet, patchMyTimesheetCheckout } from '@/api/TimeSheet';
 import { getStoreSchedules } from '@/api/Schedule';
 import { getMyPayslips } from '@/api/EmployeePaylips';
 
