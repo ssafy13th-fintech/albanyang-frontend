@@ -1,6 +1,16 @@
 import { jwtDecode } from 'jwt-decode';
 import * as Keychain from 'react-native-keychain';
 
+
+export interface TokenDecodeObject{
+  id : number,
+  role : string,
+  email :string,
+  iat : string,
+  exp  : string
+}
+
+
 /**
  * 토큰을 저장합니다. 
  *
@@ -38,8 +48,8 @@ export async function deleteToken() {
  * 
  * @returns  디코드된 토큰
  */
-export async function decodeToken(){
-  const token =await loadToken();
-  if(token) return jwtDecode(token);
-  else return null;
+export async function decodeToken() : Promise<TokenDecodeObject>{
+  const token = await loadToken();
+  if(token) return jwtDecode(token) as Promise<TokenDecodeObject>
+  else return {} as Promise<TokenDecodeObject>
 }

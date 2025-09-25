@@ -114,8 +114,8 @@ export default function AccountAuthModal(
                     //patchAccount({account : accountNum})
                     setModalVisible(false)
                     signUpStore.setForm({account : accountNum})
-                    router.push("/login/SignUpAccountPasswordPage")  //데체 왜 ./을 해야 빨간줄이 사라짐?
-                                                  //절대경로 앞에 인식이 잘 안되는 문제..
+                    router.push("/login/SignUpAccountPasswordPage") 
+                    
                    }else{
                     setIsWrong(true);
                     console.log("계좌 인증 실패")
