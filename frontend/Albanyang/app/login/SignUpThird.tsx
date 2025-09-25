@@ -11,14 +11,17 @@ export interface RegisterRequest {
 }
 */
 
+
 import { registerMember } from '@/api/Member';
-import { inquireTransactionHistoryList, openAccountAuth } from '@/api/SSAFYOpenapi';
+import { inquireTransactionHistoryByUniqueNo, openAccountAuth } from '@/api/SSAFYOpenapi';
 import { getFcmToken } from '@/app/_layout';
+import BankNameDropDown from '@/components/dropdown/BankNameDropDown';
 import AccountAuthModal from '@/components/modal/AccountAuthModal';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { useSignUpStore } from "@/store/useSignUpStore";
+import { SSAFY_MAIN_API_KEY, SSAFY_MAIN_USER_ACCOUNT, SSAFY_MAIN_USER_KEY } from '@env';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -31,20 +34,22 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-
 export default function Signup() {
     const insets = useSafeAreaInsets();
     const [bankName, setBankName] = useState("");
-    const [accountNum, setAccountNum] = useState("");
+    const [accountNum, setAccountNum] = useState(SSAFY_MAIN_USER_ACCOUNT);
     const [isDisabled, setIsDisabled] = useState(true);
     const [modalVisible, setModalVisible] = useState(false);
     const [isSent, setIsSent] = useState(false);
     const [inputAccountAuth, setInputAccountAuth] = useState("");
-    let accountAuth:string = "";
+    const [inputAccountText, setInputAccountText] = useState("");
     
     const router = useRouter();
     const signUpStore = useSignUpStore();
 
+    const api_key = SSAFY_MAIN_API_KEY
+    const user_key = SSAFY_MAIN_USER_KEY
+    console.log(api_key +" " + user_key)
     useEffect(()=>{
       setIsDisabled(!bankName  || !accountNum);
     }, [bankName, accountNum])
@@ -78,13 +83,13 @@ export default function Signup() {
             <View style = {styles.InputContainer}>
                 <View style = { styles.smallInputContainer}>
                     <Text style = {styles.smallInputText}>은행(선택)</Text>
-                     <TextInput
-                      style={[styles.inputField]}
-                      placeholder="은행"
-                      value={bankName}
-                      onChangeText={setBankName}
-                      autoCapitalize="none" // 첫 글자 자동 대문자 방지
-                      />
+
+                    <BankNameDropDown
+                      bankName= {bankName}
+                      setBankName={setBankName}
+                      placeholder='은행을 선택주세요'
+                    />
+
                 </View>
 
                 <View style = {styles.smallInputContainer}>
@@ -124,7 +129,6 @@ export default function Signup() {
                   const fcmtoken = await getFcmToken();
                   // console.log("fcm token zz " ,fcmtoken)
                   signUpStore.setForm({token : fcmtoken});
-                      
                   await registerMember(signUpStore.registerForm);
                   signUpStore.resetForm();
                   router.push("/login/SignUpComplete")
@@ -150,40 +154,44 @@ export default function Signup() {
               <Pressable
                 onPress={async () => {
                   try{
-                  setIsSent(true);
-
                   if(!isSent){
-                    const open = await openAccountAuth({
-                      apiKey :"329cd788721e4017a38fcee4e74fbe93",
-                      userKey :"d7771a25-3fc3-4a17-ad32-301969f3ea16",
+                      //1원 인증을 보냅니다.
+                    const openAuth = await openAccountAuth({
+                      apiKey : api_key,
+                      userKey: user_key,
                       accountNo : accountNum,
                       authText : 'SSAFY'
                     })
-                  
-                    const now = new Date();
-                    const pad = (n: number) => n.toString().padStart(2, '0');
-                    const today = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+                    
+                    //거래 고유번호를 바탕으로 거래 내역을 얻습니다.
+                    const transactionUniqueNo = openAuth.REC.transactionUniqueNo
+                    console.log("1원 인증 성공 : ", transactionUniqueNo)
 
-                    const res = await inquireTransactionHistoryList({
-                              apiKey: '329cd788721e4017a38fcee4e74fbe93',
-                              userKey: 'd7771a25-3fc3-4a17-ad32-301969f3ea16',
-                              accountNo: accountNum,
-                              startDate: today,
-                              endDate: today,
-                            });
-                  console.log("res : ", res);
+                    const res = await inquireTransactionHistoryByUniqueNo({
+                      apiKey : api_key,
+                      userKey : user_key,
+                      accountNo : accountNum,
+                      transactionUniqueNo : transactionUniqueNo
+                    })
+
+                    console.log("거래 조회 : ", res);
+                    //거래 내역을 바탕으로 보낸 코드를 구합니다.
+                    //거래 코드와 거래 텍스트를 구분해야함.
+                    const code = res.REC.transactionSummary;
+                    const authText = code.split(" ")[0];
+                    const authCode = code.split(" ")[1];
+
+                    setInputAccountAuth(authCode);
+                    setInputAccountText(authText);
+                    setIsSent(true);
                   }
-                  else
-                    console.log("이미 보냈습니다. 계좌를 확인하세요")
-                  
-                  setModalVisible(true);
-
-                  
+                  else{
+                      console.log("이미 보냈습니다. 계좌를 확인하세요")
+                  }
+                  setModalVisible(true)
                 }catch(err : any){
                     console.error(err)
                 }
-                
-
                 }}
                 disabled = {isDisabled}
                 style={({ pressed }) => [    
@@ -205,13 +213,18 @@ export default function Signup() {
           </View>
 
       <AccountAuthModal
-      ansAccountAuth={accountAuth}
-      inputAccountAuth={inputAccountAuth}
-      modalVisible={modalVisible}
-      setInputAccountAuth={setInputAccountAuth}
-      setModalVisible={setModalVisible}
-      footerButtonStyle={styles.footerbutton}
-      inputFieldStyle={styles.inputField}
+        inputAccountAuth={inputAccountAuth}
+        inputAccountText = {inputAccountText}
+        modalVisible={modalVisible}
+        setInputAccountAuth={setInputAccountAuth}
+        setModalVisible={setModalVisible}
+        footerButtonStyle={styles.footerbutton}
+        inputFieldStyle={styles.inputField}
+        accountNum={accountNum}
+        apiKey={api_key}
+        userKey={user_key}
+        registerRequest = {signUpStore.registerForm}
+
       />
       
         </SafeAreaView>

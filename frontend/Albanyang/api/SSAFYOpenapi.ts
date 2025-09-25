@@ -121,7 +121,12 @@ export async function createDemandDepositAccount(params: { apiKey: string; userK
   }
 }
 
-// 4) 1원 송금 (계좌 인증 시작)
+/** 
+ * 
+ * 1원 송금 (계좌 인증 시작)
+ *  
+ * 
+ **/
 export async function openAccountAuth(params: { apiKey: string; userKey: string; accountNo: string; authText: string; institutionCode?: string; fintechAppNo?: string; }) {
   if (!params.accountNo) throw new Error('accountNo (required)');
   if (!params.authText) throw new Error('authText (required)');
@@ -135,14 +140,21 @@ export async function openAccountAuth(params: { apiKey: string; userKey: string;
   }
 }
 
-// 5) 1원 인증 코드 확인
+/** 
+ * 
+ * 1원 송금 인증 
+ *  
+ * 
+ **/
 export async function checkAuthCode(params: { apiKey: string; userKey: string; accountNo: string; authText: string; authCode: string; institutionCode?: string; fintechAppNo?: string; }) {
   if (!params.accountNo) throw new Error('accountNo (required)');
   if (!params.authText) throw new Error('authText (required)');
   if (!params.authCode) throw new Error('authCode (required)');
   const header = buildHeader({ apiName: 'checkAuthCode', apiKey: params.apiKey, userKey: params.userKey, institutionCode: params.institutionCode, fintechAppNo: params.fintechAppNo });
   try {
+    console.log("header :",header)
     const body = { Header: header, accountNo: params.accountNo, authText: params.authText, authCode: params.authCode };
+    console.log("body :", body)
     const res = await api.post<ApiResponse<any>>('/ssafy/api/v1/edu/accountAuth/checkAuthCode', body);
     return res.data;
   } catch (err) {
@@ -166,6 +178,26 @@ export async function inquireTransactionHistoryList(params: { apiKey: string; us
     handleAxiosError(err);
   }
 }
+
+
+
+export async function inquireTransactionHistoryByUniqueNo(params: { apiKey: string; userKey: string; accountNo: string; transactionUniqueNo : string; transactionType?: string; institutionCode?: string; fintechAppNo?: string; }) {
+  const { apiKey, userKey, accountNo, transactionUniqueNo, transactionType, institutionCode, fintechAppNo } = params;
+  if (!apiKey) throw new Error('apiKey (required)');
+  if (!accountNo) throw new Error('accountNo (required)');
+  if (!transactionUniqueNo) throw new Error('transactionUniqueNo (required)');
+
+  const header = buildHeader({ apiName: 'inquireTransactionHistory', apiKey, userKey, institutionCode, fintechAppNo });
+  try {
+    const body = { Header: header, accountNo, transactionUniqueNo, transactionType: transactionType ?? 'A' };
+    console.log("body : ",body)
+    const res = await api.post<ApiResponse<any>>('/ssafy/api/v1/edu/demandDeposit/inquireTransactionHistory', body);
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err);
+  }
+}
+
 
 export default {
   api,

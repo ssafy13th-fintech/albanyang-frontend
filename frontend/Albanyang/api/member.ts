@@ -114,7 +114,7 @@ export async function deleteMember() {
 }
 
 // 5) PATCH /api/v1/members/account
-// 계좌 번호 수정
+// 계좌 번호 수정 (계좌 번호가 없음 저장합니다.)
 export async function patchAccount(body: AccountPatchRequest) {
   if (!body.account) throw new Error('account (required)');
   try {
