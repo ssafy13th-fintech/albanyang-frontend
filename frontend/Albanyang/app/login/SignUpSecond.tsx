@@ -39,7 +39,7 @@ export default function Signup() {
 
     useEffect(() => {
       setIsDisabled(!(name && age && frontPhoneNum && phoneNum && gender && isAlba));
-    })
+    },[name, age, frontPhoneNum, phoneNum, gender, isAlba])
 
 
     return (
@@ -101,6 +101,7 @@ export default function Signup() {
                       placeholder="010"
                       />
                       <TextInput
+                      keyboardType="numeric"
                       style={[styles.inputField, {flex : 0.7}]}
                       placeholder="전화번호"
                       value={phoneNum}

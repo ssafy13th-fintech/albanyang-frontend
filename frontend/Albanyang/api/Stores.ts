@@ -1,13 +1,13 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
-
+import { api } from "@/api/authorization/AuthHeader";
+import { AxiosError } from 'axios';
 // Axios 인스턴스 (다른 api 파일들과 동일하게 설정)
-const api: AxiosInstance = axios.create({
-  baseURL: 'https://your-api-domain.com', // 프로젝트 환경에 맞게 변경
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// const api: AxiosInstance = axios.create({
+//   baseURL: 'https://your-api-domain.com', // 프로젝트 환경에 맞게 변경
+//   timeout: 10000,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// });
 
 // 공통 응답 타입
 export interface ApiResponse<T = any> {

@@ -1,5 +1,5 @@
 module.exports = function(api) {
-  api.cache(true);
+  api.cache(false);
   return {
     presets: ['babel-preset-expo'],
     plugins: [
@@ -8,12 +8,25 @@ module.exports = function(api) {
         {
           root: ['./'],
           alias: {
-            '@': './'   // 프로젝트 루트(당신의 경우: frontend/Albanyang) 아래 파일을 @로 접근
+            '@': './'
           },
           extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json']
-        },
-        'react-native-reanimated/plugin', // 반드시 마지막에
-      ]
+        }
+      ],
+      [
+        'module:react-native-dotenv',
+          {
+            envName: 'APP_ENV',
+            moduleName: '@env',
+            path: '.env',
+            blocklist: null,
+            allowlist: null,
+            safe: false,
+            allowUndefined: true,
+            verbose: false,
+          },
+      ],
+      'react-native-reanimated/plugin' // reanimated 플러그인은 항상 마지막에 위치해야 합니다.
     ],
   };
 };
