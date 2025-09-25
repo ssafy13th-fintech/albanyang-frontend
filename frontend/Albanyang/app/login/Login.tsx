@@ -9,7 +9,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/auth";
-import LoginTextInput from "@/components/TextInput/loginTextInput";
+import LoginTextInput from "@/components/textInput/loginTextInput";
 import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
 import { colors } from "@/constants/colors/ColorTheme";
