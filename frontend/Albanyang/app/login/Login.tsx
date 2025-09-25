@@ -12,7 +12,6 @@ import { login } from "@/api/auth";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
-import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';

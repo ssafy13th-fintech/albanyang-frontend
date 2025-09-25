@@ -17,13 +17,8 @@ import {
   View
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-<<<<<<< HEAD
-import { useRouter } from 'expo-router';
 import NfcManager, { NfcTech, Ndef } from 'react-native-nfc-manager';
-=======
 // 실제 NFC 라이브러리 import 추가
-import NfcManager, { NfcTech } from 'react-native-nfc-manager';
->>>>>>> 9b5f350628ca5cfb55d0c58c49adf20651f1d0eb
 
 import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";

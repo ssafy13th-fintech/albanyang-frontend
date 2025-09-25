@@ -124,21 +124,21 @@ export async function deleteMember() {
   }
 }
 
-<<<<<<< HEAD
-// 5) GET /api/v1/members/account - 계좌 비밀번호 확인 (새로 추가)
-export async function checkAccountPassword(body: AccountPasswordRequest) {
+// 5) PATCH /api/v1/members/account
+// 계좌 번호 수정 (계좌 번호가 없음 저장합니다.)
+export async function patchAccount(body: AccountPatchRequest) {
+  if (!body.account) throw new Error('account (required)');
   if (!body.accountPassword) throw new Error('accountPassword (required)');
   try {
-    const res = await api.get<ApiResponse<string>>(
+    const res = await api.patch<ApiResponse<string>>(
       '/api/v1/members/account',
-      { data: body } // GET 요청이지만 body가 있는 특이한 케이스
+      body
     );
     return res.data;
   } catch (err) {
     handleAxiosError(err);
   }
 }
-
 // 6) PUT /api/v1/members/account - 계좌 비밀번호 수정 (새로 추가)
 export async function updateAccountPassword(body: AccountPasswordRequest) {
   if (!body.accountPassword) throw new Error('accountPassword (required)');
@@ -154,23 +154,6 @@ export async function updateAccountPassword(body: AccountPasswordRequest) {
 }
 
 // 7) PATCH /api/v1/members/account - 계좌번호 수정 (accountPassword 추가)
-=======
-// 5) PATCH /api/v1/members/account
-// 계좌 번호 수정 (계좌 번호가 없음 저장합니다.)
->>>>>>> 9b5f350628ca5cfb55d0c58c49adf20651f1d0eb
-export async function patchAccount(body: AccountPatchRequest) {
-  if (!body.account) throw new Error('account (required)');
-  if (!body.accountPassword) throw new Error('accountPassword (required)');
-  try {
-    const res = await api.patch<ApiResponse<string>>(
-      '/api/v1/members/account',
-      body
-    );
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err);
-  }
-}
 
 // 8) GET /api/v1/members/me - 내 정보 조회
 export async function getMe() {
@@ -189,7 +172,6 @@ export default {
   updateMember,
   registerMember,
   deleteMember,
-  checkAccountPassword,
   updateAccountPassword,
   patchAccount,
   getMe,
