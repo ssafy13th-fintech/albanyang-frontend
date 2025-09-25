@@ -3,6 +3,7 @@ import { checkAuthCode } from '@/api/SSAFYOpenapi';
 import { colors } from '@/constants/colors/ColorTheme';
 import { FONTS } from '@/constants/fonts/Fonts';
 import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from '@/store/useSignUpStore';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -48,12 +49,12 @@ export default function AccountAuthModal(
     footerButtonStyle
 }:AccoutAuthModalProps
 ) {
-
+   const signUpStore = useSignUpStore();
     const [isDisabled, setIsDisabled] = useState(true);
     const [isWrong, setIsWrong] = useState(false);
 
     useEffect(()=>{
-        setIsDisabled(inputAccountAuth.length==0)
+        setIsDisabled(inputAccountAuth.length===0)
     }, [inputAccountAuth])
 
     return(
@@ -110,14 +111,11 @@ export default function AccountAuthModal(
                   console.log("ans : ",ans)
                   if(ans.REC.status === 'SUCCESS'){
                     console.log("계좌 인증 성공")
-                    
                     //patchAccount({account : accountNum})
                     setModalVisible(false)
-                    router.replace("/login/SignUpComplete")  //데체 왜 ./을 해야 빨간줄이 사라짐?
-                                                  //절대경로 앞에 인식이 잘 안되는 문제...
-                    
-                    
-                    
+                    signUpStore.setForm({account : accountNum})
+                    router.push("/login/SignUpAccountPasswordPage")  //데체 왜 ./을 해야 빨간줄이 사라짐?
+                                                  //절대경로 앞에 인식이 잘 안되는 문제..
                    }else{
                     setIsWrong(true);
                     console.log("계좌 인증 실패")
