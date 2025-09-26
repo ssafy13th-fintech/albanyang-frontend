@@ -1,3 +1,4 @@
+import { getMe, updateMember, UpdateMemberRequest } from "@/api/member";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import AgeDropdown from "@/components/dropdown/AgeDropDownByElement";
 import SmallHeader from "@/components/header/SmallHeader";
@@ -6,6 +7,7 @@ import PhoneNumInput from "@/components/textInput/PhoneNumInput";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useMemberStore } from "@/store/useMemberStore";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -16,21 +18,34 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+export const DATA = {
+  TEENS: 10,
+  TWENTIES: 20,
+  THIRTIES: 30,
+  FORTIES: 40,
+  FIFTIES: 50,
+  SISTIES: 60,
+} as const;
+type AgeKey = keyof typeof DATA; // "TEENS" | "TWENTIES" | ...
 
 
 export default function MyInfoInsertion() {
     const insets = useSafeAreaInsets();
-    const [name, setName] = useState("정태승");
-    const [age, setAge] = useState("");
-    const [phoneFirstNum, setPhoneFirstNum] = useState("");
-        const [phoneLastNum, setPhoneLastNum] = useState("");
+
+    const myInfo = useMemberStore().memberForm;
+
+    console.log(myInfo.age)
+    const [name, setName] = useState(myInfo.name);
+    let ageKey: AgeKey | undefined = myInfo.age as AgeKey | undefined;
+    const initialAgeNumber = ageKey ? DATA[ageKey] : DATA.TEENS;
+    const [ageIdx, setAgeIdx] = useState<number>(initialAgeNumber);
+    const [phoneFirstNum, setPhoneFirstNum] = useState(myInfo.phone.substring(0,3));
+    const [phoneLastNum, setPhoneLastNum] = useState(myInfo.phone.substring(3, myInfo.phone.length));
     //  female : 1, male : 2
-    const [gender, setGender] = useState<number|null>(null);
-    // employee : 1 , employer : 2, admin : 100
-    const [isAlba, setIsAlba] = useState<number|null>(null);
+    const [gender, setGender] = useState<number|null>(myInfo.gender=== "FEMALE" ? 1 : 2);
 
     const router = useRouter();
-    
+    const memberStore =  useMemberStore();
     return (
         
         <SafeAreaView style = {[styles.rootContainer, {paddingHorizontal : insets.left + 16}]}>
@@ -79,8 +94,8 @@ export default function MyInfoInsertion() {
           </Text>
           <AgeDropdown
             containerStyle = {styles.inputField}
-            value = {age}
-            onChange={(v) =>  {setAge(v)}}
+            value = {ageIdx}
+            onChange={(v) =>  {setAgeIdx(v)}}
             placeholder="나잇대를 선택하세요"
           />
         </View>
@@ -131,7 +146,41 @@ export default function MyInfoInsertion() {
           <View style = {[styles.footerContainer, {marginBottom : insets.bottom + 10}]}>
               <BottomActionButton
                 label ="수정하기"
-                onPress = {() => router.push("/")}
+                onPress = {async () => {
+                  // 요청 바디 타입들
+                // export interface UpdateMemberRequest {
+                //   name?: string;
+                //   phone?: string;
+                //   gender?: number;
+                //   age?: number;
+                // }
+                try{
+                  const req : UpdateMemberRequest = {
+                    name : name,
+                    phone : phoneFirstNum+phoneLastNum,
+                    gender : gender!,
+                    age : ageIdx
+                  }
+                  console.log("req  : ", req)
+                  await updateMember(req);
+                  
+                  const myInfo = await getMe();
+                  
+                  memberStore.setForm({
+                    name : myInfo.data.name,
+                    phone : myInfo.data.phone,
+                    gender : myInfo.data.gender,
+                    age : myInfo.data.age
+                  });
+                  alert("회원 정보 수정에 성공 했습니다.")
+
+
+
+                  router.push("/myPage/MyPage")
+                }catch(e){
+                  alert(e);
+                }
+                }}
               />
           </View>
         </SafeAreaView>

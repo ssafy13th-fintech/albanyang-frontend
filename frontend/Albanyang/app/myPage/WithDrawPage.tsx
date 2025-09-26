@@ -1,3 +1,4 @@
+import { deleteMember } from "@/api/member";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -53,6 +54,14 @@ export default function WithDrawPage(){
                     containerStyle = {{flex : 1}}
                 />
                 <BottomActionButton 
+                    onPress = {async() => {
+                        try{
+                        await deleteMember();
+                        router.replace("/myPage/WithDrawComplete")
+                        }catch(e){
+                            alert(e);
+                        }
+                    }}
                     label = "탈퇴 하기"
                     containerStyle = {{flex :1}}
                     mainColor = {colors.reject}

@@ -9,6 +9,7 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { Mascot } from "@/constants/images/mascot";
 import { sizes } from "@/constants/size/FontSize";
+import { useMemberStore } from "@/store/useMemberStore";
 import { router } from "expo-router";
 
 interface PanelMenuItems{
@@ -19,13 +20,15 @@ interface PanelMenuItems{
 
 export default function MyPage() {
     const insets = useSafeAreaInsets();
-    let [name , setName] = useState("김알바");
-    const [phoneNum, setPhoneNum] = useState("010-0000-0000")
-    const [age , setAge] = useState("30대")
-    const [gender, setGender] = useState("성별")
-    const [email, setEmail] = useState("testEmail@gmail.com")
-    const [bankname, setBankName] = useState<string|null>("국민")
-    const [bankAccountNum, setBankAccountNum] = useState<string|null>("000-0000-000000")
+    const myInfo = useMemberStore();
+    
+    let [name , setName] = useState(myInfo.memberForm.name);
+    const [phoneNum, setPhoneNum] = useState(myInfo.memberForm.phone)
+    const [age , setAge] = useState(myInfo.memberForm.age)
+    const [gender, setGender] = useState(myInfo.memberForm.gender)
+    const [email, setEmail] = useState(myInfo.memberForm.email)
+    const [bankname, setBankName] = useState<string|null>("한국은행")
+    const [bankAccountNum, setBankAccountNum] = useState<string|null>(myInfo.memberForm.account);
     const isAlba = 1;
 
 
@@ -36,11 +39,11 @@ export default function MyPage() {
     const items : PanelMenuItems[] = [
         { title : "내 정보 수정", 
         icon : require("@/assets/images/icon/icon_insert.png"),
-        action : () => {router.push("/myPage/MyAccountInsertionPage")}
+        action : () => {router.push("/myPage/MyInfoInsertionPage")}
         },
         { title : "계좌 등록 및 수정", 
         icon : require("@/assets/images/icon/icon_insert.png"),
-            action : () => {router.push("/myPage/MyInfoInsertionPage")} },
+            action : () => {router.push("/myPage/MyAccountInsertionPage")} },
         { title : "통계" , 
         icon : require("@/assets/images/icon/icon_insert.png"),
             action : () => {router.push("/")} },
@@ -78,7 +81,7 @@ export default function MyPage() {
         }
         > 
             <View style = {[styles.introduceCard, {flexDirection : "row"}]}>
-                <View>
+                <View style = {{flex : 1}}>
                 <View style = {{flexDirection : "row", marginBottom : 18}}>
                 <Text style = {{
                     fontFamily : FONTS.jamsil.medium4,
@@ -100,10 +103,12 @@ export default function MyPage() {
                     <Text style = {{fontFamily:FONTS.jamsil.light2}}>성별 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{gender}</Text></Text>
                 </View>
                 </View>
+
                 <Image
                     source ={mascot_path}
                     style = {{marginLeft : 10}}
                 >
+                    
                 </Image>
 
             </View>

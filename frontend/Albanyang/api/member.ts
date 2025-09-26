@@ -19,8 +19,8 @@ export interface MemberData {
   phone: string;
   email?: string;
   gender?: string | number;
-  age?: number | string;
-  account?: string;
+  age?: string;
+  account: string |null;
 }
 
 // 요청 바디 타입들
@@ -81,7 +81,8 @@ export async function getMemberByPhone(phone: string) {
 // 회원정보를 수정합니다. (Request body 필수 항목은 호출하는 쪽에서 보장하세요)
 export async function updateMember(body: UpdateMemberRequest) {
   try {
-    const res = await api.put<ApiResponse<string>>('/api/v1/members', body);
+    console.log("body ",body);
+    const res = await api.put<ApiResponse<string>>('/v1/members', body);
     return res.data;
   } catch (err) {
     handleAxiosError(err);
