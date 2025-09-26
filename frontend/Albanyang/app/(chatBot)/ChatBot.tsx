@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,10 +11,12 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { getChatbotHistories, sendChatbotQuery } from '@/api/Chatbot';
+import NavBar, { Role } from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
-import { sendChatbotQuery, getChatbotHistories } from '@/api/Chatbot';
+import { useMemberStore } from "@/store/useMemberStore";
 
 // 메시지 타입 정의
 interface Message {
@@ -25,9 +27,13 @@ interface Message {
 }
 
 export default function ChatbotPage() {
+  const memberStore = useMemberStore();
+  const myRole = memberStore.memberForm.role;
+
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
-  
+  const [role, setRole] = useState<Role>(myRole ? myRole : 'alba');
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -265,6 +271,11 @@ export default function ChatbotPage() {
           </View>
         </View>
       </KeyboardAvoidingView>
+
+              <NavBar
+              role={role}
+              ></NavBar>
+
     </SafeAreaView>
   );
 }

@@ -18,9 +18,9 @@ export interface MemberData {
   name: string;
   phone: string;
   email?: string;
-  gender?: string;
+  gender?: string | number;
   age?: string;
-  account?: string;
+  account: string |null;
 }
 
 // 회원 검색 응답 타입 (간단한 버전)
@@ -93,7 +93,8 @@ export async function getMemberByPhone(phone: string) {
 // 회원정보를 수정합니다.
 export async function updateMember(body: UpdateMemberRequest) {
   try {
-    const res = await api.put<ApiResponse<string>>('/api/v1/members', body);
+    console.log("body ",body);
+    const res = await api.put<ApiResponse<string>>('/v1/members', body);
     return res.data;
   } catch (err) {
     handleAxiosError(err);

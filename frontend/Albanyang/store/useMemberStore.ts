@@ -1,16 +1,22 @@
 import { MemberData } from '@/api/Member';
+import { Role } from '@/components/navBar/NavBar';
 import { create } from 'zustand';
 
+
+interface MemberStoreData extends MemberData{
+  role? : Role 
+}
+
 type MemberStore = {
-    memberForm : MemberData
-    setForm : (partial :Partial<MemberData>) => void;  
+    memberForm : MemberStoreData
+    setForm : (partial :Partial<MemberStoreData>) => void;  
     resetForm :()=>void;
 }
 
 export const useMemberStore = create<MemberStore>((set) => ({
-  memberForm: {} as MemberData,
+  memberForm: {} as MemberStoreData,
   setForm: (partial) => set((state) => ({ memberForm: { ...state.memberForm, ...partial } })),
-  resetForm: () => set({ memberForm: {} as MemberData }),
+  resetForm: () => set({ memberForm: {} as MemberStoreData }),
 }));
 
 export const getState = useMemberStore.getState();

@@ -10,8 +10,8 @@ type AgeOption = {
 };
 
 type AgeDropdownProps = {
-  value: string | null;
-  onChange: (value: string) => void;
+  value: number | null;
+  onChange: (value: number) => void;
   containerStyle?: StyleProp<ViewStyle>;
   placeholder?: string;
   // styles.inputField을 바로 덮어쓰지 않도록 button처럼 덧붙일 수 있음
@@ -32,7 +32,7 @@ export default function AgeDropdown({
   containerStyle,
   placeholder = "선택하세요",
 }: AgeDropdownProps) {
-
+  console.log("벨류 :", value)
   const [focus, onFocus] = useState(false);
 
   return (
