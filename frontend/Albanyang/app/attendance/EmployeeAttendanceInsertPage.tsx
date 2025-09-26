@@ -11,7 +11,14 @@ import { Dropdown } from "react-native-element-dropdown";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
-const CONDITION_DATA = [
+export enum ConditionEnum{
+    "정상" = 0,
+    "지각" = 1,
+    "조퇴" = 2,
+    "결근" = 3
+}
+
+export const CONDITION_DATA = [
   { label: "정상", value: "0" },
   { label: "지각", value: "1" },
   { label: "조퇴", value: "2" },
@@ -19,18 +26,36 @@ const CONDITION_DATA = [
 ];
 
 
-export default function EmployeeAttendanceInsertPage(){
+
+interface EmployeeAttendanceInsertProps {
+    prop_name : string,
+    prop_date : string,
+    prop_restTime : string,
+    prop_condition : ConditionEnum,
+    prop_startTime : string,
+    prop_finishTime : string,
+
+}
+
+export default function EmployeeAttendanceInsertPage({
+    prop_condition,
+    prop_date,
+    prop_finishTime,
+    prop_name,
+    prop_restTime,
+    prop_startTime
+} : EmployeeAttendanceInsertProps){
     const insets = useSafeAreaInsets();
     const router = useRouter();
 
-    const [name, setName] = useState("정태승");
-    const [date, setDate] = useState("2025.01.01")
-    const [restTime , setRestTime] = useState("30");
-    const [condition, setCondition] = useState("");
+    const [name, setName] = useState(prop_name);
+    const [date, setDate] = useState(prop_date)
+    const [restTime , setRestTime] = useState(prop_restTime);
+    const [condition, setCondition] = useState(prop_condition);
     const [focus1, setFocus1] =  useState(false);
     const [focus2, setFocus2] =  useState(false);
-    const [startTime, setStartTime] = useState("00.50");
-    const [finishTime, setFinishTime] = useState("15:15");
+    const [startTime, setStartTime] = useState(prop_startTime);
+    const [finishTime, setFinishTime] = useState(prop_finishTime);
 
 
     return (

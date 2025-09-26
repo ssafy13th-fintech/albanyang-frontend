@@ -1,32 +1,31 @@
 // app/(mainPage)/EmployerMainPage.tsx
-import { Ionicons } from '@expo/vector-icons';
-import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
+  Alert,
   Dimensions,
   Image,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Alert,
-  RefreshControl,
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from "expo-router";
 
 import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faBell } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 // API imports
 import { getMe } from '@/api/Member';
-import { getStores } from '@/api/Stores';
-import { getTimesheetsByDate } from '@/api/TimeSheet';
 import { getStoreSchedules } from '@/api/Schedule';
+import { getStores } from '@/api/Stores';
+import { getTimesheetsByDate } from '@/api/Timesheet';
 
 // ====== 레이아웃 상수 ======
 const TOP_PADDING = 8;
@@ -520,14 +519,11 @@ export default function EmployerMainPage() {
   const handleNotificationPress = () => {
     const selectedStore = stores[selectedStoreIndex];
     if (selectedStore) {
-<<<<<<< HEAD
       router.push({
         pathname: "/ViewNotification",
         params: { storeId: selectedStore.id }
       });
-=======
-      router.push('/ViewNotification');
->>>>>>> 9ba8acc36f0a1de49ad56c4f71dcba8fa7000447
+
     }
   };
 

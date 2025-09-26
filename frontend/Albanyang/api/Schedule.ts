@@ -80,7 +80,7 @@ function handleAxiosError(err: unknown): never {
 
 // GET /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 특정 스케줄 조회
 // 🔴 수정: scheduleId만 path에 있음 (storeId, staffId는 path에 없음)
-export async function getScheduleById(scheduleId: number) {
+export async function getScheduleById(scheduleId: number, storeId : number, staffId :number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
 
   try {
@@ -97,6 +97,8 @@ export async function getScheduleById(scheduleId: number) {
 // 🔴 수정: scheduleId만 path에 있음
 export async function updateSchedule(
   scheduleId: number,
+  storeId : number,
+  staffId : number,
   scheduleData: UpdateScheduleRequest
 ) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
@@ -114,7 +116,7 @@ export async function updateSchedule(
 
 // DELETE /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 스케줄 삭제
 // 🔴 수정: scheduleId만 path에 있음
-export async function deleteSchedule(scheduleId: number) {
+export async function deleteSchedule(scheduleId: number, storeId : number, staffId : number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
 
   try {

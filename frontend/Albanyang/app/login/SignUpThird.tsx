@@ -1,17 +1,3 @@
-/*
-export interface RegisterRequest {
-  email: string; // *r
-  password: string; // *r
-  name: string; // *r
-  phone: string; // *r
-  gender?: number;
-  age?: number;
-  role?: number;
-  token?: string;
-}
-*/
-
-
 import { registerMember } from '@/api/Member';
 import { inquireTransactionHistoryByUniqueNo, openAccountAuth } from '@/api/SSAFYOpenapi';
 import { getFcmToken } from '@/app/_layout';
@@ -128,8 +114,14 @@ export default function Signup() {
                   try{
                   const fcmtoken = await getFcmToken();
                   // console.log("fcm token zz " ,fcmtoken)
-                  signUpStore.setForm({token : fcmtoken});
-                  await registerMember(signUpStore.registerForm);
+                  // signUpStore.setForm({token : fcmtoken, accountNum : null, accountPassword : null});
+                      const payload = {
+                      ...signUpStore.registerForm, // 기존 정보
+                      accountPassword: "",
+                      account : "",
+                      token: fcmtoken
+                      };
+                  await registerMember(payload);
                   signUpStore.resetForm();
                   router.push("/login/SignUpComplete")
                   }catch(e){
@@ -155,6 +147,8 @@ export default function Signup() {
                 onPress={async () => {
                   try{
                   if(!isSent){
+                    console.log("auth!");
+                    console.log(api_key,user_key,accountNum)
                       //1원 인증을 보냅니다.
                     const openAuth = await openAccountAuth({
                       apiKey : api_key,
@@ -162,7 +156,6 @@ export default function Signup() {
                       accountNo : accountNum,
                       authText : 'SSAFY'
                     })
-                    
                     //거래 고유번호를 바탕으로 거래 내역을 얻습니다.
                     const transactionUniqueNo = openAuth.REC.transactionUniqueNo
                     console.log("1원 인증 성공 : ", transactionUniqueNo)
