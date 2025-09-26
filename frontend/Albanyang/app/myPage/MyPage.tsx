@@ -154,7 +154,7 @@ export default function MyPage() {
         </ScrollView>
 
         <NavBar
-            role="alba"
+            role={myInfo.memberForm.role!}
         />
         </SafeAreaView>
 

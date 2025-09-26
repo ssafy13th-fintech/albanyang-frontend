@@ -62,9 +62,9 @@ const ROUTES: Record<Role, Record<TabKey, string>> = {
   },
   sajang: {
     home: '/(mainPage)/EmployerMainPage',
-    calendar: '/schedule',
+    calendar: '/attendance/EmployeeAttendancePage',
     albot: '/ChatBot',
-    sum: '/salary-management',
+    sum: '/payslip/employer/PayslipListOwner',
     profile: '/myPage/MyPage',
   },
 };
