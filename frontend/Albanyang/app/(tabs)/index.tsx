@@ -1,4 +1,4 @@
-import { loadToken, TokenDecodeObject } from '@/api/authorization/AuthTokenStorage';
+import { deleteToken, loadToken, TokenDecodeObject } from '@/api/authorization/AuthTokenStorage';
 import { jwtDecode } from 'jwt-decode';
 import React, { useEffect, useState } from 'react';
 import DevMenu from '../(develop)/DevMenu';
@@ -8,11 +8,12 @@ import EmployerMainPage from '../(mainPage)/EmployerMainPage';
 export default function HomeScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     let mounted = true;
     const getToken = async () => {
       try {
+        await deleteToken();
         const t = await loadToken(); // string | null 예상
         if (!mounted) return;
         setToken(t);

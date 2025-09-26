@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Image, ImageSourcePropType, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { deleteToken } from "@/api/authorization/AuthTokenStorage";
 import PanelMenuButton from "@/components/buttons/PanelMenuButton";
 import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
@@ -29,7 +30,7 @@ export default function MyPage() {
     const [email, setEmail] = useState(myInfo.memberForm.email)
     const [bankname, setBankName] = useState<string|null>("한국은행")
     const [bankAccountNum, setBankAccountNum] = useState<string|null>(myInfo.memberForm.account);
-
+    console.log("계좌 ",bankAccountNum)
     const isAlba = myInfo.memberForm.role === 'alba' ? 1 : 0
 
     const mascot_path = isAlba === 1 ? Mascot.mascot_basic_alba : Mascot.mascot_basic_boss;
@@ -44,9 +45,13 @@ export default function MyPage() {
         { title : "계좌 등록 및 수정", 
         icon : require("@/assets/images/icon/icon_insert.png"),
             action : () => {router.push("/myPage/MyAccountInsertionPage")} },
-        { title : "통계" , 
+        { title : "로그 아웃" , 
         icon : require("@/assets/images/icon/icon_insert.png"),
-            action : () => {router.push("/")} },
+            action : async () => {
+                await deleteToken();
+                alert("로그아웃 되었습니다.")
+                router.replace("/login/Login")
+            } },
         { title : "회원 탈퇴", 
         icon : require("@/assets/images/icon/icon_insert.png"),
     action : () => {router.push("/myPage/WithDrawPage")} },
@@ -143,7 +148,7 @@ export default function MyPage() {
                         fontSize : sizes.smallText
                     }}
                     
-                    >   {bankAccountNum}</Text></Text>
+                    >{bankAccountNum}</Text></Text>
                     </View>
                 </View>
             </View>
