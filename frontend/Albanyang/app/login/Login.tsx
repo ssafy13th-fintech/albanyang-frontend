@@ -8,16 +8,10 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-<<<<<<< HEAD
 import { login } from "@/api/Auth";
-=======
-import { login } from "@/api/auth";
 import { saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
->>>>>>> d8234b7afdf085459b3ca8330fcb90fe75384b77
 import LoginTextInput from "@/components/textInput/loginTextInput";
-import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
-import { getMe } from "@/api/Member";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
