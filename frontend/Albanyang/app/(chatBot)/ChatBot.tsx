@@ -12,7 +12,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getChatbotHistories, sendChatbotQuery } from '@/api/Chatbot';
-import NavBar, { Role } from "@/components/navBar/NavBar";
+import NavBar, { NAVBAR_BASE_HEIGHT, Role } from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
@@ -38,6 +38,8 @@ export default function ChatbotPage() {
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [focus, setFocus] = useState(false);
+
 
   // 컴포넌트 마운트 시 챗봇 내역 로드
   useEffect(() => {
@@ -247,7 +249,9 @@ export default function ChatbotPage() {
           )}
         </ScrollView>
 
-        <View style={[styles.inputContainer, { paddingBottom: 12 }]}>
+        <View style={[styles.inputContainer, { paddingBottom: 
+          focus ? 16 :
+          NAVBAR_BASE_HEIGHT }]}>
           <View style={styles.inputWrapper}>
             <TextInput
               style={styles.textInput}
@@ -255,6 +259,8 @@ export default function ChatbotPage() {
               value={inputText}
               onChangeText={setInputText}
               onSubmitEditing={sendMessage}
+              onFocus={()=>setFocus(true)}
+              onBlur ={()=>setFocus(false)}
               multiline
               returnKeyType="send"
             />
