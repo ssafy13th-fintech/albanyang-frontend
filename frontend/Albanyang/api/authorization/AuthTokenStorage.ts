@@ -1,13 +1,16 @@
 import { jwtDecode } from 'jwt-decode';
 import * as Keychain from 'react-native-keychain';
 
-
 export interface TokenDecodeObject{
   id : number,
   role : string,
   email :string,
   iat : string,
   exp  : string
+}
+
+interface JwtPayload {
+  role?: string;
 }
 
 
@@ -42,7 +45,6 @@ export async function deleteToken() {
   await Keychain.resetGenericPassword();
 }
 
-
 /**
  * 저장된 베어러 토큰을 디코딩합니다.
  * 
@@ -52,4 +54,22 @@ export async function decodeToken() : Promise<TokenDecodeObject>{
   const token = await loadToken();
   if(token) return jwtDecode(token) as Promise<TokenDecodeObject>
   else return {} as Promise<TokenDecodeObject>
+}
+
+
+/**
+ * 토큰에서 회원의 역할을 가져옵니다.
+ * @returns 토큰에 있는 role (EMPLOYER, EMPLOYEE)
+ */
+export async function getRoleFromToken(): Promise<string | null> {
+  try {
+    const token = await loadToken();
+    if (!token) return null;
+
+    const decoded = jwtDecode<JwtPayload>(token);
+    return decoded.role || null;
+  } catch (e) {
+    console.error('Failed to decode token', e);
+    return null;
+  }
 }
