@@ -1,17 +1,3 @@
-/*
-export interface RegisterRequest {
-  email: string; // *r
-  password: string; // *r
-  name: string; // *r
-  phone: string; // *r
-  gender?: number;
-  age?: number;
-  role?: number;
-  token?: string;
-}
-*/
-
-
 import { registerMember } from '@/api/Member';
 import { inquireTransactionHistoryByUniqueNo, openAccountAuth } from '@/api/SSAFYOpenapi';
 import { getFcmToken } from '@/app/_layout';
@@ -128,8 +114,14 @@ export default function Signup() {
                   try{
                   const fcmtoken = await getFcmToken();
                   // console.log("fcm token zz " ,fcmtoken)
-                  signUpStore.setForm({token : fcmtoken});
-                  await registerMember(signUpStore.registerForm);
+                  // signUpStore.setForm({token : fcmtoken, accountNum : null, accountPassword : null});
+                      const payload = {
+                      ...signUpStore.registerForm, // 기존 정보
+                      accountPassword: "",
+                      account : "",
+                      token: fcmtoken
+                      };
+                  await registerMember(payload);
                   signUpStore.resetForm();
                   router.push("/login/SignUpComplete")
                   }catch(e){

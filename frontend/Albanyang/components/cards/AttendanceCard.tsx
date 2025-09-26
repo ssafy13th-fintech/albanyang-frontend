@@ -72,17 +72,6 @@ export default function AttendanceCard ({
           } 
         })}}
 
-
-// interface EmployeeAttendanceInsertProps {
-//     prop_name : string,
-//     prop_date : string,
-//     prop_restTime : string,
-//     prop_condition : ConditionEnum,
-//     prop_startTime : string,
-//     prop_finishTime : string,
-// }
-
-
         style = {{
             backgroundColor : colors.main,
             alignItems : "center",
