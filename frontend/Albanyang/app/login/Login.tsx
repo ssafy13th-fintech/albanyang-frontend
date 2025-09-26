@@ -28,7 +28,6 @@ export default function Login() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const memberStore = useMemberStore();
-
   
 
   return (
@@ -69,13 +68,15 @@ export default function Login() {
                 const response = await login({email : id, password : pw});
                 // console.log("success login ", response.data.accessToken)
 
+                //token 디코딩
                 await saveToken(response.data.accessToken)
                 const decode = jwtDecode(response.data.accessToken) as TokenDecodeObject
-               
                 console.log("decode msg ",decode.role)
 
+                //내 정보 가져오기
                 const me = await getMe();
                 memberStore.setForm(me.data);  
+                memberStore.setForm({role : decode.role === "EMPLOYEE" ? 'alba' : 'sajang'})               
                // console.log("my uinfo ", me);
 
                if(decode.role === "EMPLOYEE"){

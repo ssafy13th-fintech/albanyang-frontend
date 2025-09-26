@@ -1,13 +1,20 @@
 // components/navBar/NavBar.tsx
-import React, { memo, useMemo } from 'react';
-import { View, Image, TouchableOpacity, Text, StyleSheet, GestureResponderEvent } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { sizes } from '@/constants/size/FontSize';
 import { FONTS } from '@/constants/fonts/Fonts';
+import { sizes } from '@/constants/size/FontSize';
+import { useRouter } from 'expo-router';
+import React, { memo, useMemo } from 'react';
+import {
+  GestureResponderEvent,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type Role = 'alba' | 'sajang';
-type TabKey = 'home' | 'calendar' | 'albot' | 'sum' | 'profile';
+export type Role = 'alba' | 'sajang';
+export type TabKey = 'home' | 'calendar' | 'albot' | 'sum' | 'profile';
 
 export type NavBarProps = {
   role: Role;
@@ -21,7 +28,6 @@ export type NavBarProps = {
   inactiveIconColor?: string;
 };
 
-// 외부에서 하단 패딩 계산에 쓰는 기준 높이(디자인 스펙)
 export const NAVBAR_BASE_HEIGHT = 56;
 
 const ICONS = {
@@ -46,25 +52,23 @@ const LABELS: Record<Role, Record<TabKey, string>> = {
   sajang: { home: '홈', calendar: '근태 관리', albot: 'AI 봇', sum: '급여 관리', profile: '마이페이지' },
 };
 
-// 라우트 경로 정의
 const ROUTES: Record<Role, Record<TabKey, string>> = {
   alba: {
     home: '/(mainPage)/EmployeeMainPage',
     calendar: '/schedule',
-    albot: '/ai-chat',
+    albot: '/ChatBot',
     sum: '/salary',
-    profile: '/myPage',
+    profile: '/myPage/MyPage',
   },
   sajang: {
     home: '/(mainPage)/EmployerMainPage',
     calendar: '/schedule',
-    albot: '/ai-chat',
+    albot: '/ChatBot',
     sum: '/salary-management',
-    profile: '/myPage',
+    profile: '/myPage/MyPage',
   },
 };
 
-// 컬러 아이콘을 유지할 탭들 (tintColor 적용하지 않음)
 const COLOR_PRESERVED_TABS: TabKey[] = ['albot'];
 
 const TAB_ICON = 24;
@@ -72,7 +76,6 @@ const NAVBAR_TOP = 6;
 const NAVBAR_BOTTOM_MIN = 8;
 const SIDE_PADDING = 16;
 
-// 폰트 폴백 함수
 const getFontFamily = () => {
   try {
     return FONTS?.jamsil?.regular3 || 'System';
@@ -81,7 +84,6 @@ const getFontFamily = () => {
   }
 };
 
-// 폰트 사이즈 폴백 함수
 const getFontSize = () => {
   try {
     return sizes?.smallText || 12;
@@ -103,8 +105,7 @@ function NavBar({
 }: NavBarProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  
-  // 안전한 하단 패딩 계산 - 최소 패딩만 적용
+
   const bottomPad = Math.max(insets.bottom || 0, NAVBAR_BOTTOM_MIN);
   const totalHeight = NAVBAR_BASE_HEIGHT + bottomPad;
 
@@ -123,15 +124,12 @@ function NavBar({
   const fontFamily = getFontFamily();
 
   const handleTabPress = (key: TabKey, route: string, e: GestureResponderEvent) => {
-    // 커스텀 onTabPress가 있으면 먼저 실행
     if (onTabPress) {
       onTabPress(key, e);
     }
-    
-    // 현재 활성 탭이 아닐 때만 라우팅
     if (activeKey !== key) {
       try {
-        // router.push(route);
+        router.push(route);
       } catch (error) {
         console.warn(`Failed to navigate to ${route}:`, error);
       }
@@ -143,14 +141,21 @@ function NavBar({
       style={[
         styles.container,
         {
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
           height: totalHeight,
-          paddingBottom: bottomPad,
+          paddingBottom: bottomPad + 8,
           paddingTop: NAVBAR_TOP,
           paddingHorizontal: SIDE_PADDING,
           borderTopColor: borderColor,
           backgroundColor,
+          zIndex: 999,
+          elevation: 12,
         },
       ]}
+      pointerEvents="auto"
     >
       {items.map((item) => {
         const isActive = activeKey === item.key;
