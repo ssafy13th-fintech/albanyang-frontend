@@ -62,7 +62,7 @@ export async function sendStaffInvitation(storeId: number, wage: number, email: 
 
   try {
     const res = await api.post<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/invitation`,
+      `/v1/stores/${storeId}/invitation`,
       null,
       {
         params: {
@@ -84,7 +84,7 @@ export async function respondToStaffInvitation(storeId: number, accept: boolean)
 
   try {
     const res = await api.post<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/invitation/response`,
+      `/v1/stores/${storeId}/invitation/response`,
       null,
       {
         params: {
@@ -104,7 +104,7 @@ export async function getStaffList(storeId: number) {
 
   try {
     const res = await api.get<ApiResponse<StaffListResponse>>(
-      `/api/v1/stores/${storeId}/staffs`
+      `/v1/stores/${storeId}/staffs`
     );
     return res.data;
   } catch (err) {

@@ -31,9 +31,24 @@ type AgeKey = keyof typeof DATA; // "TEENS" | "TWENTIES" | ...
 
 export default function MyInfoInsertion() {
     const insets = useSafeAreaInsets();
+    const memberStore  = useMemberStore();
+    const myInfo = memberStore.memberForm;
+      // useEffect(() => {
+      //   const fetchUser = async () => {
+      //     try {
+      //       const res = await getMe();
+      //       memberStore.setForm({name :res.data.name, account : res.data.account,
+      //         age : res.data.age, email : res.data.email, gender : res.data.gender, phone : res.data.phone
+      //       })
+      //     } catch (error) {
+      //       console.error("getMe 실패:", error);
+      //       // 인증 실패 시 로그인 페이지로 이
+      //     }
+      //   };
 
-    const myInfo = useMemberStore().memberForm;
-
+      //   fetchUser();
+      // }, []);
+  
     console.log(myInfo.age)
     const [name, setName] = useState(myInfo.name);
     let ageKey: AgeKey | undefined = myInfo.age as AgeKey | undefined;
@@ -45,9 +60,8 @@ export default function MyInfoInsertion() {
     const [gender, setGender] = useState<number|null>(myInfo.gender=== "FEMALE" ? 1 : 2);
 
     const router = useRouter();
-    const memberStore =  useMemberStore();
+
     return (
-        
         <SafeAreaView style = {[styles.rootContainer, {paddingHorizontal : insets.left + 16}]}>
          
          <SmallHeader

@@ -58,7 +58,7 @@ function handleAxiosError(err: unknown): never {
 export async function getStoreById(storeId: number) {
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
   try {
-    const res = await api.get<ApiResponse<StoreData>>(`/api/v1/stores/${storeId}`);
+    const res = await api.get<ApiResponse<StoreData>>(`/v1/stores/${storeId}`);
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -70,7 +70,7 @@ export async function getStoreById(storeId: number) {
 export async function updateStore(storeId: number, body: StoreRequestBody) {
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
   try {
-    const res = await api.put<ApiResponse<string>>(`/api/v1/stores/${storeId}`, body);
+    const res = await api.put<ApiResponse<string>>(`/v1/stores/${storeId}`, body);
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -82,7 +82,7 @@ export async function updateStore(storeId: number, body: StoreRequestBody) {
 export async function deleteStore(storeId: number) {
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
   try {
-    const res = await api.delete<ApiResponse<string>>(`/api/v1/stores/${storeId}`);
+    const res = await api.delete<ApiResponse<string>>(`/v1/stores/${storeId}`);
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -93,7 +93,7 @@ export async function deleteStore(storeId: number) {
 // 모든 사업장 조회
 export async function getStores() {
   try {
-    const res = await api.get<ApiResponse<StoreListResponse>>('/api/v1/stores');
+    const res = await api.get<ApiResponse<StoreListResponse>>('/v1/stores');
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -107,7 +107,7 @@ export async function createStore(body: StoreRequestBody) {
     throw new Error('All fields in StoreRequestBody are required');
   }
   try {
-    const res = await api.post<ApiResponse<StoreData>>('/api/v1/stores', body);
+    const res = await api.post<ApiResponse<StoreData>>('/v1/stores', body);
     return res.data;
   } catch (err) {
     handleAxiosError(err);

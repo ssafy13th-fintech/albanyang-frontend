@@ -10,6 +10,7 @@ interface LabelTextInputProps{
     value : string,
     onChangeText : (v : string) => void,
     placeHolder? : string,
+    disabled? : boolean,
     isDropdown? : boolean
 }
 
@@ -26,6 +27,7 @@ export default function LabelTextInput({
     value,
     onChangeText,
     placeHolder,
+    disabled = false,
     isDropdown = false
 }:LabelTextInputProps){
 
@@ -41,6 +43,7 @@ export default function LabelTextInput({
                     {titleText}
                   </Text>
                   <TextInput
+                    editable ={!disabled}
                     placeholder= {placeHolder}
                     onFocus={() => setFocus(true)}
                     onBlur ={() => setFocus(false)}
@@ -48,6 +51,7 @@ export default function LabelTextInput({
                     value = {value}
                     style = {{
                       borderColor : focus ? colors.accent : colors.main,
+                      backgroundColor : disabled ? colors.disable : colors.text.reverse,
                       borderRadius : 10,
                       borderWidth : focus ? 2 : 1,
                       paddingLeft : 16,

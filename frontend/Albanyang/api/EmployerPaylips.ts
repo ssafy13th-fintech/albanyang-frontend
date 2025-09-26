@@ -99,7 +99,7 @@ export async function updatePayslip(
   if (payslipId === undefined || payslipId === null) throw new Error('payslipId (required)');
   try {
     const res = await api.put<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/payslips/${payslipId}`,
+      `/v1/stores/${storeId}/payslips/${payslipId}`,
       body
     );
     return res.data;
@@ -116,7 +116,7 @@ export async function sendPayslip(storeId: number, payslipId: number, staffId: n
   try {
     // staffId은 쿼리 파라미터로 전달
     const res = await api.post<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/payslips/${payslipId}`,
+      `/v1/stores/${storeId}/payslips/${payslipId}`,
       null,
       { params: { staffId } }
     );
@@ -132,7 +132,7 @@ export async function deletePayslip(storeId: number, payslipId: number) {
   if (payslipId === undefined || payslipId === null) throw new Error('payslipId (required)');
   try {
     const res = await api.delete<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/payslips/${payslipId}`
+      `/v1/stores/${storeId}/payslips/${payslipId}`
     );
     return res.data;
   } catch (err) {
@@ -145,7 +145,7 @@ export async function getPayslipsByMonth(storeId: number, month?: string) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
   try {
     const res = await api.get<ApiResponse<PayslipListResponse>>(
-      `/api/v1/stores/${storeId}/payslips`,
+      `/v1/stores/${storeId}/payslips`,
       { params: month ? { month } : {} }
     );
     return res.data;
@@ -165,7 +165,7 @@ export async function generatePayslip(params: { storeId: number; staffId: number
     if (month) query.month = month;
     if (payslipId !== undefined && payslipId !== null) query.payslipId = payslipId;
     const res = await api.put<ApiResponse<GeneratedPayslipResponse>>(
-      `/api/v1/stores/${storeId}/payslips`,
+      `/v1/stores/${storeId}/payslips`,
       null,
       { params: query }
     );
@@ -182,7 +182,7 @@ export async function getPayslipsByStaff(storeId: number, staffId: number, year:
   if (!year) throw new Error('year (required)');
   try {
     const res = await api.get<ApiResponse<PayslipListResponse>>(
-      `/api/v1/stores/${storeId}/payslips/staffs/${staffId}`,
+      `/v1/stores/${storeId}/payslips/staffs/${staffId}`,
       { params: { year } }
     );
     return res.data;

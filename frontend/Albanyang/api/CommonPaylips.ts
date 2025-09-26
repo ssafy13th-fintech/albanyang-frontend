@@ -76,7 +76,7 @@ export async function getCommonPayslip(storeId: number, payslipId: number) {
 
   try {
     const res = await api.get<ApiResponse<CommonPayslipResponse>>(
-      `/api/v1/stores/${storeId}/payslips/${payslipId}`
+      `/v1/stores/${storeId}/payslips/${payslipId}`
     );
     return res.data;
   } catch (err) {

@@ -4,7 +4,7 @@ import { create } from 'zustand';
 
 
 interface MemberStoreData extends MemberData{
-  role? : Role 
+  role? : Role
 }
 
 type MemberStore = {
