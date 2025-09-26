@@ -33,7 +33,7 @@ const PayslipListItem = ({
       activeOpacity={0.7}
     >
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.payDate}>{payDate} 지급일</Text>
+      <Text style={styles.payDate}>{payDate}</Text>
     </TouchableOpacity>
   );
 };
