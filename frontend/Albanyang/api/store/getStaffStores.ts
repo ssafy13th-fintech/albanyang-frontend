@@ -1,5 +1,5 @@
 // src/services/storeService.ts
-import { api, handleResponse } from "../Api";
+import { api, handleResponse } from "../api";
 
 export interface Store {
   id: string;

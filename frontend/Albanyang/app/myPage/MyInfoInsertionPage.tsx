@@ -1,4 +1,4 @@
-import { getMe, updateMember, UpdateMemberRequest } from "@/api/member";
+import { getMe, updateMember, UpdateMemberRequest } from "@/api/Member";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import AgeDropdown from "@/components/dropdown/AgeDropDownByElement";
 import SmallHeader from "@/components/header/SmallHeader";

@@ -1,5 +1,5 @@
 // src/services/payslipService.ts
-import { api, handleResponse } from "../Api";
+import { api, handleResponse } from "../api";
 
 export interface PayslipDetailData {
   id: number;

@@ -1,4 +1,4 @@
-import { deleteMember } from "@/api/member";
+import { deleteMember } from "@/api/Member";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
