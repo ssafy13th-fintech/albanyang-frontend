@@ -1,13 +1,15 @@
 // ../Albanyang/Schedule.ts
 
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
+import { api } from './authorization/AuthHeader';
+
 
 // Axios 인스턴스
-const api: AxiosInstance = axios.create({
-  baseURL: 'http://j13a605.p.ssafy.io:8080',
-  timeout: 10000,
-  headers: { 'Content-Type': 'application/json' },
-});
+// const api: AxiosInstance = axios.create({
+//   baseURL: 'http://j13a605.p.ssafy.io:8080',
+//   timeout: 10000,
+//   headers: { 'Content-Type': 'application/json' },
+// });
 
 // 공통 응답 타입
 export interface ApiResponse<T = any> {
@@ -84,7 +86,7 @@ export async function getScheduleById(storeId: number, staffId: number, schedule
 
   try {
     const res = await api.get<ApiResponse<Schedule>>(
-      `/api/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`
+      `/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`
     );
     return res.data;
   } catch (err) {
@@ -105,7 +107,7 @@ export async function updateSchedule(
 
   try {
     const res = await api.put<ApiResponse<Schedule>>(
-      `/api/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`,
+      `/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`,
       scheduleData
     );
     return res.data;
@@ -122,7 +124,7 @@ export async function deleteSchedule(storeId: number, staffId: number, scheduleI
 
   try {
     const res = await api.delete<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`
+      `/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`
     );
     return res.data;
   } catch (err) {
@@ -141,7 +143,7 @@ export async function createSchedule(
 
   try {
     const res = await api.post<ApiResponse<ScheduleListResponse>>(
-      `/api/v1/stores/${storeId}/staffs/${staffId}/schedule`,
+      `/v1/stores/${storeId}/staffs/${staffId}/schedule`,
       scheduleData
     );
     return res.data;
@@ -160,7 +162,7 @@ export async function getStoreSchedules(storeId: number, month?: string, date?: 
     if (date) params.date = date;
 
     const res = await api.get<ApiResponse<ScheduleListResponse>>(
-      `/api/v1/stores/${storeId}/schedule`,
+      `/v1/stores/${storeId}/schedule`,
       { params }
     );
     return res.data;

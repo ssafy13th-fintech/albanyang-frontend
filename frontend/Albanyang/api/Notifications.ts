@@ -1,13 +1,14 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
+import { api } from './authorization/AuthHeader';
 
 // Axios 인스턴스
-const api: AxiosInstance = axios.create({
-  baseURL: 'https://your-api-domain.com', // 실제 환경에 맞게 변경
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// const api: AxiosInstance = axios.create({
+//   baseURL: 'https://your-api-domain.com', // 실제 환경에 맞게 변경
+//   timeout: 10000,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// });
 
 // 공통 응답 타입
 export interface ApiResponse<T = any> {
@@ -57,7 +58,7 @@ export async function getNotifications(storeId: number) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
   try {
     const res = await api.get<ApiResponse<NotificationListResponse>>(
-      `/api/v1/stores/${storeId}/notifications`
+      `/v1/stores/${storeId}/notifications`
     );
     return res.data;
   } catch (err) {
@@ -71,7 +72,7 @@ export async function createNotification(storeId: number, body: CreateNotificati
   if (!body?.title || !body?.content) throw new Error('title and content are required');
   try {
     const res = await api.post<ApiResponse<NotificationDetail>>(
-      `/api/v1/stores/${storeId}/notifications`,
+      `/v1/stores/${storeId}/notifications`,
       body
     );
     return res.data;
@@ -86,7 +87,7 @@ export async function getNotification(storeId: number, notificationId: number) {
   if (notificationId === undefined || notificationId === null) throw new Error('notificationId (required)');
   try {
     const res = await api.get<ApiResponse<NotificationDetail>>(
-      `/api/v1/stores/${storeId}/notifications/${notificationId}`
+      `/v1/stores/${storeId}/notifications/${notificationId}`
     );
     return res.data;
   } catch (err) {
@@ -100,7 +101,7 @@ export async function deleteNotification(storeId: number, notificationId: number
   if (notificationId === undefined || notificationId === null) throw new Error('notificationId (required)');
   try {
     const res = await api.delete<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/notifications/${notificationId}`
+      `/v1/stores/${storeId}/notifications/${notificationId}`
     );
     return res.data;
   } catch (err) {
