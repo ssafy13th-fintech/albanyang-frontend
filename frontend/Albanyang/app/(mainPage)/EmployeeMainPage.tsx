@@ -28,7 +28,7 @@ import { sizes } from '@/constants/size/FontSize';
 // API imports
 import { getMyPayslips } from '@/api/EmployeePaylips';
 import { getStoreSchedules } from '@/api/Schedule';
-import { getStores } from '@/api/Stores';
+import { getMyStores } from '@/api/Staff';
 import { createMyTimesheet, getMyTimesheets, postMyTimesheetAction } from "@/api/TimeSheet";
 
 // ====== 레이아웃 상수 (수정됨) ======
@@ -139,7 +139,8 @@ const validateStoreTag = (tag: any): boolean => {
 // ====== API 호출 함수들 ======
 const fetchUserStores = async (): Promise<Store[]> => {
   try {
-    const storesData = await getStores();
+    //const storesData = await getStores();
+    const storesData = await getMyStores();
     return storesData.data.stores.map(store => ({
       id: store.id,
       name: store.name
