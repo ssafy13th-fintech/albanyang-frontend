@@ -2,7 +2,7 @@ import { useState } from "react";
 import {Image,Pressable,StyleSheet,Text,View} from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { login } from "@/api/auth";
+import { login } from "@/api/Auth";
 import { saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
 import LoginTextInput from "@/components/textInput/loginTextInput";

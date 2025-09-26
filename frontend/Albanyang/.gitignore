@@ -40,4 +40,4 @@ app-example
 
 #google-service
 google-services.json
-.env
+.env.idea/
