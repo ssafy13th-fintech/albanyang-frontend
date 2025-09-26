@@ -6,8 +6,13 @@ export interface Store {
   name: string;
 }
 
+export interface StoreListResponse{
+  stores: Store[];
+}
+
 export async function getStaffStores(): Promise<Store[]> {
   const token = await loadToken();
+
   return handleResponse<{ stores: Store[] }>(
     api.get("/v1/stores/me", {
       headers: {

@@ -2,7 +2,6 @@ import { AxiosError } from 'axios';
 import { api } from './authorization/AuthHeader';
 
 
-
 // Axios 인스턴스 (다른 api 파일들과 동일하게 설정)
 // const api: AxiosInstance = axios.create({
 //   baseURL: 'https://your-api-domain.com', // 프로젝트 환경에 맞게 변경

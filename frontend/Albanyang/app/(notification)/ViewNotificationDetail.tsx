@@ -26,7 +26,8 @@ export default function NoticeRegistration() {
 
   return (
     <SafeAreaView style={styles.rootContainer}>
-      <BackHeader headerText="공지사항" />
+      <BackHeader headerText="공지사항" 
+        backTo={{ pathname: "/ViewNotification", params: { tab: "notice" } }} />
       <View style={styles.container}>
         {loading && <ActivityIndicator size="large" color={colors.main} />}
         {error && <Text style={{ color: "red" }}>{error.message}</Text>}
