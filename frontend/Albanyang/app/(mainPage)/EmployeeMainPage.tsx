@@ -24,6 +24,8 @@ import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBell } from '@fortawesome/free-regular-svg-icons';
 
 // API imports
 import { getMyPayslips } from '@/api/EmployeePaylips';
@@ -504,10 +506,10 @@ const TopSection = ({ salaryInfo }: { salaryInfo: SalaryInfo | null }) => {
             pressed && styles.notificationButtonPressed
           ]}
           onPress={() => {
-            // router.push('/notifications');
+            router.push('/ViewNotification');
           }}
         >
-          <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
+          <FontAwesomeIcon icon={faBell} size={24} color={colors.text.primary} />
         </Pressable>
       </View>
 
