@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getOwnerStores } from '@/api/store/getOwnerStores';
 import { getStaffStores } from '@/api/store/getStaffStores';
 import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
@@ -20,29 +20,35 @@ interface Props {
 const RoleBasedDropdown = ({ selectedItem, onSelect, style, containerStyle }: Props) => {
   const [showModal, setShowModal] = useState(false);
   const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true); // ✅ 처음엔 로딩
 
-    useEffect(() => {
-        const fetchData = async () => {
-            console.log(selectedItem);
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const role = await getRoleFromToken();
 
-            const role =  await getRoleFromToken();
-            if(selectedItem == "매장을 선택해주세요"){
-              const storeList = await getOwnerStores();
-              setData(storeList);
-            }
-            else if(selectedItem == "전체"){
-              if (role === 'EMPLOYER') {
-                const storeList = await getOwnerStores();
-                setData([{ id: 'all', name: '전체' }, ...storeList]);
-              } else if(role === 'EMPLOYEE') {
-                const storeList = await getStaffStores();
-                setData([{ id: 'all', name: '전체' }, ...storeList]);
-              }
-            }
-        };
+        if (selectedItem === "매장을 선택해주세요") {
+          const storeList = await getOwnerStores();
+          setData(storeList);
+        } else if (selectedItem === "전체") {
+          if (role === "EMPLOYER") {
+            const storeList = await getOwnerStores();
+            setData([{ id: "all", name: "전체" }, ...storeList]);
+          } else if (role === "EMPLOYEE") {
+            const storeList = await getStaffStores();
+            setData([{ id: "all", name: "전체" }, ...storeList]);
+          }
+        }
+      } catch (err) {
+        console.error("매장 불러오기 실패:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchData();
-    }, []);
+    fetchData();
+  }, []); // ✅ 마운트될 때 한 번 실행
 
   const handleSelect = (item: any) => {
     onSelect?.(item);
@@ -59,18 +65,25 @@ const RoleBasedDropdown = ({ selectedItem, onSelect, style, containerStyle }: Pr
       <Modal visible={showModal} transparent onRequestClose={() => setShowModal(false)}>
         <TouchableOpacity style={styles.overlay} onPress={() => setShowModal(false)} activeOpacity={1}>
           <View style={styles.modalContent}>
-            {data.map((item) => (
-              <TouchableOpacity key={item.id} style={styles.option} onPress={() => handleSelect(item)}>
-                <Text style={styles.optionText}>{item.name}</Text>
-                {selectedItem === item.name && <Text style={styles.check}>✓</Text>}
-              </TouchableOpacity>
-            ))}
+            {loading ? (
+              <View style={{ padding: 20, alignItems: "center" }}>
+                <ActivityIndicator size="small" color={colors.main} />
+              </View>
+            ) : (
+              data.map((item) => (
+                <TouchableOpacity key={item.id} style={styles.option} onPress={() => handleSelect(item)}>
+                  <Text style={styles.optionText}>{item.name}</Text>
+                  {selectedItem === item.name && <Text style={styles.check}>✓</Text>}
+                </TouchableOpacity>
+              ))
+            )}
           </View>
         </TouchableOpacity>
       </Modal>
     </View>
   );
 };
+
 
 export default RoleBasedDropdown;
 

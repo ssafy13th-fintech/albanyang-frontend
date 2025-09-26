@@ -1,5 +1,5 @@
 import { getStores } from "@/api/Stores";
-import { getTimesheetsByDate } from "@/api/TimeSheet";
+import { getTimesheetsByDate } from "@/api/Timesheet";
 import AttendanceCard from "@/components/cards/AttendanceCard";
 import SmallHeader from "@/components/header/SmallHeader";
 import NavBar from "@/components/navBar/NavBar";

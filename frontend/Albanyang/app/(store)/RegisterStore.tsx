@@ -28,7 +28,7 @@ const SIDE_PADDING = 20;
 const SECTION_SPACING = 16;
 const BOTTOM_BUTTON_HEIGHT = 64;
 
-export default function BusinessRegistration() {
+export default function RegisterStore() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
