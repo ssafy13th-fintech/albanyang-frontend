@@ -1,13 +1,16 @@
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
+import { api } from './authorization/AuthHeader';
+
+
 
 // Axios 인스턴스 (다른 api 파일들과 동일하게 설정)
-const api: AxiosInstance = axios.create({
-  baseURL: 'https://your-api-domain.com', // 프로젝트 환경에 맞게 변경
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// const api: AxiosInstance = axios.create({
+//   baseURL: 'https://your-api-domain.com', // 프로젝트 환경에 맞게 변경
+//   timeout: 10000,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+// });
 
 // 공통 응답 타입
 export interface ApiResponse<T = any> {
@@ -16,15 +19,19 @@ export interface ApiResponse<T = any> {
   data: T;
 }
 
-// Timesheet 타입
+/**
+ *  - id : Timesheet pk
+ *  - commuteData : 일하는 날
+ *  - arrivedAt : 출근 시간
+ *  - leftAt : 퇴근 시간 
+ *  - nickname : 근무자 닉네임
+ *  - staffId : 스태프 아이디
+ */
 export interface TimesheetItem {
   id: number;
   commuteDate: string; // YYYY-MM-DD
   arrivedAt: string | null;
   leftAt: string | null;
-  commuteTime: number;
-  breakTime: number;
-  editable: boolean;
   staffId: number;
   nickname: string;
 }
@@ -54,7 +61,7 @@ export async function getMyTimesheets(storeId: number, params?: { date?: string;
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
   try {
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
-      `/api/v1/stores/${storeId}/timesheets/me`,
+      `/v1/stores/${storeId}/timesheets/me`,
       { params }
     );
     return res.data;
@@ -68,7 +75,7 @@ export async function getMyTimesheets(storeId: number, params?: { date?: string;
 export async function createMyTimesheet(storeId: number) {
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
   try {
-    const res = await api.post<ApiResponse<string>>(`/api/v1/stores/${storeId}/timesheets/me`);
+    const res = await api.post<ApiResponse<string>>(`/v1/stores/${storeId}/timesheets/me`);
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -83,7 +90,7 @@ export async function postMyTimesheetAction(storeId: number, timesheetId: number
   }
   try {
     const res = await api.post<ApiResponse<string>>(
-      `/api/v1/stores/${storeId}/timesheets/me/${timesheetId}`
+      `/v1/stores/${storeId}/timesheets/me/${timesheetId}`
     );
     return res.data;
   } catch (err) {
@@ -97,7 +104,7 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
   if ((!storeId && storeId !== 0) || !date) throw new Error('storeId and date (required)');
   try {
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
-      `/api/v1/stores/${storeId}/timesheets`,
+      `/v1/stores/${storeId}/timesheets`,
       { params: { date } }
     );
     return res.data;
