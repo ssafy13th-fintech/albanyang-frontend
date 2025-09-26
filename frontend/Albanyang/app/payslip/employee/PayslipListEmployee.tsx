@@ -1,13 +1,14 @@
+import Header from '@/components/header/Header';
+import NavBar from '@/components/navBar/NavBar';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, View, Text, Image } from 'react-native';
+import { Image, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PayslipListItem from '../common/components/PayslipListItem';
 import PayslipTabBar from '../common/components/PayslipTabBar';
 import YearSelector from '../common/components/YearSelector';
-import { staffPayslips } from './hooks/useStaffPayslips'
 import { ownerStores } from '../employer/hooks/useOwnerStores';
-import Header from '@/components/header/Header';
+import { staffPayslips } from './hooks/useStaffPayslips';
 
 const PayslipListOwner = () => {
   const today = new Date();
@@ -83,13 +84,16 @@ const PayslipListOwner = () => {
           </ScrollView>
         </>
       )}
+      <NavBar
+      role='alba'
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyContainer: {  justifyContent: 'center', alignSelf: 'center' },
   emptyText: { fontSize: 16, color: '#666' },
 });
 

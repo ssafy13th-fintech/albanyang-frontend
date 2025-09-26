@@ -29,8 +29,8 @@ export default function MyPage() {
     const [email, setEmail] = useState(myInfo.memberForm.email)
     const [bankname, setBankName] = useState<string|null>("한국은행")
     const [bankAccountNum, setBankAccountNum] = useState<string|null>(myInfo.memberForm.account);
-    const isAlba = 1;
 
+    const isAlba = myInfo.memberForm.role === 'alba' ? 1 : 0
 
     const mascot_path = isAlba === 1 ? Mascot.mascot_basic_alba : Mascot.mascot_basic_boss;
     const isAlbaShowInfo = isAlba === 1 ? "알바생" : "사장님";
