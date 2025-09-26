@@ -1,14 +1,16 @@
+import Header from '@/components/header/Header';
+import NavBar from '@/components/navBar/NavBar';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, View, Text, Image } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, View, Text, Image, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import EmployeeDropdown from './components/PayslipEmployeeSelector';
 import PayslipListItem from '../common/components/PayslipListItem';
 import PayslipTabBar from '../common/components/PayslipTabBar';
 import YearAndMonthSelector from '../common/components/YearAndMonthSelector';
+import EmployeeDropdown from './components/PayslipEmployeeSelector';
 import { ownerPayslips } from './hooks/useOwnerPayslips';
 import { ownerStores } from './hooks/useOwnerStores';
-import Header from '@/components/header/Header';
+import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
 
 const PayslipListOwner = () => {
   const today = new Date();
@@ -21,6 +23,19 @@ const PayslipListOwner = () => {
   const { stores, loading: storesLoading, error: storesError } = ownerStores();
   const { allPayslips, loading: payslipLoading, error: payslipError } = ownerPayslips(activeStoreId, selectedYear, selectedMonth);
 
+  useEffect(() => {
+    const checkRole = async () => {
+      const role = await getRoleFromToken();
+      if (role == "EMPLOYEE") {
+        Alert.alert("권한 없음", "직원 계정은 이 페이지에 접근할 수 없습니다.",
+           [{ text: "확인", onPress: () => router.back() }]
+          );
+      }
+    };
+
+    checkRole();
+  }, []);
+
   // 첫 가게 자동 선택
   useEffect(() => {
     if (stores.length > 0 && !activeStoreId) {
@@ -29,8 +44,9 @@ const PayslipListOwner = () => {
   }, [stores, activeStoreId]);
 
   useEffect(() => {
-  setSelectedEmployee("전체");
-}, [activeStoreId]);
+    setSelectedEmployee("전체");
+  }, [activeStoreId]);
+
 
   // 직원 필터링
   useEffect(() => {
@@ -114,6 +130,9 @@ const PayslipListOwner = () => {
           </ScrollView>
         </>
       )}
+      <NavBar
+        role='sajang'
+      />
     </SafeAreaView>
   );
 };

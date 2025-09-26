@@ -80,7 +80,7 @@ function handleAxiosError(err: unknown): never {
 export async function getMemberByPhone(phone: string) {
   if (!phone) throw new Error('phone (required)');
   try {
-    const res = await api.get<ApiResponse<MemberSearchData>>('/api/v1/members', {
+    const res = await api.get<ApiResponse<MemberData>>('/v1/members', {
       params: { phone },
     });
     return res.data;
@@ -122,7 +122,7 @@ export async function registerMember(body: RegisterRequest) {
 // 회원 탈퇴
 export async function deleteMember() {
   try {
-    const res = await api.delete<ApiResponse<string>>('/api/v1/members');
+    const res = await api.delete<ApiResponse<string>>('/v1/members');
     return res.data;
   } catch (err) {
     handleAxiosError(err);
@@ -136,7 +136,7 @@ export async function patchAccount(body: AccountPatchRequest) {
   if (!body.accountPassword) throw new Error('accountPassword (required)');
   try {
     const res = await api.patch<ApiResponse<string>>(
-      '/api/v1/members/account',
+      '/v1/members/account',
       body
     );
     return res.data;

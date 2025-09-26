@@ -55,16 +55,16 @@ const LABELS: Record<Role, Record<TabKey, string>> = {
 const ROUTES: Record<Role, Record<TabKey, string>> = {
   alba: {
     home: '/(mainPage)/EmployeeMainPage',
-    calendar: '/schedule',
-    albot: '/(chatBot)/ChatBot',
-    sum: '/salary',
+    calendar: '/attendance/MyAttendancePage',
+    albot: '/ChatBot',
+    sum: '/payslip/employee/PayslipListEmployee',
     profile: '/myPage/MyPage',
   },
   sajang: {
     home: '/(mainPage)/EmployerMainPage',
-    calendar: '/schedule',
-    albot: '/(chatBot)/ChatBot',
-    sum: '/salary-management',
+    calendar: '/attendance/EmployeeAttendancePage',
+    albot: '/ChatBot',
+    sum: '/payslip/employer/PayslipListOwner',
     profile: '/myPage/MyPage',
   },
 };

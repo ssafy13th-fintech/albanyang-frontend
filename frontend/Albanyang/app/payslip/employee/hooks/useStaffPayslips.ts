@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getStaffPayslips, PayslipSummary } from "@/api/payslip/getStaffPayslips";
 
-export const staffPayslips = (storeId: string | null, year: number) => {
+export const staffPayslips = (storeId: string | null, year: string) => {
   const [allPayslips, setAllPayslips] = useState<PayslipSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

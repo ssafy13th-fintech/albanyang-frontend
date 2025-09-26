@@ -50,7 +50,7 @@ export async function respondPayslip(storeId: number, payslipId: number, accept:
   if (accept === undefined || accept === null) throw new Error('accept (required)');
   try {
     const res = await api.post<ApiResponse<string>>(
-      `/api/v1/store/${storeId}/payslips/${payslipId}/response`,
+      `/v1/store/${storeId}/payslips/${payslipId}/response`,
       null,
       { params: { accept } }
     );
@@ -66,7 +66,7 @@ export async function getMyPayslips(storeId: number, year: string) {
   if (!year) throw new Error('year (required)');
   try {
     const res = await api.get<ApiResponse<PayslipListResponse>>(
-      `/api/v1/store/${storeId}/payslips/me`,
+      `/v1/store/${storeId}/payslips/me`,
       { params: { year } }
     );
     return res.data;

@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import {Image,Pressable,StyleSheet,Text,View} from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/Auth";
@@ -63,10 +57,9 @@ export default function Login() {
            
             <Pressable
             onPress={async() => {
-              // console.log("login pressed2 : " + id + " / " + pw);
+              //console.error("login pressed2 : " + id + " / " + pw);
               try{
                 const response = await login({email : id, password : pw});
-                // console.log("success login ", response.data.accessToken)
 
                 //token 디코딩
                 await saveToken(response.data.accessToken)

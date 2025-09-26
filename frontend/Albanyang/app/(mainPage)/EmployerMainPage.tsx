@@ -19,6 +19,8 @@ import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBell } from '@fortawesome/free-regular-svg-icons';
 
 // API imports
 import { getMe } from '@/api/Member';
@@ -198,7 +200,7 @@ const TopSection = ({
           ]}
           onPress={onNotificationPress}
         >
-          <Ionicons name="notifications-outline" size={24} color={colors.text.primary} />
+          <FontAwesomeIcon icon={faBell} size={24} color={colors.text.primary} />
           {notificationCount > 0 && (
             <View style={styles.notificationBadge}>
               <Text style={styles.notificationBadgeText}>
@@ -518,10 +520,14 @@ export default function EmployerMainPage() {
   const handleNotificationPress = () => {
     const selectedStore = stores[selectedStoreIndex];
     if (selectedStore) {
+<<<<<<< HEAD
       router.push({
         pathname: "/ViewNotification",
         params: { storeId: selectedStore.id }
       });
+=======
+      router.push('/ViewNotification');
+>>>>>>> 9ba8acc36f0a1de49ad56c4f71dcba8fa7000447
     }
   };
 

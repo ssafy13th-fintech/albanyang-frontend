@@ -15,7 +15,7 @@ export type ApiResponse<T = any> = {
   data: T | null;
 };
 
-const BASE_URL = process.env.API_BASE_URL ?? "https://localhost:8080/api"; // 변경하세요
+const BASE_URL = process.env.API_BASE_URL ?? "https://j13a605.p.ssafy.io"; // 변경하세요
 
 export const api: AxiosInstance = axios.create({
   baseURL: BASE_URL,

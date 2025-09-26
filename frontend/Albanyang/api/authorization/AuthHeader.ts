@@ -1,5 +1,7 @@
+import { useMemberStore } from '@/store/useMemberStore';
 import axios from 'axios';
-import { loadToken } from './AuthTokenStorage';
+import { router } from 'expo-router';
+import { deleteToken, loadToken } from './AuthTokenStorage';
 
 /**
  * 헤더가 필요 있는 api 호출입니다.
@@ -34,3 +36,28 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+// 응답 인터셉터: 에러 처리 (간단 로그아웃)
+let isHandling401 = false; // 중복 처리 방지
+let isHandling403 = false; // 중복 처리 방지
+
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const { response } = error;
+    if (response && response.status === 401 && response.status === 403) {
+      if (!isHandling401 || !isHandling403) {
+        isHandling401 = true;
+        isHandling403 = true;
+        // 토큰 제거 등 클린업
+        await deleteToken();
+        useMemberStore().resetForm();
+        
+        // 강제 네비게이션: 로그인 화면으로
+        router.replace("/login/Login")
+        // 짧게 대기 후 flag 해제
+        setTimeout(() => { isHandling401 = false; }, 1000);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
