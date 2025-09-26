@@ -8,13 +8,20 @@ import {
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
+<<<<<<< HEAD
 import { login } from "@/api/Auth";
+=======
+import { login } from "@/api/auth";
+import { saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
+import { getMe } from "@/api/Member";
+>>>>>>> d8234b7afdf085459b3ca8330fcb90fe75384b77
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { deleteToken, saveToken } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useMemberStore } from "@/store/useMemberStore";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
 
@@ -23,9 +30,12 @@ export default function Login() {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [loginStatus, setLoginStatus] = useState("")
+  const [errorText, setErrorText] = useState("");
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const memberStore = useMemberStore();
 
+  
 
   return (
       <SafeAreaView style={styles.rootcontainer}>
@@ -56,7 +66,7 @@ export default function Login() {
               setChangeValue={setPw}
               isSecure={true}
               />   
-              <Text style = {styles.inputError}>잘못된 정보를 입력하셨습니다.</Text>
+              <Text style = {styles.inputError}>{errorText}</Text>
            
             <Pressable
             onPress={async() => {
@@ -64,16 +74,27 @@ export default function Login() {
               try{
                 const response = await login({email : id, password : pw});
                 // console.log("success login ", response.data.accessToken)
-                await saveToken(response.data.accessToken) 
-                const decode = jwtDecode(response.data.accessToken)
-                console.log("decode msg ",decode)
-                const me = await getMe();
 
-                console.log("my uinfo ", me);
-                // router.replace("/(mainOa")
+                await saveToken(response.data.accessToken)
+                const decode = jwtDecode(response.data.accessToken) as TokenDecodeObject
+               
+                console.log("decode msg ",decode.role)
+
+                const me = await getMe();
+                memberStore.setForm(me.data);  
+               // console.log("my uinfo ", me);
+
+               if(decode.role === "EMPLOYEE"){
+                  router.replace("/EmployeeMainPage");
+               }
+               else if(decode.role === "EMPLOYER"){
+                  router.replace("/EmployerMainPage");
+               }
+
               }
-              catch(e){
+              catch(e : any){
                  console.log("error :", e);
+                  setErrorText(e);
               }
             }}
             style={({ pressed }) => [

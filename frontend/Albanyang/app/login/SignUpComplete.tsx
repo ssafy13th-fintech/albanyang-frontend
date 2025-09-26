@@ -8,7 +8,7 @@ import { useRouter } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 export default function SignupComplete() {
-        const insets = useSafeAreaInsets();
+    const insets = useSafeAreaInsets();
     const router = useRouter();
     return (
         <SafeAreaView style = {styles.rootContainer}>
@@ -41,11 +41,11 @@ export default function SignupComplete() {
             <View style ={{flex : 1}}/>
             <View style = {[styles.footerContainer, {paddingHorizontal : 16, marginBottom : insets.bottom + 10}]}>
             <BottomActionButton
-                label ="메인페이지로!!"
+                label ="로그인 페이지로 가기"
                 textStyle = {{fontWeight : 600}}
                 onPress = {() => {
                     router.dismissAll();
-                    router.push("/albaMainPage/AlbaMainPage")
+                    router.push("/login/Login")
                 }}
             />
             </View>

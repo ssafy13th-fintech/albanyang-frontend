@@ -1,3 +1,9 @@
+import { registerMember } from '@/api/Member';
+import NumberButton from '@/components/buttons/NumberButton';
+import { colors } from '@/constants/colors/ColorTheme';
+import { FONTS } from '@/constants/fonts/Fonts';
+import { sizes } from '@/constants/size/FontSize';
+import { useSignUpStore } from '@/store/useSignUpStore';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -9,13 +15,6 @@ import {
     View
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { registerMember } from '@/api/Member';
-import NumberButton from '@/components/buttons/NumberButton';
-import { colors } from '@/constants/colors/ColorTheme';
-import { FONTS } from '@/constants/fonts/Fonts';
-import { sizes } from '@/constants/size/FontSize';
-import { useSignUpStore } from '@/store/useSignUpStore';
 import { getFcmToken } from '../_layout';
 
 export default function SignUpAccountPassword() {
@@ -28,10 +27,10 @@ export default function SignUpAccountPassword() {
   const maxPasswordLength = 6;
 
   const signUpStore = useSignUpStore();
-useEffect(() => {
-  (async () => {
-    console.log(password, " ", confirmPassword);
-
+  useEffect(() => {
+      console.log(password, " ", confirmPassword);
+      (async () => {
+          
     if (password.length === maxPasswordLength && !isConfirmPw) {
       setIsConfirmPw(true);
     } else if (confirmPassword.length === maxPasswordLength && isConfirmPw) {
