@@ -1,14 +1,15 @@
+import Header from '@/components/header/Header';
+import NavBar from '@/components/navBar/NavBar';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, View, Text, Image } from 'react-native';
+import { Image, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import EmployeeDropdown from './components/PayslipEmployeeSelector';
 import PayslipListItem from '../common/components/PayslipListItem';
 import PayslipTabBar from '../common/components/PayslipTabBar';
 import YearAndMonthSelector from '../common/components/YearAndMonthSelector';
+import EmployeeDropdown from './components/PayslipEmployeeSelector';
 import { ownerPayslips } from './hooks/useOwnerPayslips';
 import { ownerStores } from './hooks/useOwnerStores';
-import Header from '@/components/header/Header';
 
 const PayslipListOwner = () => {
   const today = new Date();
@@ -114,6 +115,9 @@ const PayslipListOwner = () => {
           </ScrollView>
         </>
       )}
+      <NavBar
+        role='sajang'
+      />
     </SafeAreaView>
   );
 };
