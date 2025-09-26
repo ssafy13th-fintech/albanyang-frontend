@@ -9,8 +9,10 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
+  StyleSheet as RNStyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -26,19 +28,16 @@ const SECTION_SPACING = 12;
 // ===== 타입 =====
 type StaffStatus = {
   id: number;
-  name: string;
-  nickname: string;
-  checkInTime?: string;
-  checkOutTime?: string;
-  scheduledStartTime?: string;
-  scheduledEndTime?: string;
-  status: 'present' | 'late' | 'absent' | 'no-schedule';
+  name: string;          // 본명 (조회 전용)
+  nickname: string;      // 수정 가능
+  status: '재직' | '퇴사'; // 수정 가능 (둘 중 하나)
   isWorking: boolean;
-  hasSchedule: boolean;
   phone?: string;
   email?: string;
-  wage?: number;
+  wage?: number;         // 수정 가능
   joinDate?: string;
+  weeklyDays?: number;   // 조회 전용
+  dailyHours?: number;   // 조회 전용
 };
 
 type Store = {
@@ -49,20 +48,7 @@ type Store = {
   employeeCount?: number;
   payday?: number;
   staffs: StaffStatus[];
-  totalStaffs: number;
-  presentCount: number;
-  lateCount: number;
-  absentCount: number;
-  noScheduleCount: number;
 };
-
-// ===== 상태/라벨 맵 =====
-const STATUS = {
-  present: { label: '정상 출근', color: '#4CAF50' },
-  late: { label: '지각', color: colors.main },
-  absent: { label: '결근', color: colors.reject },
-  'no-schedule': { label: '스케줄 없음', color: colors.text.secondary },
-} as const;
 
 // ===== 목업 데이터 =====
 const mockFetchStoreDetail = async (storeId: number): Promise<Store | null> => {
@@ -79,54 +65,32 @@ const mockFetchStoreDetail = async (storeId: number): Promise<Store | null> => {
           id: 1,
           name: '김알바',
           nickname: '김김',
-          checkInTime: '09:00',
-          scheduledStartTime: '09:00',
-          scheduledEndTime: '18:00',
-          status: 'present',
+          status: '재직',
           isWorking: true,
-          hasSchedule: true,
           phone: '010-1234-5678',
           email: 'kim@example.com',
           wage: 12000,
           joinDate: '2024-01-15',
+          weeklyDays: 5,
+          dailyHours: 8,
         },
         {
           id: 2,
           name: '이직원',
           nickname: '이이',
-          checkInTime: '09:15',
-          scheduledStartTime: '09:00',
-          scheduledEndTime: '18:00',
-          status: 'late',
-          isWorking: true,
-          hasSchedule: true,
+          status: '퇴사',
+          isWorking: false,
           phone: '010-2345-6789',
           email: 'lee@example.com',
           wage: 13000,
           joinDate: '2024-02-01',
+          weeklyDays: 3,
+          dailyHours: 6,
         },
       ],
-      totalStaffs: 3,
-      presentCount: 1,
-      lateCount: 1,
-      absentCount: 0,
-      noScheduleCount: 1,
     };
   }
-  return {
-    id: storeId,
-    name: `매장 #${storeId}`,
-    address: '주소 미등록',
-    phone: '전화번호 미등록',
-    employeeCount: 0,
-    payday: undefined,
-    staffs: [],
-    totalStaffs: 0,
-    presentCount: 0,
-    lateCount: 0,
-    absentCount: 0,
-    noScheduleCount: 0,
-  };
+  return null;
 };
 
 // ===== 직원 상세 모달 =====
@@ -139,8 +103,28 @@ const StaffDetailModal = ({
   staff: StaffStatus | null;
   onClose: () => void;
 }) => {
+  const [editMode, setEditMode] = useState(false);
+  const [nickname, setNickname] = useState('');
+  const [employmentStatus, setEmploymentStatus] = useState<'재직' | '퇴사'>('재직');
+  const [wage, setWage] = useState('');
+
+  useEffect(() => {
+    if (staff) {
+      setNickname(staff.nickname);
+      setEmploymentStatus(staff.status);
+      setWage(staff.wage ? String(staff.wage) : '');
+      setEditMode(false); // 모달 열릴 때는 항상 조회 모드
+    }
+  }, [staff]);
+
   if (!staff) return null;
-  const statusMeta = STATUS[staff.status];
+
+  const handleSave = () => {
+    // TODO: 실제 저장 API 연동
+    Alert.alert('저장됨', `닉네임: ${nickname}\n고용상태: ${employmentStatus}\n시급: ${wage}`);
+    setEditMode(false);
+    onClose();
+  };
 
   return (
     <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
@@ -153,35 +137,98 @@ const StaffDetailModal = ({
             </Pressable>
           </View>
 
-          <View style={styles.profileRow}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{staff.name[0]}</Text>
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.staffName}>{staff.name}</Text>
-              <Text style={styles.staffSub}>닉네임: {staff.nickname}</Text>
-              <View style={styles.statusRow}>
-                <Text style={styles.staffSub}>{statusMeta.label}</Text>
-              </View>
-            </View>
+          {/* 본명 (조회 전용) */}
+          <View style={styles.infoRow}>
+            <Text style={styles.infoKey}>본명</Text>
+            <Text style={styles.infoVal}>{staff.name}</Text>
           </View>
 
+          {/* 닉네임 */}
           <View style={styles.infoRow}>
-            <Text style={styles.infoKey}>전화번호</Text>
-            <Text style={styles.infoVal}>{staff.phone || '미등록'}</Text>
+            <Text style={styles.infoKey}>닉네임</Text>
+            {editMode ? (
+              <TextInput
+                style={styles.inputBox}
+                value={nickname}
+                onChangeText={setNickname}
+                placeholder="닉네임 입력"
+              />
+            ) : (
+              <Text style={styles.infoVal}>{staff.nickname}</Text>
+            )}
           </View>
+
+          {/* 고용상태: 세그먼트 버튼 (재직/퇴사) */}
           <View style={styles.infoRow}>
-            <Text style={styles.infoKey}>이메일</Text>
-            <Text style={styles.infoVal}>{staff.email || '미등록'}</Text>
+            <Text style={styles.infoKey}>고용상태</Text>
+            {editMode ? (
+              <View style={styles.segmentWrap}>
+                {(['재직', '퇴사'] as const).map((opt) => (
+                  <Pressable
+                    key={opt}
+                    onPress={() => setEmploymentStatus(opt)}
+                    style={[styles.segment, employmentStatus === opt && styles.segmentActive]}
+                  >
+                    <Text
+                      style={[
+                        styles.segmentText,
+                        employmentStatus === opt && styles.segmentTextActive,
+                      ]}
+                    >
+                      {opt}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.infoVal}>{staff.status}</Text>
+            )}
           </View>
+
+          {/* 시급 */}
           <View style={styles.infoRow}>
             <Text style={styles.infoKey}>시급</Text>
-            <Text style={styles.infoVal}>{staff.wage?.toLocaleString() || '미설정'}원</Text>
+            {editMode ? (
+              <TextInput
+                style={styles.inputBox}
+                value={wage}
+                onChangeText={setWage}
+                keyboardType="numeric"
+                placeholder="시급 입력"
+              />
+            ) : (
+              <Text style={styles.infoVal}>
+                {staff.wage ? `${staff.wage.toLocaleString()}원` : '미설정'}
+              </Text>
+            )}
           </View>
+
+          {/* 주간근무일수 (조회) */}
           <View style={styles.infoRow}>
-            <Text style={styles.infoKey}>입사일</Text>
-            <Text style={styles.infoVal}>{staff.joinDate || '미등록'}</Text>
+            <Text style={styles.infoKey}>주간근무일수</Text>
+            <Text style={styles.infoVal}>
+              {staff.weeklyDays ? `${staff.weeklyDays}일` : '미등록'}
+            </Text>
           </View>
+
+          {/* 하루근무시간 (조회) */}
+          <View style={styles.infoRow}>
+            <Text style={styles.infoKey}>하루근무시간</Text>
+            <Text style={styles.infoVal}>
+              {staff.dailyHours ? `${staff.dailyHours}시간` : '미등록'}
+            </Text>
+          </View>
+
+          {/* 버튼 */}
+          {editMode ? (
+            <Pressable style={styles.saveBtn} onPress={handleSave}>
+              <Text style={styles.saveBtnText}>저장</Text>
+            </Pressable>
+          ) : (
+            <Pressable style={styles.editBtn} onPress={() => setEditMode(true)}>
+              <Text style={styles.editBtnText}>수정</Text>
+            </Pressable>
+          )}
         </View>
       </View>
     </Modal>
@@ -198,6 +245,10 @@ export default function NextToEmployerMainPage() {
 
   const [selectedStaff, setSelectedStaff] = useState<StaffStatus | null>(null);
   const [staffModalVisible, setStaffModalVisible] = useState(false);
+
+  // 필터 & 드롭다운 상태
+  const [filter, setFilter] = useState<'전체' | '재직' | '퇴사'>('전체');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -225,6 +276,11 @@ export default function NextToEmployerMainPage() {
     );
   }
 
+  const filteredStaffs =
+    filter === '전체'
+      ? store?.staffs || []
+      : store?.staffs.filter((s) => s.status === filter) || [];
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* 헤더 */}
@@ -239,11 +295,7 @@ export default function NextToEmployerMainPage() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 24 }}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 24 }}>
         {/* 사업장 정보 카드 */}
         <View style={styles.section}>
           <View style={styles.storeCard}>
@@ -278,39 +330,90 @@ export default function NextToEmployerMainPage() {
           </View>
         </View>
 
-        {/* 직원 리스트 */}
+        {/* 직원 리스트 카드 */}
         <View style={styles.section}>
           <View style={styles.staffCard}>
-            <Text style={styles.cardTitle}>직원 목록</Text>
+            {/* 타이틀 + 드롭다운 우측 */}
+            <View style={styles.staffHeader}>
+              <Text style={styles.cardTitle}>직원 목록</Text>
 
-            {store && store.staffs.length > 0 ? (
+              <View>
+                <Pressable
+                  style={styles.dropdownBtn}
+                  onPress={() => setDropdownOpen((p) => !p)}
+                >
+                  <Text style={styles.dropdownText}>{filter}</Text>
+                  <Ionicons
+                    name={dropdownOpen ? 'chevron-up' : 'chevron-down'}
+                    size={16}
+                    color={colors.text.primary}
+                  />
+                </Pressable>
+
+                {dropdownOpen && (
+                  <>
+                    {/* 뒤 터치 차단 & 바깥 클릭시 닫힘 */}
+                    <Pressable
+                      onPress={() => setDropdownOpen(false)}
+                      style={[
+                        RNStyleSheet.absoluteFillObject,
+                        {
+                          top: 0,
+                          left: -1000,
+                          right: -1000,
+                          bottom: -1000,
+                          zIndex: 900,
+                        },
+                      ]}
+                    />
+                    <View style={styles.dropdownMenu}>
+                      {['전체', '재직', '퇴사'].map((f) => (
+                        <Pressable
+                          key={f}
+                          style={styles.dropdownItem}
+                          onPress={() => { setFilter(f as any); setDropdownOpen(false); }}
+                        >
+                          <Text
+                            style={[
+                              styles.dropdownItemText,
+                              filter === f && { fontWeight: 'bold' },
+                            ]}
+                          >
+                            {f}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </>
+                )}
+              </View>
+            </View>
+
+            {filteredStaffs.length > 0 ? (
               <FlatList
-                data={store.staffs}
+                data={filteredStaffs}
                 keyExtractor={(item) => String(item.id)}
-                renderItem={({ item }) => {
-                  const statusMeta = STATUS[item.status];
-                  return (
-                    <TouchableOpacity
-                      style={styles.staffRow}
-                      activeOpacity={0.7}
-                      onPress={() => {
-                        setSelectedStaff(item);
-                        setStaffModalVisible(true);
-                      }}
-                    >
-                      <View style={styles.staffLeft}>
-                        <Text style={styles.staffNameText}>{item.name}</Text>
-                      </View>
-                      <Ionicons name="chevron-forward" size={16} color={colors.text.secondary} />
-                    </TouchableOpacity>
-                  );
-                }}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.staffRow}
+                    activeOpacity={0.7}
+                    onPress={() => {
+                      setSelectedStaff(item);
+                      setStaffModalVisible(true);
+                    }}
+                  >
+                    <View style={styles.staffLeft}>
+                      <Text style={styles.staffNameText}>{item.name}</Text>
+                      <Text style={styles.staffSubText}>({item.status})</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color={colors.text.secondary} />
+                  </TouchableOpacity>
+                )}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
               />
             ) : (
               <View style={styles.emptyBox}>
                 <Text style={styles.emptyTitle}>직원이 없습니다</Text>
-                <Text style={styles.emptyDesc}>직원을 초대해 보세요.</Text>
               </View>
             )}
           </View>
@@ -347,61 +450,131 @@ const styles = StyleSheet.create({
     backgroundColor: colors.text.reverse,
     borderRadius: 16,
     padding: 16,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
     elevation: 4,
   },
   staffCard: {
     backgroundColor: colors.text.reverse,
     borderRadius: 16,
     padding: 16,
-    shadowColor: colors.shadow,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
     elevation: 4,
+    overflow: 'visible', // 드롭다운이 카드 밖으로 나가도 보이게
   },
+  staffHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    position: 'relative', // 드롭다운 absolute 기준점
+  },
+
   cardTitle: {
     fontSize: sizes.normalText,
     fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
-    marginBottom: 12,
   },
 
   rowBetween: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   dimText: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary },
   valueText: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.primary },
 
+  // 직원 리스트
   staffRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
-  staffLeft: { flex: 1, flexDirection: 'row', alignItems: 'center' },
+  staffLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', columnGap: 8 },
   staffNameText: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.regular3, color: colors.text.primary },
-  dot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
+  staffSubText: { fontSize: sizes.smallText, color: colors.text.secondary },
   separator: { height: 1, backgroundColor: colors.disable },
 
   emptyBox: { paddingVertical: 32, alignItems: 'center' },
   emptyTitle: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.medium4, color: colors.text.primary },
-  emptyDesc: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary },
 
   loadingBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary },
 
+  // 모달
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   modalCard: { backgroundColor: colors.text.reverse, borderRadius: 16, padding: 16, width: '88%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   modalTitle: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.medium4, color: colors.text.primary },
   modalClose: { width: 28, height: 28, borderRadius: 14, backgroundColor: colors.disable, alignItems: 'center', justifyContent: 'center' },
 
-  profileRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  avatar: { width: 56, height: 56, borderRadius: 28, backgroundColor: colors.main, alignItems: 'center', justifyContent: 'center', marginRight: 12 },
-  avatarText: { fontSize: sizes.smallTitle, fontFamily: FONTS.jamsil.bold5, color: colors.text.reverse },
-  staffName: { fontSize: sizes.smallTitle, fontFamily: FONTS.jamsil.medium4, color: colors.text.primary },
-  staffSub: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary },
-  statusRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
-  statusDot: { width: 10, height: 10, borderRadius: 5, marginRight: 6 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, gap: 12 },
+  infoKey: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary, flex: 1 },
+  infoVal: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.primary, textAlign: 'right', flex: 2 },
+  inputBox: {
+    flex: 2,
+    borderWidth: 1,
+    borderColor: colors.disable,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
+    textAlign: 'right',
+  },
 
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  infoKey: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary },
-  infoVal: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.primary, textAlign: 'right' },
+  // 세그먼트(고용상태)
+  segmentWrap: {
+    flex: 2,
+    flexDirection: 'row',
+    backgroundColor: colors.disable,
+    borderRadius: 8,
+    padding: 2,
+  },
+  segment: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  segmentActive: {
+    backgroundColor: colors.main,
+  },
+  segmentText: {
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
+  },
+  segmentTextActive: {
+    color: colors.text.reverse,
+    fontFamily: FONTS.jamsil.medium4,
+  },
+
+  // 모달 버튼
+  editBtn: { marginTop: 16, backgroundColor: colors.disable, borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
+  editBtnText: { color: colors.text.primary, fontSize: sizes.normalText, fontFamily: FONTS.jamsil.medium4 },
+  saveBtn: { marginTop: 16, backgroundColor: colors.main, borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
+  saveBtnText: { color: colors.text.reverse, fontSize: sizes.normalText, fontFamily: FONTS.jamsil.medium4 },
+
+  // 드롭다운
+  dropdownBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.disable,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  dropdownText: {
+    marginRight: 6,
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.primary,
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: 36,
+    right: 0,
+    backgroundColor: colors.text.reverse,
+    borderRadius: 12,
+    paddingVertical: 4,
+    // 항상 맨 위
+    zIndex: 1000,      // iOS
+    elevation: 20,     // Android
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+  },
+  dropdownItem: { paddingVertical: 8, paddingHorizontal: 12, alignItems: 'flex-start', },
+  dropdownItemText: { fontSize: sizes.smallText, color: colors.text.primary },
 });

@@ -3,14 +3,6 @@
 import { AxiosError } from 'axios';
 import { api } from './authorization/AuthHeader';
 
-
-// Axios 인스턴스
-// const api: AxiosInstance = axios.create({
-//   baseURL: 'http://j13a605.p.ssafy.io:8080',
-//   timeout: 10000,
-//   headers: { 'Content-Type': 'application/json' },
-// });
-
 // 공통 응답 타입
 export interface ApiResponse<T = any> {
   code: string;
@@ -34,25 +26,14 @@ export interface StaffInfo {
   id: number;
   nickname: string;
   name: string;
-  status: 'SCHEDULED' | string; // 다른 상태값들이 있을 수 있음
+  status: 'SCHEDULED' | 'ACTIVE' | string;
 }
 
 export interface StaffListResponse {
   staffInfoRes: StaffInfo[];
 }
 
-
-// GET /v1/stores/me - 직원이 일하고 있는 모든 사업장 조회
-export interface MyStoresResponse {
-  stores: {
-    id: number;
-    name: string;
-  }[];
-}
-
-
-
-// GET /v1/stores/{store-id}/staffs/{staff-id} - 특정 직원 조회
+// 직원 상세 조회 응답 타입
 export interface StaffDetailResponse {
   id: number;
   name: string;
@@ -64,17 +45,31 @@ export interface StaffDetailResponse {
   workingHours: number;
 }
 
-
-// PUT /v1/stores/{store-id}/staffs/{staff-id} - 직원 정보 수정
-export interface UpdateStaffRequest {
+// 직원 수정 요청 타입
+export interface StaffUpdateRequest {
   nickname: string;
-  status: string;
-  taxType: string;
+  status: 'SCHEDULED' | 'ACTIVE' | string;
+  taxType: 'FOUR_INSURANCE' | 'THREE_POINT_THREE' | string;
   wage: number;
   weeklyWorkingDay: number;
   workingHours: number;
 }
 
+// 직원이 일하는 사업장 조회 응답 타입
+export interface StaffStoresResponse {
+  stores: {
+    id: number;
+    name: string;
+  }[];
+}
+
+// GET /v1/stores/me - 직원이 일하고 있는 모든 사업장 조회
+export interface MyStoresResponse {
+  stores: {
+    id: number;
+    name: string;
+  }[];
+}
 
 // 에러 처리 유틸
 function handleAxiosError(err: unknown): never {
@@ -91,7 +86,7 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
-// POST /api/v1/stores/{store-id}/invitation - 직원 초대
+// POST /v1/stores/{store-id}/invitation - 직원 초대
 export async function sendStaffInvitation(storeId: number, wage: number, email: string) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
   if (wage === undefined || wage === null) throw new Error('wage (required)');
@@ -114,7 +109,7 @@ export async function sendStaffInvitation(storeId: number, wage: number, email: 
   }
 }
 
-// POST /api/v1/stores/{store-id}/invitation/response - 초대 응답
+// POST /v1/stores/{store-id}/invitation/response - 초대 응답
 export async function respondToStaffInvitation(storeId: number, accept: boolean) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
   if (accept === undefined || accept === null) throw new Error('accept (required)');
@@ -135,7 +130,7 @@ export async function respondToStaffInvitation(storeId: number, accept: boolean)
   }
 }
 
-// GET /api/v1/stores/{store-id}/staffs - 직원 전체 조회
+// GET /v1/stores/{store-id}/staffs - 직원 전체 조회
 export async function getStaffList(storeId: number) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
 
@@ -147,9 +142,7 @@ export async function getStaffList(storeId: number) {
   } catch (err) {
     handleAxiosError(err);
   }
-
 }
-
 
 export async function getMyStores() {
   try {
@@ -160,26 +153,10 @@ export async function getMyStores() {
   }
 }
 
-
-export async function getStaffDetail(storeId: number, staffId: number) {
-  if (storeId == null) throw new Error('storeId (required)');
-  if (staffId == null) throw new Error('staffId (required)');
-
-  try {
-    const res = await api.get<ApiResponse<StaffDetailResponse>>(
-      `/v1/stores/${storeId}/staffs/${staffId}`
-    );
-    return res.data;
-  } catch (err) {
-    handleAxiosError(err);
-  }
-}
-
-
 export async function updateStaff(
   storeId: number,
   staffId: number,
-  body: UpdateStaffRequest
+  body: StaffUpdateRequest
 ) {
   if (storeId == null) throw new Error('storeId (required)');
   if (staffId == null) throw new Error('staffId (required)');
@@ -210,13 +187,27 @@ export async function deleteStaff(storeId: number, staffId: number) {
   }
 }
 
+export async function getStaffDetail(storeId: number, staffId: number) {
+  if (storeId == null) throw new Error('storeId (required)');
+  if (staffId == null) throw new Error('staffId (required)');
+
+  try {
+    const res = await api.get<ApiResponse<StaffDetailResponse>>(
+      `/v1/stores/${storeId}/staffs/${staffId}`
+    );
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err);
+  }
+}
+
 export default {
   api,
   sendStaffInvitation,
   respondToStaffInvitation,
   getStaffList,
-  getMyStores,
   getStaffDetail,
   updateStaff,
-  deleteStaff
+  deleteStaff,
+  getMyStores
 };

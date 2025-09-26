@@ -1,4 +1,4 @@
-// ../Albanyang/Schedule.ts
+// ../Albanyang/api/Schedule.ts
 
 import { AxiosError } from 'axios';
 import { api } from './authorization/AuthHeader';
@@ -21,14 +21,14 @@ export interface ApiResponse<T = any> {
 // 스케줄 관련 타입 정의
 export interface Schedule {
   id: number;
-  commuteDate: string; // "2025-09-23" 형식
+  commuteDate: string; // "2025-09-25" 형식
   workStartTime: string;
   workEndTime: string;
   workHours: number;
   breakTime: number;
   overtimeHours: number;
   nightShiftHours: number;
-  scheduleType: 'NORMAL' | string; // 다른 타입이 있을 수 있음
+  scheduleType: 'NORMAL' | string;
   editable: boolean;
   storeId: number;
   staffId: number;
@@ -36,7 +36,7 @@ export interface Schedule {
 }
 
 export interface CreateScheduleRequest {
-  commuteDates: string[]; // ["2025-09-23"] 형식
+  commuteDates: string[]; // ["2025-09-25"] 형식
   workStartTime: string;
   workEndTime: string;
   workHours: number;
@@ -48,7 +48,7 @@ export interface CreateScheduleRequest {
 }
 
 export interface UpdateScheduleRequest {
-  commuteDate: string; // "2025-09-23" 형식
+  commuteDate: string; // "2025-09-25" 형식
   workStartTime: string;
   workEndTime: string;
   workHours: number;
@@ -79,9 +79,8 @@ function handleAxiosError(err: unknown): never {
 }
 
 // GET /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 특정 스케줄 조회
-export async function getScheduleById(storeId: number, staffId: number, scheduleId: number) {
-  if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
-  if (staffId === undefined || staffId === null) throw new Error('staffId (required)');
+// 🔴 수정: scheduleId만 path에 있음 (storeId, staffId는 path에 없음)
+export async function getScheduleById(scheduleId: number, storeId : number, staffId :number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
 
   try {
@@ -95,14 +94,13 @@ export async function getScheduleById(storeId: number, staffId: number, schedule
 }
 
 // PUT /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 스케줄 수정
+// 🔴 수정: scheduleId만 path에 있음
 export async function updateSchedule(
-  storeId: number,
-  staffId: number,
   scheduleId: number,
+  storeId : number,
+  staffId : number,
   scheduleData: UpdateScheduleRequest
 ) {
-  if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
-  if (staffId === undefined || staffId === null) throw new Error('staffId (required)');
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
 
   try {
@@ -117,9 +115,8 @@ export async function updateSchedule(
 }
 
 // DELETE /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 스케줄 삭제
-export async function deleteSchedule(storeId: number, staffId: number, scheduleId: number) {
-  if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
-  if (staffId === undefined || staffId === null) throw new Error('staffId (required)');
+// 🔴 수정: scheduleId만 path에 있음
+export async function deleteSchedule(scheduleId: number, storeId : number, staffId : number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
 
   try {

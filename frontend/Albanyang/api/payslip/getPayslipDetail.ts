@@ -1,5 +1,6 @@
 // src/services/payslipService.ts
 import { api, handleResponse } from "../api";
+import { loadToken } from "../authorization/AuthTokenStorage";
 
 export interface PayslipDetailData {
   id: number;
@@ -31,7 +32,12 @@ export interface PayslipDetailData {
 }
 
 export async function getPayslipDetail(storeId: number, payslipId: number): Promise<PayslipDetailData> {
+  const token = await loadToken();
   return handleResponse<PayslipDetailData>(
-    api.get(`/v1/stores/${storeId}/payslips/${payslipId}`)
+    api.get(`/v1/stores/${storeId}/payslips/${payslipId}`, {
+      headers: {
+        Authorization: token
+      }
+    })
   );
 }

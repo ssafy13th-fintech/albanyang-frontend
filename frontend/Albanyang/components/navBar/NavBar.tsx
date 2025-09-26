@@ -129,7 +129,7 @@ function NavBar({
     }
     if (activeKey !== key) {
       try {
-        router.push(route);
+        router.push(route as any);
       } catch (error) {
         console.warn(`Failed to navigate to ${route}:`, error);
       }

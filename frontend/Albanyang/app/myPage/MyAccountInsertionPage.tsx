@@ -16,7 +16,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 export default function MyAccountInsertion(){
     const insets = useSafeAreaInsets();
     const router = useRouter();
-
+    const signUpStore = useSignUpStore();
     const [bank, setBank] = useState("한국 은행");
     const [accountNum, setAccountNum] = useState(SSAFY_MAIN_USER_ACCOUNT);
     
@@ -52,7 +52,7 @@ export default function MyAccountInsertion(){
                 });
 
                 console.log("거래 조회 : ", res);
-
+                console.log(signUpStore.registerForm)
                 const code = res.REC.transactionSummary;
                 const authText = code.split(" ")[0];
                 const authCode = code.split(" ")[1];
@@ -145,7 +145,7 @@ export default function MyAccountInsertion(){
                 accountNum={accountNum}
                 apiKey={api_key}
                 userKey={user_key}
-                registerRequest={useSignUpStore().registerForm}
+                registerRequest={signUpStore.registerForm}
             />
         </SafeAreaView>
     )

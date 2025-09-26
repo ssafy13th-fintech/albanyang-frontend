@@ -147,6 +147,8 @@ export default function Signup() {
                 onPress={async () => {
                   try{
                   if(!isSent){
+                    console.log("auth!");
+                    console.log(api_key,user_key,accountNum)
                       //1원 인증을 보냅니다.
                     const openAuth = await openAccountAuth({
                       apiKey : api_key,
@@ -154,7 +156,6 @@ export default function Signup() {
                       accountNo : accountNum,
                       authText : 'SSAFY'
                     })
-                    
                     //거래 고유번호를 바탕으로 거래 내역을 얻습니다.
                     const transactionUniqueNo = openAuth.REC.transactionUniqueNo
                     console.log("1원 인증 성공 : ", transactionUniqueNo)

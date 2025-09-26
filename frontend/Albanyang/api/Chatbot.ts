@@ -47,7 +47,7 @@ export async function sendChatbotQuery(userMessage: string) {
   if (!userMessage) throw new Error('userMessage (required)');
   try {
     const res = await api.post<ApiResponse<ChatbotQueryResponse>>(
-      '/v1/chatbot/queries',
+      '/api/v1/chatbot/queries',
       { userMessage }
     );
     return res.data;
@@ -63,7 +63,7 @@ export async function getChatbotHistories(cursorId?: number, size: number = 10) 
     if (cursorId !== undefined) params.cursorId = cursorId;
     
     const res = await api.get<ApiResponse<ChatbotHistoriesResponse>>(
-      '/v1/chatbot/histories',
+      '/api/v1/chatbot/histories',
       { params }
     );
     return res.data;

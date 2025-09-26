@@ -1,5 +1,5 @@
-// src/services/storeService.ts
 import { api, handleResponse } from "../api";
+import { loadToken } from "../authorization/AuthTokenStorage";
 
 export interface Store {
   id: string;
@@ -7,7 +7,13 @@ export interface Store {
 }
 
 export async function getStaffStores(): Promise<Store[]> {
+  const token = await loadToken();
   return handleResponse<{ stores: Store[] }>(
-    api.get("/v1/stores/me")
+    api.get("/v1/stores/me", {
+      headers: {
+        Authorization: token
+      }
+    })
+    
   ).then(res => res.stores);
 }

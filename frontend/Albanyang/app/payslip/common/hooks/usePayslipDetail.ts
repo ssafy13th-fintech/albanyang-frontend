@@ -6,7 +6,7 @@ interface PayslipDetailProps {
   storeId: number;
 }
 
-export const payslipDetail = ({ payslipId, storeId }: PayslipDetailProps) => {
+export const usePayslipDetail = ({ payslipId, storeId }: PayslipDetailProps) => {
   const [data, setData] = useState<PayslipDetailData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);

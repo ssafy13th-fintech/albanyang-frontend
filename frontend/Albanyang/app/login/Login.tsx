@@ -1,14 +1,8 @@
 import { useState } from "react";
-import {
-  Image,
-  Pressable,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { login } from "@/api/auth";
+import { login } from "@/api/Auth";
 import { saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
 import LoginTextInput from "@/components/textInput/loginTextInput";
@@ -64,10 +58,9 @@ export default function Login() {
            </View>
             <Pressable
             onPress={async() => {
-              // console.log("login pressed2 : " + id + " / " + pw);
+              //console.error("login pressed2 : " + id + " / " + pw);
               try{
                 const response = await login({email : id, password : pw});
-                // console.log("success login ", response.data.accessToken)
 
                 //token 디코딩
                 await saveToken(response.data.accessToken)

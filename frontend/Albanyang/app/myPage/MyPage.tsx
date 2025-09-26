@@ -1,6 +1,6 @@
 import { Text } from "@react-navigation/elements";
 import { useState } from "react";
-import { Image, ImageSourcePropType, ScrollView, StyleSheet, View } from "react-native";
+import { Image, ImageSourcePropType, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { deleteToken } from "@/api/authorization/AuthTokenStorage";
@@ -76,7 +76,6 @@ export default function MyPage() {
             }}>
             </View>)
         }
-
     }
 
     return (
@@ -119,6 +118,7 @@ export default function MyPage() {
             </View>
         
             <View style = {{paddingVertical : 16}}>
+
                 <Text style ={{
                     fontFamily :FONTS.jamsil.regular3,
                     fontSize : sizes.normalText
@@ -128,6 +128,8 @@ export default function MyPage() {
                     color : colors.main
                     }} >입금</Text>계좌</Text>
 
+
+              {bankAccountNum ?(
                 <View style = {styles.accountCard}>
                     <View style = { { 
                         backgroundColor : colors.main, 
@@ -137,7 +139,7 @@ export default function MyPage() {
                         height:130, 
                         marginVertical : 8
                         }}></View>
-                    <View style = { { marginTop : 8}}>
+                    <View style = {{ marginTop : 8}}>
                     <Text
                     style = {{fontFamily : FONTS.jamsil.regular3,
                         fontSize : sizes.smallText
@@ -146,18 +148,57 @@ export default function MyPage() {
                     <Text
                      style = {{fontFamily : FONTS.jamsil.light2,
                         fontSize : sizes.smallText
-                    }}
-                    
-                    >{bankAccountNum}</Text></Text>
+                    }}>{bankAccountNum}</Text></Text>
                     </View>
-                </View>
+                </View> ) :(
+                    <View style= {[styles.accountCard,
+                        {paddingVertical : 36, paddingHorizontal : 16}]
+                    }>
+                    
+                    <TouchableOpacity
+                        onPress={() => {
+                            router.push("/myPage/MyAccountInsertionPage")
+                        }}
+                        style = {{
+                            
+                            flexDirection : "row",
+                            paddingVertical : 16,
+                            paddingHorizontal : 8,
+                            borderRadius : 20
+                        }}
+                    >
+                    <Image
+                        source ={require("@/assets/images/mascot/mascot_sadface_line.png")}
+                        style = {
+                            {
+                                height : 118,
+                                width :118
+                            }
+                        }
+                    >
+                    </Image>
+                    <View style ={{ alignItems :"flex-end", gap : 8 }}>
+                    <Text style ={{fontFamily : FONTS.jamsil.medium4,
+                    fontSize : sizes.smallTitle
+                    }}>계좌가 없어요...</Text>
+                    <Text style ={{
+                        fontFamily : FONTS.jamsil.regular3,
+                        fontSize : sizes.normalText,
+                        color : colors.accent}}>새 계좌 등록하기</Text>
+                    </View>
+                    </TouchableOpacity>
+
+                    </View>
+                    
+                ) }
+
             </View>
 
             <View style = {{marginVertical : 16}}>
                     {views}
             </View>
+        <View style = {{paddingBottom : 24}}></View>
         </ScrollView>
-
         <NavBar
             role={myInfo.memberForm.role!}
         />

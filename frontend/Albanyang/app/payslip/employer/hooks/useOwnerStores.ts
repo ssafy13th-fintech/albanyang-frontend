@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getStores, Store } from "@/api/store/getOwnerStores";
+import { getOwnerStores, Store } from "@/api/store/getOwnerStores";
 
 export const ownerStores = () => {
   const [stores, setStores] = useState<Store[]>([]);
@@ -11,7 +11,7 @@ export const ownerStores = () => {
       setLoading(true);
       setError(null);
       try {
-        const storeList = await getStores();
+        const storeList = await getOwnerStores();
         setStores(storeList);
       } catch (err: any) {
         console.error("store 조회 오류 : ", err);
