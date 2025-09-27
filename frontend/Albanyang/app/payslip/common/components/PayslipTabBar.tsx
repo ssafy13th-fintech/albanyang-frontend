@@ -1,6 +1,6 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors as COLORS } from '@/constants/colors/ColorTheme';
 import { FONTS } from '@/constants/fonts/Fonts';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface Props {
   tabs: string[];
@@ -9,6 +9,8 @@ interface Props {
 }
 
 const PayslipTabBar = ({ tabs, activeTab, onTabPress }: Props) => {
+
+  console.log("tab ",tabs)
   return (
     <View style={styles.container}>
       <ScrollView
