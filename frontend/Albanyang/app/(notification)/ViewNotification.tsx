@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { SafeAreaView, View, Text, Pressable, StyleSheet } from "react-native";
 
 import NoticeList from "./components/NoticeList";
@@ -10,7 +11,14 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 
 export default function NewsPage() {
+  const params = useLocalSearchParams<{ tab?: "alarm" | "notice" }>();
   const [activeTab, setActiveTab] = useState<"alarm" | "notice">("alarm");
+
+  useEffect(() => {
+    if (params.tab === "notice" || params.tab === "alarm") {
+      setActiveTab(params.tab);
+    }
+  }, [params.tab]);
 
   return (
     <SafeAreaView style={styles.rootContainer}>
@@ -22,13 +30,17 @@ export default function NewsPage() {
           style={[styles.tab, activeTab === "alarm" && styles.activeTab]}
           onPress={() => setActiveTab("alarm")}
         >
-          <Text style={[styles.tabText, activeTab === "alarm" && styles.activeTabText]}>알람</Text>
+          <Text style={[styles.tabText, activeTab === "alarm" && styles.activeTabText]}>
+            알람
+          </Text>
         </Pressable>
         <Pressable
           style={[styles.tab, activeTab === "notice" && styles.activeTab]}
           onPress={() => setActiveTab("notice")}
         >
-          <Text style={[styles.tabText, activeTab === "notice" && styles.activeTabText]}>공지</Text>
+          <Text style={[styles.tabText, activeTab === "notice" && styles.activeTabText]}>
+            공지
+          </Text>
         </Pressable>
       </View>
 
