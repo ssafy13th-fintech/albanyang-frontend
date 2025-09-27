@@ -170,7 +170,9 @@ useEffect(() => {
           dotColor: colors.main,
         };
       });
-      // setMarkedDates(marks);
+
+      //console.log("time sheeet" , timesheets)
+      setMarkedDates(marks);
       //       setTodayTimesheet(dummyTodayTimesheet);
       // setThisMonthTimeSheets(dummyMonthTimesheets);
       // setMarkedDates(markTimesheetsOnCalendar(dummyMonthTimesheets))
