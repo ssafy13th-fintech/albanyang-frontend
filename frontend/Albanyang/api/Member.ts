@@ -48,7 +48,12 @@ export interface RegisterRequest {
   role?: number;
   account?: string | null;
   accountPassword? :string | null;
+  userKey : string;
   token?: string;
+}
+
+export interface UserKeyData{
+  userKey :string
 }
 
 export interface AccountPatchRequest {
