@@ -1,17 +1,17 @@
 import { getMyStores, MyStoresResponse } from "@/api/Staff";
 import { getMyTimesheets, TimesheetItem } from "@/api/Timesheet";
 import SmallHeader from "@/components/header/SmallHeader";
+import AttendanceDetailModal from "@/components/modal/AttendanceDetailModal";
 import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 import { GetThisMonthDate, GetTodayDate } from "@/modules/DateTime";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Image, Modal, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Image, Text, View } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import PayslipTabBar from "../payslip/common/components/PayslipTabBar";
-
 
 // ====== 여기서 더미 데이터 생성 ======
 const dummyTodayTimesheet: TimesheetItem = {
@@ -51,12 +51,13 @@ function markTimesheetsOnCalendar(timesheets: TimesheetItem[]): Record<string, a
   timesheets.forEach((ts) => {
     marks[ts.commuteDate] = {
       marked: true,
-      dotColor: colors.main,
+      dotColor: colors.accent,
     };
   });
   return marks;
 }
 
+let Isinit = false;
 
 export default function MyAttendancePage() {
   const insets = useSafeAreaInsets();
@@ -82,6 +83,7 @@ export default function MyAttendancePage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
   const [selectedTimesheet, setSelectedTimesheet] = useState<TimesheetItem | null>(null);
+
 
   // ========== 최초 로딩 ==========
   useEffect(() => {
@@ -112,15 +114,20 @@ export default function MyAttendancePage() {
         setThisMonthTimeSheets(timesheets);
 
         // 4) 캘린더 마킹
-        const marks: Record<string, any> = {};
-        timesheets.forEach((ts) => {
-          marks[ts.commuteDate] = {
-            marked: true,
-            dotColor: colors.main,
-          };
-        });
+        const marks: Record<string, any> =  markTimesheetsOnCalendar(timesheets)
+
+        // timesheets.forEach((ts) => {
+        //   marks[ts.commuteDate] = {
+        //     marked: true,
+        //     dotColor: colors.accent,
+        //   };
+        // });
 
         setMarkedDates(marks);
+      // setTodayTimesheet(dummyTodayTimesheet);
+      // setThisMonthTimeSheets(dummyMonthTimesheets);
+      // setMarkedDates(markTimesheetsOnCalendar(dummyMonthTimesheets))
+    Isinit = true;
       } catch (err) {
         console.warn("init error", err);
 
@@ -134,6 +141,7 @@ export default function MyAttendancePage() {
     };
 
     init();
+
   }, []);
 
 
@@ -162,7 +170,11 @@ useEffect(() => {
           dotColor: colors.main,
         };
       });
-      setMarkedDates(marks);
+      // setMarkedDates(marks);
+      //       setTodayTimesheet(dummyTodayTimesheet);
+      // setThisMonthTimeSheets(dummyMonthTimesheets);
+      // setMarkedDates(markTimesheetsOnCalendar(dummyMonthTimesheets))
+
     } catch (err) {
       console.warn("loadTimesheetsForStore error", err);
       // setTodayTimesheet(null);
@@ -175,6 +187,10 @@ useEffect(() => {
     }
   };
 
+  if(!Isinit) {
+    console.log("load not yet")
+    return
+  }
   loadTimesheetsForStore();
 }, [activeTab, stores]); // activeTab이 바뀔 때마다 실행
 
@@ -255,6 +271,7 @@ useEffect(() => {
           오늘 근무 현황 ({today})
         </Text>
 
+
         <View
           style={{
             paddingVertical: 24,
@@ -264,9 +281,13 @@ useEffect(() => {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
+            marginBottom : 16,
             gap: 24,
           }}
         >
+
+        {todayTimesheet ? (
+        <View>
           <View>
             <Text style={{ fontFamily: FONTS.jamsil.light2 }}>From</Text>
             <Text
@@ -292,6 +313,13 @@ useEffect(() => {
               {todayTimesheet?.leftAt ?? "-"}
             </Text>
           </View>
+          </View>
+        ) :(
+          <View>
+              <Text style = {{fontFamily :FONTS.jamsil.regular3, fontSize : sizes.normalText}}>오늘 근무는 없습니다</Text>
+          </View>
+        )}
+
         </View>
       </View>
 
@@ -326,34 +354,16 @@ useEffect(() => {
 
       <NavBar role="alba" />
 
-      {/* =========== Modal =========== */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", padding: 20 }}>
-          <View style={{ backgroundColor: "white", borderRadius: 12, padding: 16 }}>
-            <Text style={{ fontWeight: "700", marginBottom: 8 }}>
-              선택한 날짜: {selectedDate}
-            </Text>
+      <AttendanceDetailModal
+        modalVisible= {modalVisible}
+        setModalVisible={setModalVisible}
+        selectedDate={selectedDate!}
+        activeTab={activeTab}
+        selectedTimesheet={selectedTimesheet!}
+        stores={stores}
+      />
 
-            {selectedTimesheet ? (
-              <View>
-                <Text>지점: { stores[activeTab].name }</Text>
-                <Text>근무 날짜: {selectedTimesheet.commuteDate}</Text>
-                <Text>출근: {selectedTimesheet.arrivedAt ?? "-"}</Text>
-                <Text>퇴근: {selectedTimesheet.leftAt ?? "-"}</Text>
-              </View>
-            ) : (
-              <Text>해당 날짜의 근태 정보가 없습니다.</Text>
-            )}
-
-            <TouchableOpacity
-              style={{ marginTop: 12, alignSelf: "flex-end" }}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={{ color: colors.main }}>닫기</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+      
     </SafeAreaView>
   );
 }
