@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { registerNotification } from "./hooks/useWriteNotification";
 import { getRoleFromToken } from "@/api/authorization/AuthTokenStorage";
 
@@ -65,8 +65,8 @@ export default function NoticeRegistration() {
         content: content,
       });
 
-      router.push({
-        pathname: '/ViewNotificationDetail',
+      router.replace({
+        pathname: '/ViewNotificationDetail' as any,
         params: { storeId: selectedItemObj.id, notificationId: response.id },
       });
 

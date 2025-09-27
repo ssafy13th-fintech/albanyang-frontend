@@ -112,7 +112,8 @@ const styles = StyleSheet.create({
     
     rootcontainer: {
       //backgroundColor : colors.subAccent,    
-      alignItems : "center"
+      alignItems : "center",
+      backgroundColor: "#FFF"
     },
     titleContainer :{
       flexDirection : "row",
