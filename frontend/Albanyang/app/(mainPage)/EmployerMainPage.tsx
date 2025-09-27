@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from "expo-router";
 
 import { fetchAccountInfo, AccountInfo } from './components/TopSection';
-import { fetchStoresWithStaffStatus, StaffStatus, Store } from "./components/StoreStatusSection";
+import { fetchStoresWithStaffStatus, StaffStatus, StoreDetail } from "./hook/getStoresDetail";
 import { EmployerTopSection } from "./components/TopSection";
 import StoreSelectionSection from './components/EmployerStoreSelectionSection';
 import StoreStatusSection from './components/StoreStatusSection';
@@ -25,7 +25,7 @@ const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 export default function EmployerMainPage() {
   const router = useRouter();
   
-  const [stores, setStores] = useState<Store[]>([]);
+  const [stores, setStores] = useState<StoreDetail[]>([]);
   const [selectedStoreIndex, setSelectedStoreIndex] = useState(0);
   const [accountInfo, setAccountInfo] = useState<AccountInfo | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +49,6 @@ export default function EmployerMainPage() {
       console.log('데이터 로드 완료');
     } catch (error) {
       console.error('데이터 로딩 실패:', error);
-      Alert.alert('오류', '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -68,15 +67,11 @@ export default function EmployerMainPage() {
     setSelectedStoreIndex(index);
   };
 
-  const handlePressStoreOverview = (store: Store) => {
+  const handlePressStoreOverview = (store: StoreDetail) => {
     router.push({
       pathname: "/NextToEmployerMainPage",
       params: { storeId: store.id, storeName: store.name },
     });
-  };
-
-  const handleAddStore = () => {
-    router.push("/RegisterStore");
   };
 
   const handleNotificationPress = () => {
@@ -151,7 +146,6 @@ export default function EmployerMainPage() {
           stores={stores}
           selectedStoreIndex={selectedStoreIndex}
           onStoreSelect={handleStoreSelect}
-          onAddStore={handleAddStore}
         />
         <StoreStatusSection 
           store={stores[selectedStoreIndex] || null} 
