@@ -1,20 +1,16 @@
 import { AxiosError } from "axios";
-import { api, handleResponse } from "../api";
+import { api, handleResponse, ApiResponse } from "../api";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
-export interface Store {
+export interface StaffDetail {
   id: number;
   name: string;
-  address: string;
-  officeNumber: string;
-  payDay: number;
-  scale: '5인 이상' | '5인 미만';
-}
-
-export interface ApiResponse<T = any> {
-  code: string;
-  message: string;
-  data: T;
+  nickname: string;
+  status: '재직' | '퇴사' | '예정';
+  taxType: '4대보험' | '사업소득세' | '없음';
+  wage: number;
+  weeklyWorkingDay: number;
+  workingHours: number;
 }
 
 function handleAxiosError(err: unknown): never {
@@ -31,11 +27,11 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
-export async function getStore(storeId: number) {
+export async function getStaff(storeId: number, staffId: number) {
     try {
         const token = await loadToken();
-        const res = await api.get<ApiResponse<Store>>(
-        `/v1/stores/${storeId}`,
+        const res = await api.get<ApiResponse<StaffDetail>>(
+        `/v1/stores/${storeId}/staffs/${staffId}`,
         {
             headers: {
                 Authorization: token,

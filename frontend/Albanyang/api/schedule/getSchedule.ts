@@ -1,12 +1,6 @@
 import { AxiosError } from "axios";
-import { api, handleResponse } from "../api";
+import { api, handleResponse, ApiResponse } from "../api";
 import { loadToken } from "../authorization/AuthTokenStorage";
-
-export interface ApiResponse<T = any> {
-  code: string;
-  message: string;
-  data: T;
-}
 
 // 스케줄 관련 타입 정의
 export interface Schedule {
@@ -54,8 +48,9 @@ export async function getStoreSchedules(storeId: number, month?: string, date?: 
     if (date) params.date = date;
 
     const token = await loadToken();
+    console.log()
     const res = await api.get<ApiResponse<ScheduleListResponse>>(
-      `/v1/stores/${storeId}/schedule`,
+      `/v1/stores/${storeId}/schedules`,
       {
             headers: {
                 Authorization: token,
