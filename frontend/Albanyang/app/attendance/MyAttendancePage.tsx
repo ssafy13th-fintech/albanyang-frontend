@@ -1,4 +1,4 @@
-import { getMyStores } from "@/api/Staff";
+import { getMyStores, MyStoresResponse } from "@/api/Staff";
 import { getMyTimesheets, TimesheetItem } from "@/api/Timesheet";
 import SmallHeader from "@/components/header/SmallHeader";
 import NavBar from "@/components/navBar/NavBar";
@@ -12,132 +12,191 @@ import { Calendar } from "react-native-calendars";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import PayslipTabBar from "../payslip/common/components/PayslipTabBar";
 
-// --- (예시) 날짜로 근태 조회하는 함수: 실제 API로 대체하세요
-async function getAttendanceByDate(dateYMD: string) {
-  // TODO: 실제 API 호출로 교체
-  // 예시 응답 형태:
-  // { status: 'ok', data: { date: '2025-09-26', startTime: '09:00', endTime: '18:00', status: '출근' } }
-  return new Promise((res) =>
-    setTimeout(
-      () =>
-        res({
-          status: "ok",
-          data: {
-            date: dateYMD,
-            startTime: "09:00",
-            endTime: "18:00",
-            status: Math.random() > 0.5 ? "출근" : "결근", // 더미
-          },
-        }),
-      300
-    )
-  );
+
+// ====== 여기서 더미 데이터 생성 ======
+const dummyTodayTimesheet: TimesheetItem = {
+  id: 999,
+  commuteDate: "2025-09-27",           // 오늘 날짜
+  arrivedAt: "09:30",           // 출근 시간
+  leftAt: "18:00",              // 퇴근 시간
+  staffId: 123,
+  nickname: "테스트 알바생",
+};
+
+      // 3) 이번 달 근무 현황 (더미 포함)
+const dummyMonthTimesheets: TimesheetItem[] = [
+  dummyTodayTimesheet,
+  {
+    id: 998,
+    commuteDate: "2025-09-15",
+    arrivedAt: "10:00",
+    leftAt: "17:30",
+    staffId: 123,
+    nickname: "테스트 알바생",
+  },
+  {
+    id: 997,
+    commuteDate: "2025-09-18",
+    arrivedAt: "09:45",
+    leftAt: "18:15",
+    staffId: 123,
+    nickname: "테스트 알바생",
+  },
+];
+
+
+// --- 캘린더 마킹 유틸 함수
+function markTimesheetsOnCalendar(timesheets: TimesheetItem[]): Record<string, any> {
+  const marks: Record<string, any> = {};
+  timesheets.forEach((ts) => {
+    marks[ts.commuteDate] = {
+      marked: true,
+      dotColor: colors.main,
+    };
+  });
+  return marks;
 }
+
 
 export default function MyAttendancePage() {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState(0);
+
+  // --- 지점 캐싱
+  const [stores, setStores] = useState<MyStoresResponse["stores"]>([]);
   const [work_place_datas, setWorkPlaceDatas] = useState<string[]>([]);
+
+  // --- 로딩 플래그
   const [loaded, setLoaded] = useState(false);
 
-  // --- 오늘 날짜, 선택된 날짜, 모달, 마킹, 선택 날짜의 근태 데이터
-  const [today, setToday] = useState<string>(GetTodayDate());
-  const [thisMonth , setThisMonth] = useState<string>(GetThisMonthDate());
-  const [thisMonthTimeSheets, setThisMonthTimeSheets] = useState<TimesheetItem[]>();
+  // --- 오늘 날짜, 이번 달
+  const [today] = useState<string>(GetTodayDate());
+  const [thisMonth] = useState<string>(GetThisMonthDate());
+
+  // --- 근태 데이터
+  const [thisMonthTimeSheets, setThisMonthTimeSheets] = useState<TimesheetItem[]>([]);
+  const [todayTimesheet, setTodayTimesheet] = useState<TimesheetItem | null>(null);
+
+  // --- 캘린더 및 모달
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
-  const [attendanceForSelectedDate, setAttendanceForSelectedDate] = useState<any>(null);
-  const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const [selectedTimesheet, setSelectedTimesheet] = useState<TimesheetItem | null>(null);
 
-  // --- 컴포넌트 마운트 시: 지점 목록 + 오늘 근태 조회
+  // ========== 최초 로딩 ==========
   useEffect(() => {
-    const api_working_points = async () => {
+    const init = async () => {
       try {
+        // 1) 지점 로딩
         const res = await getMyStores();
         const stores = res.data?.stores ?? [];
+        setStores(stores);
+        setWorkPlaceDatas(stores.map((s) => s.name));
 
-        // 원래 코드에서 루프가 잘못되어 있어서 수정:
-        const work_places: string[] = [];
-        for (let i = 0; i < stores.length; ++i) {
-          work_places.push(stores[i].name);
+        if (stores.length === 0) {
+          setWorkPlaceDatas(["예시 지점1", "예시 지점2"]);
+          setLoaded(true);
+          return;
         }
 
-        if (work_places.length < 1) {
-          work_places.push("예시 지점1");
-          work_places.push("예시 지점2");
-        }
+        // 기본 지점(첫 번째) 기준
+        const storeId = stores[0].id;
 
-        setWorkPlaceDatas(work_places);
+        // 2) 오늘 근무 현황
+        const todayRes = await getMyTimesheets(storeId, { date: today });
+        setTodayTimesheet(todayRes.data.timesheets[0] ?? null);
 
-        // 오늘 근태 자동 조회
-        await fetchAttendanceForDate(today);
+        // 3) 이번 달 근무 현황
+        const monthRes = await getMyTimesheets(storeId, { month: thisMonth });
+        const timesheets = monthRes.data.timesheets;
+        setThisMonthTimeSheets(timesheets);
 
-        // (옵션) 이미 존재하는 근태들을 마킹하고 싶으면 여기에 markedDates 세팅
-        // 예: 여러 날짜에 dots 표시하려면 아래처럼 설정할 수 있음
-        // setMarkedDates({
-        //   [today]: { marked: true, dotColor: 'green' },
-        //   ['2025-09-20']: { marked: true, dotColor: 'red' }
-        // });
+        // 4) 캘린더 마킹
+        const marks: Record<string, any> = {};
+        timesheets.forEach((ts) => {
+          marks[ts.commuteDate] = {
+            marked: true,
+            dotColor: colors.main,
+          };
+        });
 
+        setMarkedDates(marks);
       } catch (err) {
-        console.warn("getMyStores error", err);
+        console.warn("init error", err);
+
+      setTodayTimesheet(dummyTodayTimesheet);
+      setThisMonthTimeSheets(dummyMonthTimesheets);
+      setMarkedDates(markTimesheetsOnCalendar(dummyMonthTimesheets))
+
       } finally {
         setLoaded(true);
       }
     };
-    api_working_points();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 처음 마운트 시 1회
+
+    init();
+  }, []);
 
 
-    useEffect(()=>{
-        const api_today_attendance = async()=>{
-            const timesheets = (await getMyTimesheets(0, {month : GetThisMonthDate()})).data.timesheets
-            console.log(GetThisMonthDate, "의 timesheets ",timesheets)
-            setThisMonthTimeSheets(timesheets);
-        }
+// --- 탭 변경 시 근태 데이터 로딩
+useEffect(() => {
+  const loadTimesheetsForStore = async () => {
+    if (!stores.length) return;
 
-        api_today_attendance();
-    },[])
+    const storeId = stores[activeTab].id;
 
-
-
-
-    
-  // --- 특정 날짜 근태 조회 함수
-  const fetchAttendanceForDate = async (dateYMD: string) => {
-    setLoadingAttendance(true);
     try {
-      const resp: any = await getAttendanceByDate(dateYMD); // 실제 구현으로 교체
-      if (resp?.status === "ok") {
-        setAttendanceForSelectedDate(resp.data);
-      } else {
-        setAttendanceForSelectedDate(null);
-      }
-    } catch (e) {
-      console.warn("attendance fetch error", e);
-      setAttendanceForSelectedDate(null);
-    } finally {
-      setLoadingAttendance(false);
+      // 오늘 근태
+      const todayRes = await getMyTimesheets(storeId, { date: today });
+      setTodayTimesheet(todayRes.data.timesheets[0] ?? null);
+
+      // 이번 달 근태
+      const monthRes = await getMyTimesheets(storeId, { month: thisMonth });
+      const timesheets = monthRes.data.timesheets;
+      setThisMonthTimeSheets(timesheets);
+
+      // 캘린더 마킹
+      const marks: Record<string, any> = {};
+      timesheets.forEach((ts) => {
+        marks[ts.commuteDate] = {
+          marked: true,
+          dotColor: colors.main,
+        };
+      });
+      setMarkedDates(marks);
+    } catch (err) {
+      console.warn("loadTimesheetsForStore error", err);
+      // setTodayTimesheet(null);
+      // setThisMonthTimeSheets([]);
+      // setMarkedDates({});
+      
+      setTodayTimesheet(dummyTodayTimesheet);
+      setThisMonthTimeSheets(dummyMonthTimesheets);
+      setMarkedDates(markTimesheetsOnCalendar(dummyMonthTimesheets))
     }
   };
 
-  // --- 캘린더 날짜 클릭 핸들러
+  loadTimesheetsForStore();
+}, [activeTab, stores]); // activeTab이 바뀔 때마다 실행
+
+
+
+  // ========== 날짜 클릭 ==========
   const onDayPress = async (day: { dateString: string }) => {
-    const date = day.dateString; // YYYY-MM-DD
+    const date = day.dateString;
     setSelectedDate(date);
 
-    // 마킹: 이전 마크 유지하면서 선택한 날짜 강조
+    const found = thisMonthTimeSheets.find((ts) => ts.commuteDate === date) ?? null;
+    setSelectedTimesheet(found);
+
+    // 마킹 (선택 강조)
     const newMarked = {
       ...markedDates,
       [date]: {
         ...(markedDates[date] ?? {}),
         selected: true,
-        selectedColor: colors.main, // react-native-calendars는 custom color 사용 가능
+        selectedColor: colors.main,
       },
     };
-    // 이전에 선택된 날짜의 selected를 해제
     if (selectedDate && selectedDate !== date) {
       if (newMarked[selectedDate]) {
         delete newMarked[selectedDate].selected;
@@ -146,10 +205,6 @@ export default function MyAttendancePage() {
     }
     setMarkedDates(newMarked);
 
-    // 선택한 날짜의 근태 정보 불러오기
-    await fetchAttendanceForDate(date);
-
-    // 모달 오픈
     setModalVisible(true);
   };
 
@@ -170,6 +225,7 @@ export default function MyAttendancePage() {
         paddingBottomLen={12}
       />
 
+      {/* 지점 탭 */}
       <View
         style={{
           elevation: 1,
@@ -182,6 +238,7 @@ export default function MyAttendancePage() {
         <PayslipTabBar tabs={work_place_datas} activeTab={activeTab} onTabPress={setActiveTab} />
       </View>
 
+      {/* 오늘 근무 현황 */}
       <View
         style={{
           marginHorizontal: insets.right + 16,
@@ -219,7 +276,7 @@ export default function MyAttendancePage() {
                 color: colors.text.reverse,
               }}
             >
-              am 11:50
+              {todayTimesheet?.arrivedAt ?? "-"}
             </Text>
           </View>
           <Image source={require("@/assets/images/icon/icon_next.png")} style={{ height: 18, width: 12 }} />
@@ -232,12 +289,13 @@ export default function MyAttendancePage() {
                 color: colors.text.reverse,
               }}
             >
-              am 11:50
+              {todayTimesheet?.leftAt ?? "-"}
             </Text>
           </View>
         </View>
       </View>
 
+      {/* 캘린더 */}
       <Calendar
         style={{
           elevation: 3,
@@ -246,24 +304,42 @@ export default function MyAttendancePage() {
         }}
         onDayPress={onDayPress}
         markedDates={markedDates}
-        // markingType="multi-dot" // 필요에 따라 마킹 타입 변경 가능
+        onMonthChange={async (month) => {
+          console.log("month ", month, "activeTab ", activeTab )
+          try {
+            //if (!activeTab) return;
+
+            const newMonth = `${month.year}-${String(month.month).padStart(2, "0")}`;
+            console.log("선택된 지점:", activeTab, "새로운 month:", newMonth);
+
+            // 새로운 달 근태 조회
+            const res = await getMyTimesheets(stores[activeTab].id, { month: newMonth });
+            const timesheets = res?.data?.timesheets ?? [];
+
+            setThisMonthTimeSheets(timesheets);
+            setMarkedDates(markTimesheetsOnCalendar(timesheets));
+          } catch (err) {
+            console.warn("onMonthChange error", err);
+          }
+        }}
       />
 
       <NavBar role="alba" />
 
-      {/* =========== Modal (간단한 예시) =========== */}
+      {/* =========== Modal =========== */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", padding: 20 }}>
           <View style={{ backgroundColor: "white", borderRadius: 12, padding: 16 }}>
-            <Text style={{ fontWeight: "700", marginBottom: 8 }}>선택한 날짜: {selectedDate}</Text>
+            <Text style={{ fontWeight: "700", marginBottom: 8 }}>
+              선택한 날짜: {selectedDate}
+            </Text>
 
-            {loadingAttendance ? (
-              <ActivityIndicator />
-            ) : attendanceForSelectedDate ? (
+            {selectedTimesheet ? (
               <View>
-                <Text>상태: {attendanceForSelectedDate.status}</Text>
-                <Text>출근: {attendanceForSelectedDate.startTime}</Text>
-                <Text>퇴근: {attendanceForSelectedDate.endTime}</Text>
+                <Text>지점: { stores[activeTab].name }</Text>
+                <Text>근무 날짜: {selectedTimesheet.commuteDate}</Text>
+                <Text>출근: {selectedTimesheet.arrivedAt ?? "-"}</Text>
+                <Text>퇴근: {selectedTimesheet.leftAt ?? "-"}</Text>
               </View>
             ) : (
               <Text>해당 날짜의 근태 정보가 없습니다.</Text>
@@ -271,9 +347,7 @@ export default function MyAttendancePage() {
 
             <TouchableOpacity
               style={{ marginTop: 12, alignSelf: "flex-end" }}
-              onPress={() => {
-                setModalVisible(false);
-              }}
+              onPress={() => setModalVisible(false)}
             >
               <Text style={{ color: colors.main }}>닫기</Text>
             </TouchableOpacity>
