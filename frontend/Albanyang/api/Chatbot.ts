@@ -63,7 +63,7 @@ export async function getChatbotHistories(cursorId?: number, size: number = 10) 
     if (cursorId !== undefined) params.cursorId = cursorId;
     
     const res = await api.get<ApiResponse<ChatbotHistoriesResponse>>(
-      '/api/v1/chatbot/histories',
+      '/v1/chatbot/histories',
       { params }
     );
     return res.data;
