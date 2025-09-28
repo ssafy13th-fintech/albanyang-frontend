@@ -1,15 +1,38 @@
+import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
 import Header from '@/components/header/Header';
 import NavBar from '@/components/navBar/NavBar';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, View, Text, ActivityIndicator, Alert } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PayslipListItem from '../common/components/PayslipListItem';
 import PayslipTabBar from '../common/components/PayslipTabBar';
 import YearSelector from '../common/components/YearSelector';
-import { staffStores } from './hooks/useStaffStores';
-import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
 import { staffPayslips } from './hooks/useStaffPayslips';
+import { staffStores } from './hooks/useStaffStores';
+
+
+// 테스트용 더미 데이터
+const dummyPayslips = [
+  {
+    payslipId: 1,
+    payDate: "2025-09-01",
+    staffName: "홍길동",
+    staffNickName: "길동이",
+  },
+  {
+    payslipId: 2,
+    payDate: "2025-08-01",
+    staffName: "김철수",
+    staffNickName: "철수",
+  },
+  {
+    payslipId: 3,
+    payDate: "2025-07-01",
+    staffName: "이영희",
+    staffNickName: "영희",
+  },
+];
 
 const PayslipListOwner = () => {
   const today = new Date();
@@ -88,17 +111,23 @@ const PayslipListOwner = () => {
       </View>
 
       <ScrollView>
-        {allPayslips.map((item) => (
-          <PayslipListItem
-            key={item.payslipId}
-            month={Number(item.payDate.split('-')[1])}
-            year={Number(item.payDate.split('-')[0])}
-            payDate={item.payDate}
-            employeeName={item.staffName}
-            employeeNickname={item.staffNickName}
-            onPress={() => handlePayslipPress(item.payslipId, Number(activeStoreId))}
-          />
-        ))}
+          {allPayslips.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.emptyText}>아직 급여명세서가 없습니다</Text>
+            </View>
+          ) : (
+            allPayslips.map((item) => (
+              <PayslipListItem
+                key={item.payslipId}
+                month={Number(item.payDate.split('-')[1])}
+                year={Number(item.payDate.split('-')[0])}
+                payDate={item.payDate}
+                employeeName={item.staffName}
+                employeeNickname={item.staffNickName}
+                onPress={() => handlePayslipPress(item.payslipId, Number(activeStoreId))}
+              />
+            ))
+          )}
       </ScrollView>
 
       <NavBar role='alba'/>
