@@ -1,10 +1,8 @@
-// ../Albanyang/api/Timesheet.ts
-
 import axios, { AxiosError, AxiosInstance } from 'axios';
 
-// Axios 인스턴스
+// Axios 인스턴스 (다른 api 파일들과 동일하게 설정)
 const api: AxiosInstance = axios.create({
-  baseURL: 'http://j13a605.p.ssafy.io:8080',
+  baseURL: 'https://your-api-domain.com', // 프로젝트 환경에 맞게 변경
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -77,14 +75,14 @@ export async function createMyTimesheet(storeId: number) {
   }
 }
 
-// PATCH /api/v1/stores/{store-id}/timesheets/me/{timesheet-id}
-// 특정 staff의 퇴근 시각 기록
-export async function patchMyTimesheetCheckout(storeId: number, timesheetId: number) {
+// POST /api/v1/stores/{store-id}/timesheets/me/{timesheet-id}
+// 특정 timesheet에 대한 작업 (예: 퇴근 기록 등)
+export async function postMyTimesheetAction(storeId: number, timesheetId: number) {
   if ((!storeId && storeId !== 0) || (!timesheetId && timesheetId !== 0)) {
     throw new Error('storeId and timesheetId are required');
   }
   try {
-    const res = await api.patch<ApiResponse<string>>(
+    const res = await api.post<ApiResponse<string>>(
       `/api/v1/stores/${storeId}/timesheets/me/${timesheetId}`
     );
     return res.data;
@@ -99,7 +97,7 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
   if ((!storeId && storeId !== 0) || !date) throw new Error('storeId and date (required)');
   try {
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
-      `/v1/stores/${storeId}/timesheets`,
+      `/api/v1/stores/${storeId}/timesheets`,
       { params: { date } }
     );
     return res.data;
@@ -112,6 +110,6 @@ export default {
   api,
   getMyTimesheets,
   createMyTimesheet,
-  patchMyTimesheetCheckout,
+  postMyTimesheetAction,
   getTimesheetsByDate,
 };
