@@ -265,11 +265,9 @@ const NFCCheckModal = ({ visible, onClose, onSuccess, isCheckIn }: Props) => {
           <View style={modalStyles.dragHandle} />
           
           <View style={modalStyles.header}>
-            <Text style={modalStyles.dayText}>월</Text>
             <View style={[modalStyles.dateCircle, { backgroundColor: isCheckIn ? colors.subAccent : colors.main }]}>
               <Text style={modalStyles.dateText}>{new Date().getDate()}</Text>
             </View>
-            <Text style={modalStyles.dayText}>화</Text>
           </View>
 
           <Text style={modalStyles.timeText}>{currentTime}</Text>
