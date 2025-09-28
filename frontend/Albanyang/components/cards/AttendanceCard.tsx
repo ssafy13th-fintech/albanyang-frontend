@@ -29,8 +29,8 @@ export default function AttendanceCard ({
 
     return (
     <View style={{ 
-     paddingVertical : 8,
-     paddingHorizontal : 8,
+     paddingVertical : 16,
+     paddingHorizontal : 16,
      backgroundColor: "white",
      elevation : 6,
      shadowColor : colors.shadow,

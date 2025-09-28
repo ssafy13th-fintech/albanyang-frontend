@@ -75,14 +75,14 @@ export default function EmployeeAttendancePage() {
 
       setCards(newItems);
 
+      if(newItems.length === 0)
       setCards([{
-        condition : ConditionEnum.결근,
+        condition : ConditionEnum.정상,
         id : 1,
         name : "오뚜기",
         work_place : "메가커피 역삼대로",
-        work_finish : "10:10",
+        work_finish : "14:10",
         work_start :"09:03"
-
       }])
     } catch (err) {
       console.error("근태 리스트 로드 실패:", err);
