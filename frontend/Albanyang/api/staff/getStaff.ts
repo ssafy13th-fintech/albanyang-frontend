@@ -8,6 +8,7 @@ export interface StaffDetail {
   nickname: string;
   status: '재직' | '퇴사' | '예정';
   taxType: '4대보험' | '사업소득세' | '없음';
+  phone: string;
   wage: number;
   weeklyWorkingDay: number;
   workingHours: number;

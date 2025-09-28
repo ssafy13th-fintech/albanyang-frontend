@@ -136,6 +136,12 @@ const StaffDetailModal = ({
             )}
           </View>
 
+          {/* 전화번호 */}
+          <View style={styles.infoRow}>
+            <Text style={styles.infoKey}>전화번호</Text>
+            <Text style={styles.infoVal}>{staff.phone}</Text>
+          </View>
+
           {/* 고용상태 */}
           <View style={styles.infoRow}>
             <Text style={styles.infoKey}>고용상태</Text>

@@ -1,19 +1,18 @@
 import { getStores } from "@/api/Stores";
 import { getTimesheetsByDate } from "@/api/Timesheet";
 import AttendanceCard from "@/components/cards/AttendanceCard";
-import SmallHeader from "@/components/header/SmallHeader";
 import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 import { GetOtherDate, GetTodayDate } from "@/modules/DateTime";
-import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { ConditionEnum } from "./EmployeeAttendanceInsertPage";
+import Header from "@/components/header/Header";
 
 interface CardItem {
   id: number;
@@ -31,7 +30,6 @@ interface DropBoxItemType {
 
 export default function EmployeeAttendancePage() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
   // 날짜 상태
   const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
@@ -68,22 +66,12 @@ export default function EmployeeAttendancePage() {
         id: item.id,
         name: item.nickname ?? "unknown",
         work_place: workplaces.find(w => w.value === String(storeId))?.label ?? "미정",
-        condition: ConditionEnum.정상, // 서버 condition 매핑 필요 시 수정
+        condition: item.status,
         work_start: item.arrivedAt,
         work_finish: item.leftAt,
       }));
 
       setCards(newItems);
-
-      if(newItems.length === 0)
-      setCards([{
-        condition : ConditionEnum.정상,
-        id : 1,
-        name : "오뚜기",
-        work_place : "메가커피 역삼대로",
-        work_finish : "14:10",
-        work_start :"09:03"
-      }])
     } catch (err) {
       console.error("근태 리스트 로드 실패:", err);
       setCards([]);
@@ -153,12 +141,7 @@ useEffect(() => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor : "white" }}>
-      <SmallHeader
-        headerText={"직원 근태 현황"}
-        headerTextFont={FONTS.jamsil.regular3}
-        headerTextSize={sizes.smallTitle}
-        isAblaBack={false}
-      />
+      <Header headerText="직원 근태 현황"/>
 
       <View style={{ flexDirection: "row", alignSelf: "center", marginBottom: 16 }}>
         <Text style={{ fontFamily: FONTS.jamsil.regular3, fontSize: sizes.normalText + 2 }}>
@@ -228,7 +211,7 @@ useEffect(() => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) =>
           <AttendanceCard
-            condition={item.condition}
+            condition={ConditionEnum[item.condition as keyof typeof ConditionEnum]}
             name={item.name}
             work_place={item.work_place}
             start_time={item.work_start ?? "-"}
@@ -249,19 +232,18 @@ useEffect(() => {
 
         }}
         ListEmptyComponent={() => (
-          <View style={{ alignItems: "center" }}>
+          <View style={{ flex: 1 ,alignItems: "center", justifyContent: "center", paddingTop: 30 }}>
             <Text
               style={{
                 fontFamily: FONTS.jamsil.regular3,
                 fontSize: sizes.normalText,
-                color: colors.disable,
+                color: colors.accent,
               }}
             >
               오늘은 근무가 없습니다
             </Text>
           </View>
         )}
-        
       />
 
       <NavBar role="sajang" />
