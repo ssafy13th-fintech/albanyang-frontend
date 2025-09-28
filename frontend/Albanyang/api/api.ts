@@ -1,60 +1,103 @@
-// src/services/api.ts
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+// ../Albanyang/api/Chatbot.ts
 
-/**
- * API 응답 공통 타입 (명세 기반)
- * {
- *   code: "SUCCESS" | ...,
- *   message: string | null,
- *   data: T | null
- * }
- */
-export type ApiResponse<T = any> = {
+import { AxiosError } from 'axios';
+import { api } from './authorization/AuthHeader';
+
+// 공통 응답 타입
+export interface ApiResponse<T = any> {
   code: string;
-  message: string | null;
-  data: T | null;
-};
-
-const BASE_URL = process.env.API_BASE_URL ?? "https://j13a605.p.ssafy.io"; // 변경하세요
-
-export const api: AxiosInstance = axios.create({
-  baseURL: BASE_URL,
-  timeout: 15000,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// 토큰을 전역 헤더에 세팅/해제하는 유틸 (외부에서 호출)
-export function setAuthToken(token: string | null) {
-  if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common["Authorization"];
-  }
+  message: string;
+  data: T;
 }
 
-// 응답 래핑 헬퍼 (data 부분만 반환, 에러는 throw)
-export async function handleResponse<T>(p: Promise<AxiosResponse<ApiResponse<T>>>): Promise<T> {
+// 챗봇 타입 정의
+export interface ChatbotQueryRequest {
+  userMessage: string;
+}
+
+export interface ChatbotQueryResponse {
+  chatbotMessage: string;
+}
+
+export interface ChatbotHistory {
+  chatbotId: number;
+  userMessage: string;
+  chatbotMessage: string;
+}
+
+export interface ChatbotHistoriesResponse {
+  chatbotHistories: ChatbotHistory[];
+}
+
+// 에러 처리 유틸
+function handleAxiosError(err: unknown): never {
+  if ((err as AxiosError).isAxiosError) {
+    const axiosErr = err as AxiosError;
+    const status = axiosErr.response?.status;
+    const data = axiosErr.response?.data;
+    
+    console.error('Axios Error Details:', {
+      status,
+      data,
+      message: axiosErr.message,
+      config: {
+        url: axiosErr.config?.url,
+        method: axiosErr.config?.method,
+        headers: axiosErr.config?.headers
+      }
+    });
+    
+    throw new Error(
+      `Request failed${status ? ` (status ${status})` : ''}: ${
+        (data && (data as any).message) || axiosErr.message
+      }`
+    );
+  }
+  throw err;
+}
+
+// POST /api/v1/chatbot/queries - 챗봇 질의
+export async function sendChatbotQuery(userMessage: string) {
+  if (!userMessage) throw new Error('userMessage (required)');
+  
+  console.log('Sending chatbot query:', userMessage);
+  
   try {
-    const res = await p;
-    const body = res.data;
-    if (!body) throw new Error("Empty response from server");
-    if (body.code !== "SUCCESS") {
-      // 서버가 실패 코드를 명시하는 경우
-      const msg = body.message ?? "Server returned error";
-      const err: any = new Error(msg);
-      err.code = body.code;
-      throw err;
-    }
-    return body.data as T;
-  } catch (err: any) {
-    // axios 에러에서 메시지 추출
-    if (err?.response?.data) {
-      const resp = err.response.data as ApiResponse;
-      const msg = resp?.message ?? JSON.stringify(resp);
-      throw new Error(msg);
-    }
-    throw err;
+    const res = await api.post<ApiResponse<ChatbotQueryResponse>>(
+      '/v1/chatbot/queries',  // /api 제거 (AuthHeader에서 baseURL이 이미 처리)
+      { userMessage }
+    );
+    
+    console.log('Chatbot query response:', res.data);
+    return res.data;
+  } catch (err) {
+    console.error('Chatbot query error:', err);
+    handleAxiosError(err);
   }
 }
+
+// GET /api/v1/chatbot/histories - 챗봇 내역 조회
+export async function getChatbotHistories(cursorId?: number, size: number = 10) {
+  console.log('Getting chatbot histories:', { cursorId, size });
+  
+  try {
+    const params: any = { size };
+    if (cursorId !== undefined) params.cursorId = cursorId;
+    
+    const res = await api.get<ApiResponse<ChatbotHistoriesResponse>>(
+      '/v1/chatbot/histories',  // /api 제거
+      { params }
+    );
+    
+    console.log('Chatbot histories response:', res.data);
+    return res.data;
+  } catch (err) {
+    console.error('Chatbot histories error:', err);
+    handleAxiosError(err);
+  }
+}
+
+export default {
+  sendChatbotQuery,
+  getChatbotHistories,
+};

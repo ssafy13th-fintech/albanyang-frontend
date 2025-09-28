@@ -60,15 +60,23 @@ export default function Login() {
            </View>
             <Pressable
             onPress={async() => {
+      
               //console.error("login pressed2 : " + id + " / " + pw);
               try{
-                await deleteToken();
+                //await deleteToken();
+                console.log("됨?")
+                
                 const response = await login({email : id, password : pw});
 
                 //token 디코딩
                 await saveToken(response.data.accessToken)
+                console.log("좀 되라고!!!!!!!!! ")
+
+
                 const decode = jwtDecode(response.data.accessToken) as TokenDecodeObject
+
                 console.log("decode msg ",decode.role)
+
 
                 //내 정보 가져오기
                 const me = await getMe();

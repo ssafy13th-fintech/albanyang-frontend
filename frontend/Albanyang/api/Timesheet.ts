@@ -91,11 +91,7 @@ export async function postMyTimesheetAction(storeId: number, timesheetId: number
   }
   try {
     const res = await api.post<ApiResponse<string>>(
-<<<<<<< HEAD
-      `/api/v1/stores/${storeId}/timesheets/me/${timesheetId}`
-=======
       `/v1/stores/${storeId}/timesheets/me/${timesheetId}`
->>>>>>> 1926b32f2e40cdd8fa466bcdeacb2e47dbc777e9
     );
     return res.data;
   } catch (err) {
