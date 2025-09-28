@@ -5,17 +5,18 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 import { Store } from "@/api/store/getStaffStores";
+import { useRouter } from "expo-router";
 
 
 interface EmployerProps {
   stores: Store[];
   selectedStoreIndex: number;
   onStoreSelect: (index: number) => void;
-  onAddStore: () => void;
 }
 
 
-export default function StoreSelectionSection({ stores, selectedStoreIndex, onStoreSelect, onAddStore }: EmployerProps) {
+export default function StoreSelectionSection({ stores, selectedStoreIndex, onStoreSelect }: EmployerProps) {
+  const router = useRouter();
   return (
     <View style={styles.section}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.storeTabContainer}>
@@ -24,10 +25,10 @@ export default function StoreSelectionSection({ stores, selectedStoreIndex, onSt
             <Text style={[styles.storeTabText, selectedStoreIndex === index && styles.activeStoreTabText]}>{store.name}</Text>
           </Pressable>
         ))}
-        <Pressable style={styles.addStoreTab} onPress={onAddStore}>
+        <Pressable style={styles.addStoreTab} onPress={() => router.push("/RegisterStore")}>
           <Text style={styles.addStoreTabText}>매장 추가+</Text>
         </Pressable>
-      </ScrollView>
+      </ScrollView> 
     </View>
   );
 }

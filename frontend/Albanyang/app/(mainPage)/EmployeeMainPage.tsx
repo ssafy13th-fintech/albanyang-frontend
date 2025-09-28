@@ -147,7 +147,6 @@ export default function EmployeeMainPage() {
 
     } catch (error) {
       console.error('데이터 로딩 중 오류:', error);
-      Alert.alert('오류', '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }

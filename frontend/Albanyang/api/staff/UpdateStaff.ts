@@ -1,21 +1,16 @@
 import { AxiosError } from "axios";
-import { api, handleResponse } from "../api";
+import { api, ApiResponse } from "../api";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
-export interface Store {
-  id: number;
-  name: string;
-  address: string;
-  officeNumber: string;
-  payDay: number;
-  scale: '5인 이상' | '5인 미만';
+export interface UpdateStaff{
+    nickname: string;
+    status: number;
+    taxType: number;
+    wage: number;
+    weeklyWorkingDay: number;
+    workingHours: number;
 }
 
-export interface ApiResponse<T = any> {
-  code: string;
-  message: string;
-  data: T;
-}
 
 function handleAxiosError(err: unknown): never {
   if ((err as AxiosError).isAxiosError) {
@@ -31,21 +26,22 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
-export async function getStore(storeId: number) {
+export async function updateStaff(storeId: number, staffId: number, body: UpdateStaff) {
     try {
         const token = await loadToken();
-        const res = await api.get<ApiResponse<Store>>(
-        `/v1/stores/${storeId}`,
-        {
-            headers: {
-                Authorization: token,
-            },
-        }
+        console.log(body);
+        await api.put<ApiResponse<void>>(
+          `/v1/stores/${storeId}/staffs/${staffId}`,
+          body,
+          {
+              headers: {
+                  Authorization: token,
+              },
+          }
         );
-        return res.data.data;
+        
     } catch (err) {
-        console.error("사업장 조회 에러", err);
+        console.error(err);
         handleAxiosError(err);
     }
 }
-
