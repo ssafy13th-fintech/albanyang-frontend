@@ -3,7 +3,7 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 import { useRouter } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 
 interface CardInfo {
   rest_time? : number,
@@ -63,8 +63,11 @@ export default function AttendanceCard ({
         
       </View>
       <View style = {{justifyContent : "space-between"}}>
-        <Text>{work_place} 사업장 {name} 근무자</Text>
-        <TouchableOpacity
+            <Text style={{  flexWrap : "wrap", textAlign : "right" }}>
+            {work_place} 사업장{"\n"}
+            {name} 근무자
+          </Text>
+        {/* <TouchableOpacity
         onPress={ () => {router.push({
           pathname :"/attendance/EmployeeAttendanceInsertPage",
           params : { prop_name : name, prop_restTime : rest_time,prop_condition : condition,
@@ -86,7 +89,7 @@ export default function AttendanceCard ({
                 fontFamily : FONTS.jamsil.light2,
                 color : colors.text.reverse,
             }}>수정</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       </View>
       </View>
     </View>

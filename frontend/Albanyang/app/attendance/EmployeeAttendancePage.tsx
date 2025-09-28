@@ -74,6 +74,16 @@ export default function EmployeeAttendancePage() {
       }));
 
       setCards(newItems);
+
+      setCards([{
+        condition : ConditionEnum.결근,
+        id : 1,
+        name : "오뚜기",
+        work_place : "메가커피 역삼대로",
+        work_finish : "10:10",
+        work_start :"09:03"
+
+      }])
     } catch (err) {
       console.error("근태 리스트 로드 실패:", err);
       setCards([]);
@@ -230,27 +240,27 @@ useEffect(() => {
           marginTop: 8,
           marginHorizontal: insets.left + 16,
         }}
-      ListEmptyComponent={
-        <View style={{ 
-          marginVertical : 24,
-          elevation : 1,
-          shadowColor : colors.shadow,
-          borderRadius : 10,
-          shadowRadius : 10,
-          shadowOpacity : 3,
-          shadowOffset : {height:0, width :0},
-          alignItems: "center", justifyContent:"center", paddingVertical: 56 }}>
-          <Text
-            style={{
-              fontFamily: FONTS.jamsil.regular3,
-              fontSize: sizes.normalText,
-              color: colors.accent,
-            }}
-          >
-            오늘은 근무가 없습니다
-          </Text>
-        </View>
-      }
+          // contentContainerStyle로 content가 남은 공간을 채우게 함
+        contentContainerStyle={!cards ? ({
+          flexGrow: 1,               // 중요: 비어있을 때도 컨테이너가 남은 영역을 채움
+          justifyContent: 'center', // 수직 중앙 정렬
+          paddingHorizontal: insets.left + 16, // 기존 marginHorizontal 대체 (선택)
+        }) : {
+
+        }}
+        ListEmptyComponent={() => (
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                fontFamily: FONTS.jamsil.regular3,
+                fontSize: sizes.normalText,
+                color: colors.disable,
+              }}
+            >
+              오늘은 근무가 없습니다
+            </Text>
+          </View>
+        )}
         
       />
 
