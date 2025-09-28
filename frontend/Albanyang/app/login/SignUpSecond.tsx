@@ -173,12 +173,33 @@ export default function Signup() {
             </View>
               <BottomActionButton
                 label ="다음으로"
+                // onPress = {() => {
+                //   console.log(frontPhoneNum)
+                //   signUpStore.setForm({age : age,  gender:gender!, phone:frontPhoneNum+phoneNum, role:isAlba!, name:name})
+                //   router.push("/login/SignUpThird")
+                // }}
+                // disabled = {isDisabled}
                 onPress = {() => {
-                  console.log(frontPhoneNum)
-                  signUpStore.setForm({age : age,  gender:gender!, phone:frontPhoneNum+phoneNum, role:isAlba!, name:name})
-                  router.push("/login/SignUpThird")
+                  console.log("버튼 클릭됨");
+                  console.log("데이터:", {age, gender, isAlba, name, phone: frontPhoneNum+phoneNum});
+                  
+                  try {
+                    signUpStore.setForm({
+                      age: age, 
+                      gender: gender!, 
+                      phone: frontPhoneNum+phoneNum, 
+                      role: isAlba!, 
+                      name: name
+                    });
+                    
+                    console.log("store 저장 완료");
+                    
+                    router.push("login/SignUpThird");
+                    console.log("라우터 이동 시도");
+                  } catch (error) {
+                    console.error("에러 발생:", error);
+                  }
                 }}
-                disabled = {isDisabled}
               />
           </View>
           </View>

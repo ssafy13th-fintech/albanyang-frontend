@@ -3,14 +3,6 @@
 import { AxiosError } from 'axios';
 import { api } from './authorization/AuthHeader';
 
-
-// Axios 인스턴스
-// const api: AxiosInstance = axios.create({
-//   baseURL: 'http://j13a605.p.ssafy.io:8080',
-//   timeout: 10000,
-//   headers: { 'Content-Type': 'application/json' },
-// });
-
 // 공통 응답 타입
 export interface ApiResponse<T = any> {
   code: string;
@@ -21,14 +13,14 @@ export interface ApiResponse<T = any> {
 // 스케줄 관련 타입 정의
 export interface Schedule {
   id: number;
-  commuteDate: string; // "2025-09-25" 형식
+  commuteDate: string;
   workStartTime: string;
   workEndTime: string;
   workHours: number;
   breakTime: number;
   overtimeHours: number;
   nightShiftHours: number;
-  scheduleType: 'NORMAL' | string;
+  scheduleType: 'NORMAL' | 'SUBSTITUTE';
   editable: boolean;
   storeId: number;
   staffId: number;
@@ -36,26 +28,26 @@ export interface Schedule {
 }
 
 export interface CreateScheduleRequest {
-  commuteDates: string[]; // ["2025-09-25"] 형식
+  commuteDates: string[];
   workStartTime: string;
   workEndTime: string;
   workHours: number;
   breakTime: number;
   overtimeHours: number;
   nightShiftHours: number;
-  scheduleType: 'NORMAL' | string;
+  scheduleType: 'NORMAL' | 'SUBSTITUTE';
   editable: boolean;
 }
 
 export interface UpdateScheduleRequest {
-  commuteDate: string; // "2025-09-25" 형식
+  commuteDate: string;
   workStartTime: string;
   workEndTime: string;
   workHours: number;
   breakTime: number;
   overtimeHours: number;
   nightShiftHours: number;
-  scheduleType: 'NORMAL' | string;
+  scheduleType: 'NORMAL' | 'SUBSTITUTE';
   editable: boolean;
 }
 
@@ -78,14 +70,12 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
-// GET /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 특정 스케줄 조회
-// 🔴 수정: scheduleId만 path에 있음 (storeId, staffId는 path에 없음)
+// GET /v1/stores/{store-id}/staffs/{staff-id}/schedules/{schedule-id}
 export async function getScheduleById(scheduleId: number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
-
   try {
     const res = await api.get<ApiResponse<Schedule>>(
-      `/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`
+      `/v1/stores/{store-id}/staffs/{staff-id}/schedules/${scheduleId}`
     );
     return res.data;
   } catch (err) {
@@ -93,17 +83,15 @@ export async function getScheduleById(scheduleId: number) {
   }
 }
 
-// PUT /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 스케줄 수정
-// 🔴 수정: scheduleId만 path에 있음
+// PUT /v1/stores/{store-id}/staffs/{staff-id}/schedules/{schedule-id}
 export async function updateSchedule(
   scheduleId: number,
   scheduleData: UpdateScheduleRequest
 ) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
-
   try {
     const res = await api.put<ApiResponse<Schedule>>(
-      `/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`,
+      `/v1/stores/{store-id}/staffs/{staff-id}/schedules/${scheduleId}`,
       scheduleData
     );
     return res.data;
@@ -112,14 +100,12 @@ export async function updateSchedule(
   }
 }
 
-// DELETE /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 스케줄 삭제
-// 🔴 수정: scheduleId만 path에 있음
+// DELETE /v1/stores/{store-id}/staffs/{staff-id}/schedules/{schedule-id}
 export async function deleteSchedule(scheduleId: number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
-
   try {
     const res = await api.delete<ApiResponse<string>>(
-      `/v1/stores/${storeId}/staffs/${staffId}/schedule/${scheduleId}`
+      `/v1/stores/{store-id}/staffs/{staff-id}/schedules/${scheduleId}`
     );
     return res.data;
   } catch (err) {
@@ -127,7 +113,7 @@ export async function deleteSchedule(scheduleId: number) {
   }
 }
 
-// POST /api/v1/stores/{store-id}/staffs/{staff-id}/schedule - 스케줄 생성
+// POST /v1/stores/{store-id}/staffs/{staff-id}/schedules
 export async function createSchedule(
   storeId: number,
   staffId: number,
@@ -135,10 +121,9 @@ export async function createSchedule(
 ) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
   if (staffId === undefined || staffId === null) throw new Error('staffId (required)');
-
   try {
     const res = await api.post<ApiResponse<ScheduleListResponse>>(
-      `/v1/stores/${storeId}/staffs/${staffId}/schedule`,
+      `/v1/stores/${storeId}/staffs/${staffId}/schedules`,
       scheduleData
     );
     return res.data;
@@ -147,17 +132,16 @@ export async function createSchedule(
   }
 }
 
-// GET /api/v1/stores/{store-id}/schedule - 매장의 전체 스케줄 조회
+// GET /v1/stores/{store-id}/schedules
 export async function getStoreSchedules(storeId: number, month?: string, date?: string) {
   if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
-
   try {
     const params: any = {};
     if (month) params.month = month;
     if (date) params.date = date;
 
     const res = await api.get<ApiResponse<ScheduleListResponse>>(
-      `/v1/stores/${storeId}/schedule`,
+      `/v1/stores/${storeId}/schedules`,
       { params }
     );
     return res.data;

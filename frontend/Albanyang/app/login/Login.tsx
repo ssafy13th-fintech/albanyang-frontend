@@ -3,7 +3,7 @@ import {Image,Pressable,StyleSheet,Text,View} from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/Auth";
-import { saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
+import { deleteToken, saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
@@ -12,6 +12,8 @@ import { sizes } from '@/constants/size/FontSize';
 import { useMemberStore } from "@/store/useMemberStore";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
+
+
 
 
 export default function Login() {
@@ -59,6 +61,7 @@ export default function Login() {
             onPress={async() => {
               //console.error("login pressed2 : " + id + " / " + pw);
               try{
+                await deleteToken();
                 const response = await login({email : id, password : pw});
 
                 //token 디코딩
@@ -81,8 +84,8 @@ export default function Login() {
 
               }
               catch(e : any){
-                 console.log("error :", e);
-                  setErrorText(e);
+                console.log("error :", e);
+                setErrorText(e?.message || '로그인에 실패했습니다');
               }
             }}
             style={({ pressed }) => [

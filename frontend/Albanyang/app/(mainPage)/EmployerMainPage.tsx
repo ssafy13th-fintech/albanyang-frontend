@@ -520,14 +520,7 @@ export default function EmployerMainPage() {
   const handleNotificationPress = () => {
     const selectedStore = stores[selectedStoreIndex];
     if (selectedStore) {
-<<<<<<< HEAD
-      router.push({
-        pathname: "/ViewNotification",
-        params: { storeId: selectedStore.id }
-      });
-=======
       router.push('/ViewNotification');
->>>>>>> 9ba8acc36f0a1de49ad56c4f71dcba8fa7000447
     }
   };
 

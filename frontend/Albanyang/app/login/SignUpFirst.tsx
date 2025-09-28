@@ -177,9 +177,14 @@ export default function Signup() {
               <BottomActionButton
                 label ="다음으로"
                 onPress = {async () => {
-                  await deleteToken();
+                  try{
+                  //await deleteToken();
                   signUpStore.setForm({email : id, password : pw})
                   router.push("/login/SignUpSecond")
+                  }
+                  catch(e){
+                    console.error(e)
+                  }
                 }}
                 disabled = {isDisabled}
               />
