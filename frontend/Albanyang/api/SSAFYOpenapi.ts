@@ -16,29 +16,6 @@ export interface ApiResponse<T = any> {
   data?: T;
 }
 
-
-export interface CreateSsafyMemberRequest{
-  apiKey :string,
-  userId :string
-}
-
-export interface SelectSsafyMemberRequest extends CreateSsafyMemberRequest{
-}
-
-export interface CreateSsafyMemberResponse{
-  userId : string,
-  userName :string,
-  institutionCode : string,
-  userKey :string,
-  created : string,
-  modified :string
-}
-
-export interface SelectSsafyMemberResponse extends CreateSsafyMemberResponse{
-
-}
-
-
 // Utility: format date/time
 function pad(n: number, width = 2) {
   return String(n).padStart(width, '0');
@@ -144,12 +121,7 @@ export async function createDemandDepositAccount(params: { apiKey: string; userK
   }
 }
 
-/** 
- * 
- * 1원 송금 (계좌 인증 시작)
- *  
- * 
- **/
+// 4) 1원 송금 (계좌 인증 시작)
 export async function openAccountAuth(params: { apiKey: string; userKey: string; accountNo: string; authText: string; institutionCode?: string; fintechAppNo?: string; }) {
   if (!params.accountNo) throw new Error('accountNo (required)');
   if (!params.authText) throw new Error('authText (required)');
@@ -163,12 +135,7 @@ export async function openAccountAuth(params: { apiKey: string; userKey: string;
   }
 }
 
-/** 
- * 
- * 1원 송금 인증 
- *  
- * 
- **/
+// 5) 1원 송금 인증
 export async function checkAuthCode(params: { apiKey: string; userKey: string; accountNo: string; authText: string; authCode: string; institutionCode?: string; fintechAppNo?: string; }) {
   if (!params.accountNo) throw new Error('accountNo (required)');
   if (!params.authText) throw new Error('authText (required)');
@@ -185,6 +152,7 @@ export async function checkAuthCode(params: { apiKey: string; userKey: string; a
   }
 }
 
+// 6) 거래내역 조회
 export async function inquireTransactionHistoryList(params: { apiKey: string; userKey: string; accountNo: string; startDate: string; endDate: string; transactionType?: string; orderByType?: string; institutionCode?: string; fintechAppNo?: string; }) {
   const { apiKey, userKey, accountNo, startDate, endDate, transactionType, orderByType, institutionCode, fintechAppNo } = params;
   if (!apiKey) throw new Error('apiKey (required)');
@@ -202,8 +170,7 @@ export async function inquireTransactionHistoryList(params: { apiKey: string; us
   }
 }
 
-
-
+// 7) 특정 거래내역 조회
 export async function inquireTransactionHistoryByUniqueNo(params: { apiKey: string; userKey: string; accountNo: string; transactionUniqueNo : string; transactionType?: string; institutionCode?: string; fintechAppNo?: string; }) {
   const { apiKey, userKey, accountNo, transactionUniqueNo, transactionType, institutionCode, fintechAppNo } = params;
   if (!apiKey) throw new Error('apiKey (required)');
@@ -221,48 +188,66 @@ export async function inquireTransactionHistoryByUniqueNo(params: { apiKey: stri
   }
 }
 
+// 8) 계좌이체 - 실제 송금 API
+export async function updateDemandDepositAccountTransfer(params: {
+  apiKey: string;
+  userKey: string;
+  depositAccountNo: string; // 입금계좌번호 (직원 계좌)
+  transactionBalance: number; // 거래금액
+  withdrawalAccountNo: string; // 출금계좌번호 (사장 계좌)
+  depositTransactionSummary?: string; // 입금 거래요약 (선택)
+  withdrawalTransactionSummary?: string; // 출금 거래요약 (선택)
+  institutionCode?: string;
+  fintechAppNo?: string;
+}) {
+  const {
+    apiKey,
+    userKey,
+    depositAccountNo,
+    transactionBalance,
+    withdrawalAccountNo,
+    depositTransactionSummary,
+    withdrawalTransactionSummary,
+    institutionCode,
+    fintechAppNo
+  } = params;
 
+  if (!apiKey) throw new Error('apiKey (required)');
+  if (!userKey) throw new Error('userKey (required)');
+  if (!depositAccountNo) throw new Error('depositAccountNo (required)');
+  if (!transactionBalance) throw new Error('transactionBalance (required)');
+  if (!withdrawalAccountNo) throw new Error('withdrawalAccountNo (required)');
 
+  const header = buildHeader({
+    apiName: 'updateDemandDepositAccountTransfer',
+    apiKey,
+    userKey,
+    institutionCode,
+    fintechAppNo
+  });
 
+  try {
+    const body = {
+      Header: header,
+      depositAccountNo,
+      transactionBalance,
+      withdrawalAccountNo,
+      depositTransactionSummary: depositTransactionSummary || `(수)급여송금 : 입금(이체)`,
+      withdrawalTransactionSummary: withdrawalTransactionSummary || `(수)급여송금 : 출금(이체)`
+    };
 
-export async function createSsafyMember(body : CreateSsafyMemberRequest){
-  console.log("create member : ",body)
-    try{
-      const res = await api.post<ApiResponse<CreateSsafyMemberResponse>>("/ssafy/api/v1/member",
-        body
-      )
-      return  res.data;
-    
-    }catch(e:any){
-      console.log(" create erro " , e?.response?.data)
-      throw e;
-    }
+    console.log("계좌이체 요청:", body);
+
+    const res = await api.post<ApiResponse<any>>(
+      '/ssafy/api/v1/edu/demandDeposit/updateDemandDepositAccountTransfer',
+      body
+    );
+
+    return res.data;
+  } catch (err) {
+    handleAxiosError(err);
+  }
 }
-
-
-export async function searchSsafyMember(body : SelectSsafyMemberRequest){
-    console.log("search member : ",body)
-     try{
-      const res = await api.post<ApiResponse<SelectSsafyMemberResponse>>("/ssafy/api/v1/member/search",
-        body
-      )
-      return res.data;
-    
-    }catch(e : any){
-      console.log(e.response.data.responseCode)
-        switch(e?.response?.data.responseCode){
-          case "E4001":
-            throw ["E4001","올바르지 않은 이메일 형식"]
-          case "E4002":
-            throw  ["E4002","이미 존재하는 ID입니다."]
-          case "E4003":
-            throw  ["E4003","확인됨."]
-        }
-        throw e;
-    } 
-}
-
-
 
 export default {
   api,
@@ -274,4 +259,6 @@ export default {
   openAccountAuth,
   checkAuthCode,
   inquireTransactionHistoryList,
+  inquireTransactionHistoryByUniqueNo,
+  updateDemandDepositAccountTransfer, // 새로 추가된 계좌이체 API
 };

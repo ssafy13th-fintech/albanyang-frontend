@@ -17,6 +17,10 @@ export interface ApiResponse<T = any> {
   data: T;
 }
 
+export interface StaffStoresResponse {
+  stores: Store[];
+}
+
 function handleAxiosError(err: unknown): never {
   if ((err as AxiosError).isAxiosError) {
     const axiosErr = err as AxiosError;
@@ -49,3 +53,29 @@ export async function getStore(storeId: number) {
     }
 }
 
+// GET /api/v1/stores/me - 직원이 일하는 사업장 조회
+export async function getStaffStores(): Promise<Store[]> {
+  try {
+    const res = await api.get<ApiResponse<StaffStoresResponse>>('/v1/stores/me');
+    
+    if (res.data && res.data.data && res.data.data.stores) {
+      return res.data.data.stores;
+    }
+    
+    if (res.data && Array.isArray(res.data)) {
+      return res.data;
+    }
+    
+    console.warn('Unexpected API response structure:', res.data);
+    return [];
+    
+  } catch (err) {
+    console.error('직원 사업장 조회 실패:', err);
+    handleAxiosError(err);
+  }
+}
+
+export default {
+  getStore,
+  getStaffStores,
+};

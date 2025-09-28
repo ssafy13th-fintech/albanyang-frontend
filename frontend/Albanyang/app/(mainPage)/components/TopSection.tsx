@@ -1,20 +1,14 @@
-// components/TopSection.tsx
-import React from "react";
-import { View, Text, Pressable, Image, StyleSheet, Dimensions } from "react-native";
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBell } from '@fortawesome/free-regular-svg-icons';
+// components/TopSection.tsx - 알림 기능 포함 개선 버전
+
+import React, { useEffect, useState } from "react";
+import { View, Text, Pressable, Image, StyleSheet } from "react-native";
+import { FontAwesome } from '@expo/vector-icons';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
-import { getMe } from "@/api/Member";
+import { getMe, getMemberMonthlyIncome } from "@/api/Member";
+import { getMyAlarms } from "@/api/Alarms";
 import { useRouter } from "expo-router";
-import { NAVBAR_BASE_HEIGHT } from "@/components/navBar/NavBar";
-
-const TOP_PADDING = 16;
-const SIDE_PADDING = 20;
-const SECTION_SPACING = 32;
-const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export interface AccountInfo {
   hasAccount: boolean;
@@ -85,7 +79,7 @@ export function EmployerTopSection({ accountInfo, notificationCount, onNotificat
           style={({ pressed }) => [employerStyles.notificationButton, pressed && employerStyles.notificationButtonPressed]}
           onPress={onNotificationPress}
         >
-          <FontAwesomeIcon icon={faBell} size={24} color={colors.text.primary} />
+          <FontAwesome name="bell-o" size={24} color={colors.text.primary} />
           {notificationCount > 0 && (
             <View style={employerStyles.notificationBadge}>
               <Text style={employerStyles.notificationBadgeText}>{notificationCount > 99 ? '99+' : notificationCount}</Text>
@@ -126,46 +120,76 @@ export function EmployerTopSection({ accountInfo, notificationCount, onNotificat
   );
 }
 
-export function EmployeeTopSection({salaryInfo} : EmployeeProps){
-    const router = useRouter();
-  
-    return (
-      <View style={employeeStyles.section}>
-        <View style={employeeStyles.notificationRow}>
-          <View style={{ flex: 1 }} />
-          <Pressable
-            style={({ pressed }) => [
-              employeeStyles.notificationButton,
-              pressed && employeeStyles.notificationButtonPressed
-            ]}
-            onPress={() => {
-              router.push('/ViewNotification');
-            }}
-          >
-            <FontAwesomeIcon icon={faBell} size={24} color={colors.text.primary} />
-          </Pressable>
-        </View>
-  
-        <View style={employeeStyles.salaryCard}>
-          <View style={employeeStyles.salaryContent}>
-            <Text style={employeeStyles.monthText}>{salaryInfo?.month || '이번 달'}에</Text>
-            <View style={employeeStyles.salaryAmountRow}>
-              <Text style={employeeStyles.salaryLabel}>총 </Text>
-              <Text style={employeeStyles.salaryAmount}>{salaryInfo?.monthlyEarning.toLocaleString() || '0'}</Text>
-              <Text style={employeeStyles.currencyText}>원</Text>
+export function EmployeeTopSection({ salaryInfo }: EmployeeProps) {
+  const router = useRouter();
+  const [alarmCount, setAlarmCount] = useState(0);
+
+  // 알림 개수 조회
+  useEffect(() => {
+    const fetchAlarmCount = async () => {
+      try {
+        const alarmsResponse = await getMyAlarms();
+        const unreadAlarms = alarmsResponse.data?.alarmInfos?.filter(alarm => !alarm.isRead) || [];
+        setAlarmCount(unreadAlarms.length);
+      } catch (error) {
+        console.error('알림 조회 실패:', error);
+        setAlarmCount(0);
+      }
+    };
+
+    fetchAlarmCount();
+    
+    // 30초마다 알림 개수 업데이트
+    const interval = setInterval(fetchAlarmCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleNotificationPress = () => {
+    router.push('/ViewNotification');
+  };
+
+  return (
+    <View style={employeeStyles.section}>
+      <View style={employeeStyles.notificationRow}>
+        <View style={{ flex: 1 }} />
+        <Pressable
+          style={({ pressed }) => [
+            employeeStyles.notificationButton,
+            pressed && employeeStyles.notificationButtonPressed
+          ]}
+          onPress={handleNotificationPress}
+        >
+          <FontAwesome name="bell-o" size={24} color={colors.text.primary} />
+          {alarmCount > 0 && (
+            <View style={employeeStyles.notificationBadge}>
+              <Text style={employeeStyles.notificationBadgeText}>
+                {alarmCount > 99 ? '99+' : alarmCount}
+              </Text>
             </View>
-            <Text style={employeeStyles.earnedText}>벌었습니다!</Text>
+          )}
+        </Pressable>
+      </View>
+
+      <View style={employeeStyles.salaryCard}>
+        <View style={employeeStyles.salaryContent}>
+          <Text style={employeeStyles.monthText}>{salaryInfo?.month || '이번 달'}에</Text>
+          <View style={employeeStyles.salaryAmountRow}>
+            <Text style={employeeStyles.salaryLabel}>총 </Text>
+            <Text style={employeeStyles.salaryAmount}>{salaryInfo?.monthlyEarning.toLocaleString() || '0'}</Text>
+            <Text style={employeeStyles.currencyText}>원</Text>
           </View>
-          
-          <View style={employeeStyles.mascotContainer}>
-            <Image
-              source={require("@/assets/images/mascot/mascot_good_alba.png")}
-              style={employeeStyles.mascotImage}
-            />
-          </View>
+          <Text style={employeeStyles.earnedText}>벌었습니다!</Text>
+        </View>
+        
+        <View style={employeeStyles.mascotContainer}>
+          <Image
+            source={require("@/assets/images/mascot/mascot_good_alba.png")}
+            style={employeeStyles.mascotImage}
+          />
         </View>
       </View>
-    );
+    </View>
+  );
 }
 
 const employerStyles = StyleSheet.create({
@@ -190,12 +214,13 @@ const employerStyles = StyleSheet.create({
   mascotImage: { width: 100, height: 100, resizeMode: 'contain' },
 });
 
-
 const employeeStyles = StyleSheet.create({
-  section: { marginBottom: SECTION_SPACING, paddingHorizontal: SIDE_PADDING },
+  section: { marginBottom: 32, paddingHorizontal: 20 },
   notificationRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  notificationButton: { padding: 8, borderRadius: 8 },
+  notificationButton: { padding: 8, borderRadius: 8, position: 'relative' },
   notificationButtonPressed: { backgroundColor: 'rgba(0,0,0,0.05)' },
+  notificationBadge: { position: 'absolute', top: 4, right: 4, backgroundColor: colors.reject, borderRadius: 10, minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center' },
+  notificationBadgeText: { color: colors.text.reverse, fontSize: 10, fontFamily: FONTS.jamsil.bold5 },
   salaryCard: { flexDirection: 'row', backgroundColor: colors.text.reverse, borderRadius: 20, padding: 24, alignItems: 'center', shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 6 },
   salaryContent: { flex: 1 },
   monthText: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.regular3, color: colors.text.primary, marginBottom: 4 },
@@ -207,4 +232,3 @@ const employeeStyles = StyleSheet.create({
   mascotContainer: { alignItems: 'center', justifyContent: 'center' },
   mascotImage: { width: 100, height: 100, resizeMode: 'contain' }
 });
-

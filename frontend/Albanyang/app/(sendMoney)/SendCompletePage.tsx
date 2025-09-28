@@ -1,10 +1,11 @@
-import { Image, StyleSheet, Text, View, ScrollView } from 'react-native'
+import { Image, StyleSheet, Text, View, ScrollView, Modal, Alert } from 'react-native'
 import BottomActionButton from '@/components/buttons/BottomButton'
 import { colors } from '@/constants/colors/ColorTheme'
 import { FONTS } from '@/constants/fonts/Fonts'
 import { sizes } from "@/constants/size/FontSize"
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useState } from 'react'
 
 interface TransferDetail {
   staffId: number;
@@ -20,6 +21,7 @@ export default function TransferComplete() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   // URL 파라미터에서 송금 정보 받기
   const successCount = parseInt(params.successCount as string) || 0;
@@ -30,14 +32,38 @@ export default function TransferComplete() {
     : [];
 
   const handleConfirm = () => {
+    if (failCount === 0) {
+      // 모든 송금이 성공한 경우 성공 모달 표시
+      setShowSuccessModal(true);
+    } else {
+      // 일부 실패가 있는 경우 바로 메인으로 이동
+      goToMain();
+    }
+  };
+
+  const goToMain = () => {
     // 메인 페이지로 이동
     router.dismissAll();
     router.push("/(mainPage)/EmployerMainPage");
   };
 
   const handleRetry = () => {
-    // 실패한 건만 다시 시도
-    router.back();
+    // 실패한 건만 다시 시도 - 이전 페이지로 돌아가기
+    Alert.alert(
+      '다시 시도',
+      '실패한 송금을 다시 시도하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        { 
+          text: '다시 시도', 
+          onPress: () => {
+            // 실패한 항목들만 필터링하여 이전 페이지로 전달
+            const failedItems = transferDetails.filter(item => !item.success);
+            router.back();
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -93,7 +119,7 @@ export default function TransferComplete() {
           )}
           
           <View style={[styles.summaryRow, styles.totalRow]}>
-            <Text style={styles.totalLabel}>총 송금액</Text>
+            <Text style={styles.totalLabel}>이 송금액</Text>
             <Text style={styles.totalValue}>
               {totalAmount.toLocaleString()}원
             </Text>
@@ -105,13 +131,29 @@ export default function TransferComplete() {
           <View style={styles.detailSection}>
             <Text style={styles.detailTitle}>송금 내역</Text>
             {transferDetails.map((detail, index) => (
-              <View key={index} style={styles.detailCard}>
+              <View key={index} style={[
+                styles.detailCard,
+                !detail.success && styles.detailCardFailed
+              ]}>
                 <View style={styles.detailRow}>
                   <View style={styles.detailLeft}>
-                    <Text style={styles.detailName}>{detail.name}</Text>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.detailName}>{detail.name}</Text>
+                      <View style={[
+                        styles.statusBadge,
+                        detail.success ? styles.successBadge : styles.failBadge
+                      ]}>
+                        <Text style={[
+                          styles.statusText,
+                          detail.success ? styles.successText : styles.failText
+                        ]}>
+                          {detail.success ? '성공' : '실패'}
+                        </Text>
+                      </View>
+                    </View>
                     {detail.bankName && detail.account && (
                       <Text style={styles.detailAccount}>
-                        {detail.bankName} {detail.account}
+                        {detail.bankName} ****{detail.account.slice(-4)}
                       </Text>
                     )}
                   </View>
@@ -119,7 +161,7 @@ export default function TransferComplete() {
                     <Text style={styles.detailAmount}>
                       {detail.amount.toLocaleString()}원
                     </Text>
-                    {detail.transactionNo && (
+                    {detail.transactionNo && detail.success && (
                       <Text style={styles.transactionNo}>
                         거래번호: {detail.transactionNo.slice(-6)}
                       </Text>
@@ -167,6 +209,36 @@ export default function TransferComplete() {
           />
         )}
       </View>
+
+      {/* 성공 모달 */}
+      <Modal
+        visible={showSuccessModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Image
+              source={require("@/assets/images/mascot/mascot_smileface_boss.png")}
+              style={styles.modalMascot}
+            />
+            <Text style={styles.modalTitle}>송금이 완료되었습니다!</Text>
+            <Text style={styles.modalMessage}>
+              {successCount}명에게 총 {totalAmount.toLocaleString()}원이{'\n'}
+              성공적으로 송금되었습니다.
+            </Text>
+            <BottomActionButton
+              label="확인"
+              onPress={() => {
+                setShowSuccessModal(false);
+                goToMain();
+              }}
+              style={styles.modalButton}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -293,26 +365,69 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     marginBottom: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.subAccent,
+  },
+
+  detailCardFailed: {
+    borderLeftColor: colors.reject,
+    backgroundColor: '#FFF5F5',
   },
 
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
 
   detailLeft: {
     flex: 1,
+    marginRight: 12,
   },
 
   detailRight: {
     alignItems: 'flex-end',
   },
 
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+
   detailName: {
     fontSize: sizes.normalText,
     fontFamily: FONTS.jamsil.regular3,
     color: colors.text.primary,
+    marginRight: 8,
+    flex: 1,
+  },
+
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+
+  successBadge: {
+    backgroundColor: colors.subAccent,
+  },
+
+  failBadge: {
+    backgroundColor: colors.reject,
+  },
+
+  statusText: {
+    fontSize: sizes.smallText,
+    fontFamily: FONTS.jamsil.medium4,
+  },
+
+  successText: {
+    color: colors.text.reverse,
+  },
+
+  failText: {
+    color: colors.text.reverse,
   },
 
   detailAccount: {
@@ -326,6 +441,7 @@ const styles = StyleSheet.create({
     fontSize: sizes.normalText,
     fontFamily: FONTS.jamsil.medium4,
     color: colors.text.primary,
+    textAlign: 'right',
   },
 
   transactionNo: {
@@ -333,6 +449,7 @@ const styles = StyleSheet.create({
     fontFamily: FONTS.jamsil.light2,
     color: colors.text.secondary,
     marginTop: 2,
+    textAlign: 'right',
   },
 
   spacer: {
@@ -366,5 +483,56 @@ const styles = StyleSheet.create({
 
   retryButton: {
     backgroundColor: colors.text.secondary,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+
+  modalContent: {
+    backgroundColor: colors.text.reverse,
+    borderRadius: 20,
+    padding: 32,
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 320,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+
+  modalMascot: {
+    width: 80,
+    height: 80,
+    resizeMode: 'contain',
+    marginBottom: 20,
+  },
+
+  modalTitle: {
+    fontSize: sizes.smallTitle,
+    fontFamily: FONTS.jamsil.bold5,
+    color: colors.text.primary,
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+
+  modalMessage: {
+    fontSize: sizes.normalText,
+    fontFamily: FONTS.jamsil.regular3,
+    color: colors.text.secondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    marginBottom: 24,
+  },
+
+  modalButton: {
+    width: '100%',
+    marginTop: 8,
   },
 });

@@ -22,7 +22,7 @@ export default function ActionSection({ selectedStore, onWriteNotice, onSchedule
       <View style={styles.actionContainer}>
         <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onWriteNotice}>
           <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>📢</Text></View>
-          <Text style={styles.actionText}>공지 쓰기</Text>
+          <Text style={styles.actionText}>공지쓰기</Text>
         </Pressable>
 
         <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onSchedule}>
@@ -32,12 +32,12 @@ export default function ActionSection({ selectedStore, onWriteNotice, onSchedule
 
         <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onInvite}>
           <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>✉️</Text></View>
-          <Text style={styles.actionText}>초대하기</Text>
+          <Text style={styles.actionText}>초대</Text>
         </Pressable>
         
         <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onSend}>
           <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>✉️</Text></View>
-          <Text style={styles.actionText}>송금하기</Text>
+          <Text style={styles.actionText}>송금</Text>
         </Pressable>
       </View>
     </View>
