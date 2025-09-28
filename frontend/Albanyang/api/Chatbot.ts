@@ -47,7 +47,7 @@ export async function sendChatbotQuery(userMessage: string) {
   if (!userMessage) throw new Error('userMessage (required)');
   try {
     const res = await api.post<ApiResponse<ChatbotQueryResponse>>(
-      '/api/v1/chatbot/queries',
+      '/v1/chatbot/queries',
       { userMessage }
     );
     return res.data;
