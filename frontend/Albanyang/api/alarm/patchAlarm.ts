@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { api, handleResponse } from "../api";
+import { api } from "../api";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
 export interface ApiResponse<T = any> {

@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
-import { api, ApiResponse } from "../api";
-import { loadToken } from "../authorization/AuthTokenStorage";
+import { ApiResponse } from "../api";
+import { api } from "../authorization/AuthHeader";
 
 export interface UpdateStore{
     name: string;
@@ -28,17 +28,10 @@ export async function putStore(storeId: number, body: UpdateStore) {
     if (!body.name || !body.address || !body.officeNumber || !body.payDay || !body.scale) {
     throw new Error('All fields in StoreRequestBody are required');
   }
-
     try {
-        const token = await loadToken();
         const res = await api.put<ApiResponse<UpdateStore>>(
           `/v1/stores/${storeId}`,
-          body,
-          {
-              headers: {
-                  Authorization: token,
-              },
-          }
+          body
         );
         return res.data.data;
     } catch (err) {

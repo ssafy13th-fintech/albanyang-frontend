@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
-import { api, ApiResponse } from "../api";
+import { ApiResponse } from "../api";
+import { api } from "../authorization/AuthHeader";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
 export interface TimesheetItem {
@@ -37,6 +38,7 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
 
     try {
         const token = await loadToken();
+        console.log(token);
         const res = await api.get<ApiResponse<TimesheetListResponse>>(
         `/v1/stores/${storeId}/timesheets`,
         {

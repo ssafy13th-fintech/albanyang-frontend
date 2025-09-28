@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
-import { api, ApiResponse } from "../api";
+import { ApiResponse } from "../api";
+import { api } from "../authorization/AuthHeader";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
 export interface UpdateStaff{

@@ -10,7 +10,7 @@ import {
   ActivityIndicator
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
@@ -51,11 +51,12 @@ export default function SalaryPaymentPage() {
 
   const [activeTab, setActiveTab] = useState<'settlement' | 'cafe'>('settlement');
   const [isLoading, setIsLoading] = useState(false);
-  const [storeId, setStoreId] = useState<number>(1); // 실제로는 context나 params에서 받아야 함
+  const { storeId } = useLocalSearchParams();
   const [paymentItems, setPaymentItems] = useState<StaffMemberItem[]>([]);
 
   // 직원 목록 조회
   useEffect(() => {
+    console.log(storeId);
     fetchStaffMembers();
   }, [storeId, activeTab]);
 

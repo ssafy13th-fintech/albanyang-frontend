@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
-import { api, handleResponse, ApiResponse } from "../api";
+import { api } from "../authorization/AuthHeader";
+import { ApiResponse } from "../api";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
 // 스케줄 관련 타입 정의
