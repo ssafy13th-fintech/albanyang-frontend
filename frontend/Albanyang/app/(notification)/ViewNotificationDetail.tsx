@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, BackHandler, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useGetNotification } from "./hooks/useGetNotification";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import BackHeader from "@/components/header/BackHeader";
 
@@ -11,23 +11,41 @@ import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 
 export default function NoticeRegistration() {
-    const params = useLocalSearchParams();
-    const storeId = Number(params.storeId);
-    const notificationId = Number(params.notificationId);
-    
-    const { getNotice, loading, error, data } = useGetNotification();
+  const params = useLocalSearchParams();
+  const storeId = Number(params.storeId);
+  const notificationId = Number(params.notificationId);
 
-    useEffect(() => {
-        console.error(storeId + " + " + notificationId);
-        if(!storeId || !notificationId) return;
-        getNotice(storeId, notificationId);
-        console.error(data);
-    }, [storeId, notificationId]);
+  const { getNotice, loading, error, data } = useGetNotification();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!storeId || !notificationId) return;
+    getNotice(storeId, notificationId);
+  }, [storeId, notificationId]);
+
+  useEffect(() => {
+    const backAction = () => {
+      router.replace({
+        pathname: "/ViewNotification",
+        params: { tab: "notice" }
+      });
+      return true; // 기본 뒤로가기 동작 막음
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [router]);
 
   return (
     <SafeAreaView style={styles.rootContainer}>
-      <BackHeader headerText="공지사항" 
-        backTo={{ pathname: "/ViewNotification", params: { tab: "notice" } }} />
+      <BackHeader
+        headerText="공지사항"
+        backTo={{ pathname: "/ViewNotification", params: { tab: "notice" } }}
+      />
       <View style={styles.container}>
         {loading && <ActivityIndicator size="large" color={colors.main} />}
         {error && <Text style={{ color: "red" }}>{error.message}</Text>}
@@ -39,15 +57,12 @@ export default function NoticeRegistration() {
               <Text style={styles.dateInput}>{data.date}</Text>
             </View>
             <Text style={styles.contentInput}>{data.content}</Text>
-
           </>
         )}
       </View>
     </SafeAreaView>
   );
 }
-
-
 const styles = StyleSheet.create({
   rootContainer: { flex: 1, backgroundColor: "#FFF" },
   container: { flex: 1, paddingHorizontal: 20, gap: 24 },

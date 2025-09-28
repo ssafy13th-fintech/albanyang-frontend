@@ -98,8 +98,8 @@ export function EmployerTopSection({ accountInfo, notificationCount, onNotificat
         <View style={employerStyles.accountInfo}>
           {accountInfo?.hasAccount ? (
             <>
-              <Text style={employerStyles.accountLabel}>계좌 잔액</Text>
               <Text style={employerStyles.accountNumber}>{`${accountInfo.bankName} ${accountInfo.accountNumber}`}</Text>
+              <Text style={employerStyles.accountLabel}>계좌 잔액</Text>
               <View style={employerStyles.balanceContainer}>
                 <Text style={employerStyles.accountBalance}>{accountInfo.balance?.toLocaleString()}</Text>
                 <Text style={employerStyles.currencyText}>원</Text>
@@ -177,8 +177,8 @@ const employerStyles = StyleSheet.create({
   notificationBadgeText: { color: colors.text.reverse, fontSize: 10, fontFamily: FONTS.jamsil.bold5 },
   accountCard: { flexDirection: 'row', backgroundColor: colors.text.reverse, borderRadius: 20, padding: 24, alignItems: 'center', shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 6 },
   accountInfo: { flex: 1 },
-  accountLabel: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary, marginBottom: 4 },
-  accountNumber: { fontSize: sizes.smallText, color: colors.text.secondary, marginBottom: 8, fontFamily: FONTS.jamsil.regular3 },
+  accountLabel: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary, marginBottom: 8 },
+  accountNumber: { fontSize: sizes.smallText, color: colors.text.secondary, marginBottom: 4, fontFamily: FONTS.jamsil.regular3 },
   balanceContainer: { flexDirection: 'row', alignItems: 'baseline' },
   accountBalance: { fontSize: sizes.middleTitle, fontFamily: FONTS.jamsil.bold5, color: colors.text.primary, marginRight: 4 },
   currencyText: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.medium4, color: colors.text.primary },
