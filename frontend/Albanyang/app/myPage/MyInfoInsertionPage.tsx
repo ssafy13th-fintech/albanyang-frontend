@@ -209,7 +209,8 @@ export default function MyInfoInsertion() {
 
 const styles = StyleSheet.create({
   rootContainer : {
-    flex : 1
+    flex : 1,
+    backgroundColor: "#FFF"
   },
   headerContainer :{
     flexDirection:"row",

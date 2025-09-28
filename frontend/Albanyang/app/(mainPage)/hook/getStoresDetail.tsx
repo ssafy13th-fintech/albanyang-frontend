@@ -35,7 +35,9 @@ export const fetchStoresWithStaffStatus = async (): Promise<StoreDetail[]> => {
     const storesWithStatus = await Promise.all(
       stores.map(async (store) => {
         try {
+          console.log('실행');
           const timesheetResponse = await getTimesheetsByDate(store.id, today);
+          console.log(timesheetResponse);
           const timesheets = timesheetResponse?.timesheets ?? []; 
           console.log(timesheets);
           

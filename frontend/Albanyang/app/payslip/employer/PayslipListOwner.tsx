@@ -23,6 +23,7 @@ const PayslipListOwner = () => {
   const [activeStoreId, setActiveStoreId] = useState<string | null>(null);
 
   const { stores, loading: storesLoading, error: storesError } = ownerStores();
+
   const { allPayslips, loading: payslipLoading, error: payslipError } = ownerPayslips(activeStoreId, selectedYear, selectedMonth);
 
   useEffect(() => {

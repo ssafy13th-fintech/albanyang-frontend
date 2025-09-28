@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // API imports
 import { getStaffPayslips } from "@/api/payslip/getStaffPayslips";
-import { getStoreSchedules } from '@/api/Schedule';
+import { getMySchedules, getStoreSchedules } from '@/api/Schedule';
 import { getStaffStores, Store } from '@/api/store/getStaffStores';
 import { getMyTimesheets } from '@/api/Timesheet';
 import AttendanceSection from "./components/AttendanceSection";
@@ -44,7 +44,7 @@ const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
     console.log("timedata :", timesheetData)
     const todayTimesheet = timesheetData?.timesheets[0];
 
-    const scheduleData = await getStoreSchedules(storeId, undefined, today);
+    const scheduleData = await getMySchedules(storeId, undefined, today);
     const mySchedule = scheduleData.data.schedules.find(s => s.staffId === todayTimesheet?.staffId);
 
     let totalHours = 0;

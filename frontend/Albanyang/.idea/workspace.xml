@@ -5,7 +5,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4d18f3a3-a90f-48e6-8809-0058f24e5cf9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/attendance/EmployeeAttendancePage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/attendance/EmployeeAttendancePage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/Timesheet.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/Timesheet.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/alarm/getAlarms.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/alarm/getAlarms.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/alarm/patchAlarm.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/alarm/patchAlarm.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/schedule/getSchedule.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/schedule/getSchedule.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/staff/UpdateStaff.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/staff/UpdateStaff.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/staff/getStaff.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/staff/getStaff.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/store/CreateStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/store/CreateStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/store/UpdateStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/store/UpdateStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/store/getStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/store/getStore.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/timesheet/getTimesheetByDate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/timesheet/getTimesheetByDate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(invite)/FindAlba.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(invite)/FindAlba.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(mainPage)/EmployeeMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(mainPage)/EmployeeMainPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(mainPage)/EmployerMainPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(mainPage)/EmployerMainPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(mainPage)/components/ActionSection.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(mainPage)/components/ActionSection.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(mainPage)/components/NFCCheckModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(mainPage)/components/NFCCheckModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(mainPage)/hook/getStoresDetail.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(mainPage)/hook/getStoresDetail.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(sendMoney)/CheckMemberListPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(sendMoney)/CheckMemberListPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(staff)/StaffDetailModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(staff)/StaffDetailModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/attendance/EmployeeAttendanceInsertPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/attendance/EmployeeAttendanceInsertPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/myPage/MyInfoInsertionPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/myPage/MyInfoInsertionPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/payslip/employer/PayslipListOwner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/payslip/employer/PayslipListOwner.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cards/AttendanceCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/AttendanceCard.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,21 +54,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feat/#53-api-mypage&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/SSAFYProject/Albanyang/frontend/frontend/Albanyang&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;emulator&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "Merging feat/#53-api-mypage",
+    "last_opened_file_path": "C:/SSAFYProject/Albanyang/frontend/frontend/Albanyang",
+    "settings.editor.selected.configurable": "emulator"
   }
-}</component>
+}]]></component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="4d18f3a3-a90f-48e6-8809-0058f24e5cf9" name="Changes" comment="" />

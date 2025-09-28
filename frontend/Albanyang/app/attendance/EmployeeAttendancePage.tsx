@@ -191,6 +191,18 @@ export default function EmployeeAttendancePage() {
     }
   }, [val_workplace, activeTab, thisMonth]);
 
+
+  // load when workplace or selectedDate changes
+  useEffect(() => {
+    if (val_workplace &&   activeTab ===0) {
+      const date = selectedDate === GetTodayDate() ? GetTodayDate() : GetOtherDate(selectedDate);
+        loadTimesheets(Number(val_workplace), date);
+
+    }
+  }, [selectedDate]);
+
+
+
   // when activeTab switches to schedule tab, ensure schedules are loaded
   useEffect(() => {
     if (activeTab === 1 && val_workplace) {

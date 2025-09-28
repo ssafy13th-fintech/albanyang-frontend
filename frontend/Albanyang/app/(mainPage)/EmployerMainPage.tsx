@@ -93,6 +93,18 @@ export default function EmployerMainPage() {
     });
   };
 
+  const handleSendMoney = () => {
+    const selectedStore = stores[selectedStoreIndex];
+    if (!selectedStore) {
+      Alert.alert('알림', '매장을 선택해주세요.');
+      return;
+    }
+    router.push({
+      pathname: "/CheckMemberListPage",
+      params: { storeId: selectedStore.id }
+    });
+  };
+
   const handleSchedule = () => {
     const selectedStore = stores[selectedStoreIndex];
     if (!selectedStore) {
@@ -157,6 +169,7 @@ export default function EmployerMainPage() {
           onWriteNotice={handleWriteNotice}
           onSchedule={handleSchedule}
           onInvite={handleInvite}
+          onSend={handleSendMoney}
         />
       </ScrollView>
 
