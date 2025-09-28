@@ -3,13 +3,14 @@ import { getTimesheetsByDate } from "@/api/Timesheet";
 import AttendanceCard from "@/components/cards/AttendanceCard";
 import SmallHeader from "@/components/header/SmallHeader";
 import NavBar from "@/components/navBar/NavBar";
+import AttendanceScroll from "@/components/scroll/AttendanceScroll";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 import { GetOtherDate, GetTodayDate } from "@/modules/DateTime";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, View } from "react-native";
 import { CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -161,6 +162,7 @@ useEffect(() => {
         isAblaBack={false}
       />
 
+
       {/* 지점 탭 */}
       <View
         style={{
@@ -171,40 +173,24 @@ useEffect(() => {
           marginBottom: 16,
         }}
       >
-        {/* <PayslipTabBar tabs={["직원 근태 관리", "스케쥴 관리"]} activeTab={activeTab!} onTabPress={setActiveTab} /> */}
-      
-        <View style={{flexDirection : "row",  borderBottomWidth:0.25, borderColor :colors.shadow,
-        }}>
-        {["직원 근태 관리", "스케쥴 관리"].map((tab, index)=> (
-            <TouchableOpacity
-            onPress={() => {
-              setHeaderTitle(tab)
-              setActiveTab(index)}}
-            key={index}
-            style ={{
-              flex : 0.5, alignSelf :"center", alignItems :"center",
-              borderBottomWidth : 1,
-              borderBottomColor : activeTab === index ? colors.accent : colors.shadow,
-              paddingBottom : 8,
-              zIndex : 5
-            }}
-            ><Text key={index} style={{
-              color : activeTab === index ? colors.accent : colors.text.secondary,
-              fontFamily : FONTS.jamsil.light2,
-              fontSize : 16
-            }}> {tab} </Text>
-            </TouchableOpacity>
-        ))}
-        </View>
+
+            <AttendanceScroll
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          setHeaderTitle={setHeaderTitle}
+            />
+    
       </View>
         
-
+        
       <View style={{ flexDirection: "row", alignSelf: "center", marginBottom: 16 }}>
         <Text style={{ fontFamily: FONTS.jamsil.regular3, fontSize: sizes.normalText + 2 }}>
           {year}년 {month}월 {day}일
         </Text>
       </View>
 
+
+      <View style ={{flex : 1}}>
       <CalendarProvider
         date={providerDate}
         onDateChanged={(date) => {
@@ -301,7 +287,7 @@ useEffect(() => {
           </View>
         )}
       />
-
+    </View>
       <NavBar role="sajang" />
     </SafeAreaView>
   );
