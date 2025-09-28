@@ -106,7 +106,7 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
   try {
     console.log("store Id :", storeId, "date :", date)
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
-      `/api/v1/stores/${storeId}/timesheets`,
+      `/v1/stores/${storeId}/timesheets`,
       { params: { date } }
     );
     return res.data;
