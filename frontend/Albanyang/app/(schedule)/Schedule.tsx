@@ -24,6 +24,7 @@ import { useLocalSearchParams } from "expo-router";
 import * as StoreApi from "@/api/Stores";
 import * as StaffApi from "@/api/Staff";
 import * as ScheduleApi from "@/api/Schedule";
+import * as PayslipApi from "@/api/EmployerPaylips";
 
 // 타입 정의
 interface StoreInfo {
@@ -78,6 +79,11 @@ export default function ScheduleManagementPage() {
 
   const [loading, setLoading] = useState(false);
   const [focus, setFocus] = useState(false);
+  const [selectedPayslipMonth, setSelectedPayslipMonth] = useState(() => {
+    const today = new Date();
+    const prevMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    return `${prevMonth.getFullYear()}-${String(prevMonth.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   // =========================
   // 초기 로드: 매장 목록
@@ -162,6 +168,81 @@ export default function ScheduleManagementPage() {
   useEffect(() => {
     fetchMonthlySchedules();
   }, [fetchMonthlySchedules]);
+
+  // =========================
+  // 급여명세서 생성 및 전송
+  // =========================
+  const handleGenerateAndSendPayslip = async () => {
+    if (!selectedStore || !selectedStaff) return;
+    
+    Alert.alert(
+      "급여명세서 생성 및 전송",
+      `${selectedStaff.name}에게 ${selectedPayslipMonth}월 급여명세서를 생성하고 전송하시겠습니까?`,
+      [
+        { text: "취소", style: "cancel" },
+        {
+          text: "생성 및 전송",
+          onPress: async () => {
+            try {
+              setLoading(true);
+              
+              // 1단계: 급여명세서 자동 생성
+              const generateRes = await PayslipApi.generatePayslip({
+                storeId: selectedStore.id,
+                staffId: selectedStaff.id,
+                month: selectedPayslipMonth // 선택된 월 사용
+              });
+              
+              if (generateRes.code === 'SUCCESS' && generateRes.data) {
+                const payslipId = generateRes.data.id;
+                
+                // 2단계: 생성된 급여명세서 전송
+                const sendRes = await PayslipApi.sendPayslip(selectedStore.id, payslipId, selectedStaff.id);
+                
+                if (sendRes.code === 'SUCCESS') {
+                  Alert.alert(
+                    "성공", 
+                    `${selectedStaff.name}에게 ${selectedPayslipMonth}월 급여명세서가 생성되고 전송되었습니다.\n총 급여: ${generateRes.data.payslipDetails.netSalary.toLocaleString()}원`
+                  );
+                } else {
+                  Alert.alert("오류", "급여명세서 전송에 실패했습니다.");
+                }
+              } else {
+                Alert.alert("오류", "급여명세서 생성에 실패했습니다.");
+              }
+            } catch (error: any) {
+              console.error("급여명세서 처리 실패:", error);
+              Alert.alert("오류", error?.message ?? "급여명세서 처리에 실패했습니다.");
+            } finally {
+              setLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  // 급여명세서 월 선택용 데이터 생성
+  const generateMonthOptions = () => {
+    const months = [];
+    const currentDate = new Date();
+    
+    // 최근 12개월 생성 (현재 월 포함)
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const displayText = `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+      
+      months.push({
+        label: displayText,
+        value: yearMonth
+      });
+    }
+    
+    return months;
+  };
+
+  const payslipMonthOptions = useMemo(() => generateMonthOptions(), []);
 
   // =========================
   // 캘린더 표시용 마킹 데이터
@@ -405,6 +486,73 @@ export default function ScheduleManagementPage() {
                 color: colors.text.secondary,
               }}
             />
+          </View>
+        )}
+
+        {/* 급여명세서 생성 및 전송 섹션 */}
+        {selectedStore && selectedStaff && (
+          <View style={{ marginHorizontal: 16, marginBottom: 16 }}>
+            {/* 급여명세서 월 선택 */}
+            <Text
+              style={{
+                fontFamily: FONTS.jamsil.regular3,
+                fontSize: sizes.normalText,
+                color: colors.text.primary,
+                marginBottom: 8,
+              }}
+            >
+              급여명세서 생성 월 선택
+            </Text>
+            <Dropdown
+              data={payslipMonthOptions}
+              labelField="label"
+              valueField="value"
+              value={selectedPayslipMonth}
+              onChange={(item) => setSelectedPayslipMonth(item.value)}
+              placeholder="급여명세서 생성 월을 선택하세요"
+              style={{
+                borderColor: colors.subAccent,
+                borderWidth: 1,
+                borderRadius: 10,
+                backgroundColor: "transparent",
+                paddingVertical: 12,
+                paddingHorizontal: 16,
+                marginBottom: 12,
+              }}
+              selectedTextStyle={{
+                fontFamily: FONTS.jamsil.regular3,
+                fontSize: sizes.normalText,
+                color: colors.text.primary,
+              }}
+              placeholderStyle={{
+                fontFamily: FONTS.jamsil.light2,
+                fontSize: sizes.normalText,
+                color: colors.text.secondary,
+              }}
+            />
+            
+            {/* 급여명세서 생성 및 전송 버튼 */}
+            <TouchableOpacity
+              style={{
+                backgroundColor: colors.subAccent,
+                paddingVertical: 16,
+                borderRadius: 10,
+                alignItems: "center",
+                opacity: loading ? 0.6 : 1,
+              }}
+              onPress={handleGenerateAndSendPayslip}
+              disabled={loading}
+            >
+              <Text
+                style={{
+                  fontFamily: FONTS.jamsil.medium4,
+                  fontSize: sizes.normalText,
+                  color: colors.text.reverse,
+                }}
+              >
+                {selectedStaff.name}에게 {payslipMonthOptions.find(opt => opt.value === selectedPayslipMonth)?.label} 급여명세서 생성 및 전송
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
 
