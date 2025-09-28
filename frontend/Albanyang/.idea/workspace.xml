@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4d18f3a3-a90f-48e6-8809-0058f24e5cf9" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/myPage/MyAccountInsertionPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/myPage/MyAccountInsertionPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/cards/AccountCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cards/AccountCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/myPage/MyPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/myPage/MyPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/payslip/employee/PayslipListEmployee.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/payslip/employee/PayslipListEmployee.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

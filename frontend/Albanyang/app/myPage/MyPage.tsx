@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     introduceCard :{
         //backgroundColor : colors.main,
         paddingVertical : 32,
-        paddingHorizontal : 12,
+        paddingHorizontal : 16,
        
     },
     accountCard : {

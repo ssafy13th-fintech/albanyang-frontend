@@ -1,6 +1,7 @@
 import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
 import Header from '@/components/header/Header';
 import NavBar from '@/components/navBar/NavBar';
+import { FONTS } from '@/constants/fonts/Fonts';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
@@ -112,7 +113,7 @@ const PayslipListOwner = () => {
 
       <ScrollView>
           {allPayslips.length === 0 ? (
-            <View style={styles.loadingContainer}>
+            <View style={[styles.loadingContainer,{height : 100 }]}>
               <Text style={styles.emptyText}>아직 급여명세서가 없습니다</Text>
             </View>
           ) : (
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF' },
   loadingText: { marginTop: 12, fontSize: 16, color: '#FF8C00', fontFamily: 'System' },
   errorText: { fontSize: 16, color: 'red', fontFamily: 'System' },
-  emptyText: { fontSize: 16, color: '#666', fontFamily: 'System' },
+  emptyText: { fontSize: 16, color: '#666', fontFamily:FONTS.jamsil.regular3 },
 });
 
 export default PayslipListOwner;
