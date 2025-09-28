@@ -5,6 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { deleteToken } from "@/api/authorization/AuthTokenStorage";
 import PanelMenuButton from "@/components/buttons/PanelMenuButton";
+import AccountCard from "@/components/cards/AccountCard";
 import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -130,27 +131,13 @@ export default function MyPage() {
 
 
               {bankAccountNum ?(
-                <View style = {styles.accountCard}>
-                    <View style = { { 
-                        backgroundColor : colors.main, 
-                        borderTopRightRadius : 5,
-                        borderTopLeftRadius : 5,
-                        width:240, 
-                        height:130, 
-                        marginVertical : 8
-                        }}></View>
-                    <View style = {{ marginTop : 8}}>
-                    <Text
-                    style = {{fontFamily : FONTS.jamsil.regular3,
-                        fontSize : sizes.smallText
-                    }}
-                    >{bankname} 
-                    <Text
-                     style = {{fontFamily : FONTS.jamsil.light2,
-                        fontSize : sizes.smallText
-                    }}>{bankAccountNum}</Text></Text>
-                    </View>
-                </View> ) :(
+                    
+                <AccountCard
+                    bankname={bankname!}
+                    bankAccountNum={bankAccountNum}
+                />
+                
+                ) :(
                     <View style= {[styles.accountCard,
                         {paddingVertical : 36, paddingHorizontal : 16}]
                     }>
@@ -218,16 +205,14 @@ const styles = StyleSheet.create({
         boxShadow: "0 -10 0 0 rgba(0, 0, 255, 0.7)",
         elevation : 5
     },
-    accountCard : {
-        borderColor : colors.accent,
-        borderStyle : "dashed",
-        borderWidth : 1,
+            accountCard : {
+        borderColor : colors.main,
+        borderRadius : 10, 
+        borderWidth: 1,
         marginTop : 16,
         paddingVertical : 16,
         justifyContent : "center",
         alignItems : "center",
         boxShadow : "100"
     }
-    
-
 })

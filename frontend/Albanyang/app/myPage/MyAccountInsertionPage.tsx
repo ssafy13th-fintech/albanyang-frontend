@@ -1,11 +1,10 @@
 import { inquireTransactionHistoryByUniqueNo, openAccountAuth } from "@/api/SSAFYOpenapi";
 import BottomActionButton from "@/components/buttons/BottomButton";
-import SmallHeader from "@/components/header/SmallHeader";
+import AccountCard from "@/components/cards/AccountCard";
+import BackHeader from "@/components/header/BackHeader";
 import AccountAuthModal from "@/components/modal/AccountAuthModal";
 import LabelTextInput from "@/components/textInput/LabelTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
-import { FONTS } from "@/constants/fonts/Fonts";
-import { sizes } from "@/constants/size/FontSize";
 import { useSignUpStore } from "@/store/useSignUpStore";
 import { SSAFY_MAIN_API_KEY, SSAFY_MAIN_USER_ACCOUNT, SSAFY_MAIN_USER_KEY } from "@env";
 import { useRouter } from "expo-router";
@@ -71,13 +70,9 @@ export default function MyAccountInsertion(){
 
     return (
         <SafeAreaView style = {[styles.rootContainer, {paddingHorizontal : insets.left + 16}]}>
-            <SmallHeader
-                headerText={"계좌 추가 및 수정"}
-                headerTextFont={FONTS.jamsil.regular3}
-                headerTextSize={sizes.smallTitle}
-                paddingBottomLen={56}
+            <BackHeader
+            headerText="계좌 추가 및 수정"
             />
-
             <View style ={{
                 borderColor : colors.main,
                 borderWidth : 1,
@@ -87,13 +82,11 @@ export default function MyAccountInsertion(){
                 alignContent : "center",
                 marginBottom : 40
             }}>
-                <View style ={{
-                    backgroundColor : colors.accent,
-                    width : 264,
-                    height : 138,
-                    borderTopLeftRadius : 10,
-                    borderTopRightRadius : 10
-                }}/>
+                <AccountCard
+                    bankname={bank}
+                    bankAccountNum={accountNum}
+                    existBorder = {false}
+                />
             </View>
 
             <View style ={{gap : 24}}>
