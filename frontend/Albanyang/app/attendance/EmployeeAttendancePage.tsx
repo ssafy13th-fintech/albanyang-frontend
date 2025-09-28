@@ -228,8 +228,30 @@ useEffect(() => {
         style={{
           flex: 1,
           marginTop: 8,
-          marginHorizontal: insets.left + 16
+          marginHorizontal: insets.left + 16,
         }}
+      ListEmptyComponent={
+        <View style={{ 
+          marginVertical : 24,
+          elevation : 1,
+          shadowColor : colors.shadow,
+          borderRadius : 10,
+          shadowRadius : 10,
+          shadowOpacity : 3,
+          shadowOffset : {height:0, width :0},
+          alignItems: "center", justifyContent:"center", paddingVertical: 56 }}>
+          <Text
+            style={{
+              fontFamily: FONTS.jamsil.regular3,
+              fontSize: sizes.normalText,
+              color: colors.accent,
+            }}
+          >
+            오늘은 근무가 없습니다
+          </Text>
+        </View>
+      }
+        
       />
 
       <NavBar role="sajang" />
