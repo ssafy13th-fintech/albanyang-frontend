@@ -216,16 +216,18 @@ export default function EmployeeAttendancePage() {
 
   const renderScheduleItem = ({ item }: { item: Schedule }) => {
     return (
-      <View style={styles.scheduleItem}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.rowText}>{item.commuteDate} • {item.staffNickname}</Text>
+      <TouchableOpacity>
+      <View style={[styles.scheduleItem]}>
+        <View style={{ flex: 1, gap :16 }}>
+          <Text style={[styles.rowText,{height : 24}]}>{item.commuteDate} • {item.staffNickname}</Text>
           <Text style={styles.subText}>{item.scheduleType === 'NORMAL' ? '일반' : '대타'}</Text>
         </View>
-        <View style={{ alignItems: 'flex-end' }}>
-          <Text style={styles.rowText}>{item.workStartTime} - {item.workEndTime}</Text>
+        <View style={{ alignItems: 'flex-end', gap :16 }}>
+          <Text style={[styles.rowText,{height : 24}]}>{item.workStartTime} - {item.workEndTime}</Text>
           <Text style={styles.subText}>휴게: {item.breakTime}분 • 지점: {item.storeId}</Text>
         </View>
       </View>
+      </TouchableOpacity>
     );
   };
 
@@ -368,8 +370,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
+    fontSize: sizes.normalText,
+    fontFamily :FONTS.jamsil.medium4
   },
   closeText: {
     color: colors.accent,
@@ -377,13 +379,13 @@ const styles = StyleSheet.create({
   },
   scheduleItem: {
     flexDirection: 'row',
-    paddingVertical: 12,
+    paddingVertical: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
   rowText: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: sizes.smallText,
+    fontFamily : FONTS.jamsil.light2
   },
   subText: {
     fontSize: 12,
