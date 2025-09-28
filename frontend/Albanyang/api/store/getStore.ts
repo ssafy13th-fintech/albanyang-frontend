@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { api, handleResponse } from "../api";
+import { api } from "../authorization/AuthHeader";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
 export interface Store {

@@ -1,6 +1,5 @@
 import { AxiosError } from "axios";
-import { api } from "../api";
-import { loadToken } from "../authorization/AuthTokenStorage";
+import { api } from "../authorization/AuthHeader";
 
 export interface ApiResponse<T = any> {
     code: string;
@@ -34,15 +33,7 @@ function handleAxiosError(err: unknown): never {
 
 export async function getAlarms() {
     try {
-        const token = await loadToken();
-        const res = await api.get<ApiResponse<AlarmResponse[]>>(
-        `/v1/alarms/me`,
-        {
-            headers: {
-                Authorization: token,
-            },
-        }
-        );
+        const res = await api.get<ApiResponse<AlarmResponse[]>>(`/v1/alarms/me`);
         return res.data.data;
     } catch (err) {
         console.error("알람 조회 에러", err);

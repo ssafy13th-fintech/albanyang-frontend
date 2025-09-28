@@ -5,15 +5,18 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
 import { Store } from "@/api/store/getOwnerStores";
+import { useRouter } from "expo-router";
 
 interface Props {
   selectedStore: Store | null;
   onWriteNotice: () => void;
   onSchedule: () => void;
   onInvite: () => void;
+  onSend: () => void;
 }
 
-export default function ActionSection({ selectedStore, onWriteNotice, onSchedule, onInvite }: Props) {
+export default function ActionSection({ selectedStore, onWriteNotice, onSchedule, onInvite, onSend }: Props) {
+  const router = useRouter();
   return (
     <View style={styles.section}>
       <View style={styles.actionContainer}>
@@ -30,6 +33,11 @@ export default function ActionSection({ selectedStore, onWriteNotice, onSchedule
         <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onInvite}>
           <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>✉️</Text></View>
           <Text style={styles.actionText}>초대하기</Text>
+        </Pressable>
+        
+        <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onSend}>
+          <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>✉️</Text></View>
+          <Text style={styles.actionText}>송금하기</Text>
         </Pressable>
       </View>
     </View>
