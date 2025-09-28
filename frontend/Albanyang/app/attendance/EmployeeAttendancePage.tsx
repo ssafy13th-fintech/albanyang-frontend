@@ -1,190 +1,173 @@
+import { getStores } from "@/api/Stores";
+import { getTimesheetsByDate } from "@/api/Timesheet";
+import AttendanceCard from "@/components/cards/AttendanceCard";
 import SmallHeader from "@/components/header/SmallHeader";
 import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
-import { useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { GetOtherDate, GetTodayDate } from "@/modules/DateTime";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
 import { CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
+import { ConditionEnum } from "./EmployeeAttendanceInsertPage";
 
-
-type Type_AttendanceState = {
-    state :string,
-    color : string
+interface CardItem {
+  id: number;
+  condition: ConditionEnum;
+  name: string;
+  work_place: string;
+  work_start?: string | null;
+  work_finish?: string | null;
 }
 
-
-
-interface CardInfo {
-  rest_time? : number,
-  condition? : string,
-  work_time?  : string,
-  name? : string,
-  work_place? : string
+interface DropBoxItemType {
+  label: string;
+  value: string; // storeId
 }
 
+export default function EmployeeAttendancePage() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
 
-function MyCard({
-  rest_time = 10,
-  condition = "결근",
-  work_time ="12:05~20:01",
-  name = "정알바",
-  work_place = "GS 편의점"
- } : CardInfo) {
+  // 날짜 상태
+  const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [providerDate, setProviderDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
 
-    return (
-    <View style={{ 
-     paddingVertical : 8,
-     paddingHorizontal : 8,
-     backgroundColor: "white",
-     elevation : 6,
-     shadowColor : colors.shadow,
-     shadowRadius :10,
-     borderRadius: 10,
-     marginTop : 16,
-     }}>
-    <View style={{flexDirection : "row",
-        justifyContent :"space-between",
-    }}>
-      <View>
-        <View style = {{
-            flexDirection : "row", justifyContent :"center", alignItems:"center",
-            alignSelf :"flex-start"
-        }}>
-            <View style ={{
-              backgroundColor : attendance_states.get(condition) ,
-            borderRadius : 6, 
-            width : 12, height : 12,
-            marginRight : 8
-            }}></View>
-        <Text>{condition}</Text>
-        </View>
-        <Text></Text>
-        <Text style = {{
-            fontFamily : FONTS.jamsil.light2,
-            color : colors.text.secondary
-        }}>휴게 시간 : {rest_time}</Text>
-        <Text style = {{fontSize : sizes.smallTitle}}>{work_time}</Text>
-        
+  // state
+  const [cards, setCards] = useState<CardItem[]>([]);
+  const [workplaces, setWorkplaces] = useState<DropBoxItemType[]>([]);
+  const [val_workplace, setWorkplace] = useState<string>(""); // 선택된 사업장 id
+  const [focus, setFocus] = useState(false);
+
+  // 마킹
+  const marked = {
+    [selectedDate]: { selected: true, selectedColor: colors.accent },
+  };
+
+  // 날짜 파싱
+  const [year, month, day] = (() => {
+    const parts = selectedDate.split('-');
+    if (parts.length === 3) return [parts[0], parseInt(parts[1], 10), parseInt(parts[2], 10)];
+    return ["0000", 0, 0];
+  })();
+
+  /**
+   * 근태 데이터 로드 함수
+   */
+  const loadTimesheets = useCallback(async (storeId: number, date: string) => {
+    try {
+      const res = await getTimesheetsByDate(storeId, date);
+      console.log("res 왔나?", res)
+      const timesheets = res.data.timesheets ?? [];
+
+      const newItems: CardItem[] = timesheets.map((item: any) => ({
+        id: item.id,
+        name: item.nickname ?? "unknown",
+        work_place: workplaces.find(w => w.value === String(storeId))?.label ?? "미정",
+        condition: ConditionEnum.정상, // 서버 condition 매핑 필요 시 수정
+        work_start: item.arrivedAt,
+        work_finish: item.leftAt,
+      }));
+
+      setCards(newItems);
+    } catch (err) {
+      console.error("근태 리스트 로드 실패:", err);
+      setCards([]);
+    }
+  }, [workplaces]);
+
+  /**
+   * 사업장 목록 로드 함수
+   */
+ const loadStores = useCallback(async () => {
+  try {
+    const res = await getStores();
+    const list_store = res.data.stores ?? [];
+    const dropdownData: DropBoxItemType[] = list_store.map((s: any) => ({
+      label: s.name,
+      value: String(s.id),
+    }));
+
+    setWorkplaces(dropdownData);
+
+    // 첫 번째 사업장 자동 선택만!
+    if (dropdownData.length > 0) {
+      const firstStoreId = dropdownData[0].value;
+      setWorkplace(firstStoreId); // 여기서는 loadTimesheets 호출 ❌
+    }
+  } catch (err) {
+    console.error("사업장 목록 로드 실패:", err);
+  }
+}, []);
+
+  // 초기화
+  useEffect(() => {
+    loadStores();
+  }, [loadStores]);
+
+  // // 사업장 변경 시 근태 리스트 다시 로드
+  // useEffect(() => {
+  //   if (val_workplace) {
+  //     const date = selectedDate === GetTodayDate()
+  //       ? GetTodayDate()
+  //       : GetOtherDate(selectedDate);
+  //     loadTimesheets(Number(val_workplace), date);
+  //   }
+  // }, [val_workplace]);
+
+  // // 날짜 변경 시 근태 리스트 다시 로드
+  // useEffect(() => {
+  //   if (val_workplace) {
+  //     const date = selectedDate === GetTodayDate()
+  //       ? GetTodayDate()
+  //       : GetOtherDate(selectedDate);
+  //     loadTimesheets(Number(val_workplace), date);
+  //   }
+  // }, [selectedDate]);
+
+
+
+useEffect(() => {
+  if (val_workplace) {
+    const date = selectedDate === GetTodayDate()
+      ? GetTodayDate()
+      : GetOtherDate(selectedDate);
+    loadTimesheets(Number(val_workplace), date);
+  }
+}, [val_workplace, selectedDate]);
+
+
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <SmallHeader
+        headerText={"직원 근태 현황"}
+        headerTextFont={FONTS.jamsil.regular3}
+        headerTextSize={sizes.smallTitle}
+        isAblaBack={false}
+      />
+
+      <View style={{ flexDirection: "row", alignSelf: "center", marginBottom: 16 }}>
+        <Text style={{ fontFamily: FONTS.jamsil.regular3, fontSize: sizes.normalText + 2 }}>
+          {year}년 {month}월 {day}일
+        </Text>
       </View>
-      <View style = {{justifyContent : "space-between"}}>
-        <Text>{work_place} 사업장 {name} 근무자</Text>
-        <TouchableOpacity
-        style = {{
-            backgroundColor : colors.main,
-            alignItems : "center",
-            justifyContent : "center",
-            width : 50,
-            height : 50,
-            borderRadius : 10,
-            alignSelf :"flex-end"
+
+      <CalendarProvider
+        date={providerDate}
+        onDateChanged={(date) => {
+          setProviderDate(date);
+          setSelectedDate(date);
         }}
-        >
-            <Text style ={{
-                fontFamily : FONTS.jamsil.light2,
-                color : colors.text.reverse,
-            }}>수정</Text>
-      </TouchableOpacity>
-      </View>
-      </View>
-    </View>
-  );
-}
-
-
-
-
-const attendance_states : Map<string, string> = new Map([
-  [ "결근" , "red"],
-   ["지각" ,"yellow"],
-   ["정상" , "green"]
-])
-
-
-const cards = [
-  { id: '1', condition: '결근', name : "정태승", work_place : "GS" },
-  { id: '2', condition: '정상', name : "김철수", work_place : "GS" },
-  { id: '3', contidion: '정상', name : "김싸피", work_place : "CU" },
-  { id: '4', condition: '지각', name : "이싸피", work_place : "CU" },
-];
-
-
-
-export default function EmployeeAttendancePage(){
-
-    const insets = useSafeAreaInsets();
-
-    const [date, setDate] = useState("setDate");
-    const [selectedDate, setSelectedDate] = useState<string>(() => {
-        const d = new Date();
-        return d.toISOString().slice(0, 10);
-    });
-
-        // 선택된 날짜를 마킹용으로 변환
-    const marked = {
-        [selectedDate]: { selected: true, selectedColor: colors.accent },
-    };
-
-
-
-    const [val_workplace, setWorkplace] = useState("");
-    const [focus, setFocus] = useState(false);
-
-    let data_dropdown_workplaces = [
-    { label: "oo 사업장", value: "oo 사업장" },
-    { label: "xx 사업장", value: "xx 사업장" },
-    { label: "aa 사업장", value: "aa 사업장" },
-    { label: "bb 사업장", value: "bb 사업장" },
-    { label: "yy 사업장", value: "yy 사업장" },
-    { label: "zz 사업장", value: "zz 사업장" },
-    ];
-
-    let year="0000", month=0, day = 0
-
-  // Provider에서 관리할 date (초기값을 'YYYY-MM-DD' 형식으로)
-  const [providerDate, setProviderDate] = useState<string>(() => {
-    return new Date().toISOString().slice(0, 10);
-  });
-  
-    return (
-        <SafeAreaView style = {{flex:1}}>
-
-        <SmallHeader
-            headerText={"직원 근태 현황"}
-            headerTextFont={FONTS.jamsil.regular3}
-            headerTextSize={sizes.smallTitle}
-            isAblaBack = {false}
-        />
-
-        <View style ={{flexDirection : "row", alignSelf : "center", marginBottom : 16}}>
-            <Text style ={{fontFamily : FONTS.jamsil.regular3,
-                fontSize : sizes.normalText + 2
-            }}>{year}년 {month}월 {day}일
-            </Text>
-        </View>
-        
-        <CalendarProvider
-            date={providerDate} // 초기/현재 보여주는 날짜
-            onDateChanged={(date, updateSource) => {
-            // Provider가 날짜를 바꿀 때 실행됨 (예: 스크롤로 주 변경)
-            setProviderDate(date);
-            // 필요하면 selectedDate도 같이 변경
-            setSelectedDate(date);
-            }}
-            style= {{
-                //이거 설정 안해두면 이유를 모르겠는데 굉장한 마진이 생깁니다.
-                display :"contents"
-            }}
-        >
-         <WeekCalendar
-          // current는 보이는 초기 날짜 설정(보통 provider와 동기화)
+        style={{ display: "contents" }}
+      >
+        <WeekCalendar
           current={providerDate}
           onDayPress={(day) => {
-            console.log("day press !");
             setSelectedDate(day.dateString);
-            // Provider의 날짜도 동기화하고 싶으면 setProviderDate(day.dateString);
             setProviderDate(day.dateString);
           }}
           markedDates={marked}
@@ -199,60 +182,57 @@ export default function EmployeeAttendancePage(){
           }}
           style={{ height: 50 }}
         />
-    </CalendarProvider>
+      </CalendarProvider>
 
-        <Dropdown
-        data={data_dropdown_workplaces}
+      <Dropdown
+        data={workplaces}
         labelField="label"
         valueField="value"
         value={val_workplace}
-        onChange={(item) => {
-          setWorkplace(item);
+        onChange={(item: DropBoxItemType) => {
+          setWorkplace(item.value);
         }}
-        onFocus = {()=>{setFocus(true)}}
-        onBlur = {()=>{setFocus(false)}}
+        onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)}
         placeholder={"사업장 선택"}
         style={[
-          { 
-            borderColor : focus ? colors.accent : colors.main,
-            borderWidth : focus ? 2 : 1,
-            borderRadius : 10,
-            backgroundColor : focus ? colors.disable : "transparent",
-            marginTop : 16,
-            paddingVertical : 8,
-            paddingLeft : 8,
-            marginHorizontal : insets.left + 8,
-            alignContent :"center",
-          }]
-        }
-        iconStyle = {{marginTop:8}}
-        selectedTextStyle={{alignItems : "center"}}
-        placeholderStyle={{ alignItems : "center"}}
-        />
+          {
+            borderColor: focus ? colors.accent : colors.main,
+            borderWidth: focus ? 2 : 1,
+            borderRadius: 10,
+            backgroundColor: focus ? colors.disable : "transparent",
+            marginTop: 16,
+            paddingVertical: 8,
+            paddingLeft: 8,
+            marginHorizontal: insets.left + 8,
+            alignContent: "center",
+          }
+        ]}
+        iconStyle={{ marginTop: 8 }}
+        selectedTextStyle={{ alignItems: "center" }}
+        placeholderStyle={{ alignItems: "center" }}
+      />
 
-        <FlatList
-            data={cards}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => 
-            <MyCard 
-            condition = {item.condition}
-            name={item.name} 
+      <FlatList
+        data={cards}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) =>
+          <AttendanceCard
+            condition={item.condition}
+            name={item.name}
             work_place={item.work_place}
-            />}
-            
-            style = {
-                {
-                    flex : 1,
-                    marginTop : 8,
-                    marginHorizontal : insets.left + 16
-                }
+            start_time={item.work_start ?? "-"}
+            finish_time={item.work_finish ?? "-"}
+          />
+        }
+        style={{
+          flex: 1,
+          marginTop: 8,
+          marginHorizontal: insets.left + 16
+        }}
+      />
 
-            }
-        />
-
-        <NavBar
-        role="sajang"
-        />
-        </SafeAreaView>
-    );
+      <NavBar role="sajang" />
+    </SafeAreaView>
+  );
 }

@@ -70,8 +70,14 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
+<<<<<<< HEAD
 // GET /v1/stores/{store-id}/staffs/{staff-id}/schedules/{schedule-id}
 export async function getScheduleById(scheduleId: number) {
+=======
+// GET /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 특정 스케줄 조회
+// 🔴 수정: scheduleId만 path에 있음 (storeId, staffId는 path에 없음)
+export async function getScheduleById(scheduleId: number, storeId : number, staffId :number) {
+>>>>>>> 1926b32f2e40cdd8fa466bcdeacb2e47dbc777e9
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
   try {
     const res = await api.get<ApiResponse<Schedule>>(
@@ -86,6 +92,8 @@ export async function getScheduleById(scheduleId: number) {
 // PUT /v1/stores/{store-id}/staffs/{staff-id}/schedules/{schedule-id}
 export async function updateSchedule(
   scheduleId: number,
+  storeId : number,
+  staffId : number,
   scheduleData: UpdateScheduleRequest
 ) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
@@ -100,8 +108,9 @@ export async function updateSchedule(
   }
 }
 
-// DELETE /v1/stores/{store-id}/staffs/{staff-id}/schedules/{schedule-id}
-export async function deleteSchedule(scheduleId: number) {
+// DELETE /api/v1/stores/{store-id}/staffs/{staff-id}/schedule/{schedule-id} - 스케줄 삭제
+// 🔴 수정: scheduleId만 path에 있음
+export async function deleteSchedule(scheduleId: number, storeId : number, staffId : number) {
   if (scheduleId === undefined || scheduleId === null) throw new Error('scheduleId (required)');
   try {
     const res = await api.delete<ApiResponse<string>>(

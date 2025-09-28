@@ -3,7 +3,7 @@ import { Role } from '@/components/navBar/NavBar';
 import { create } from 'zustand';
 
 
-interface MemberStoreData extends MemberData{
+export interface MemberStoreData extends MemberData{
   role? : Role
 }
 

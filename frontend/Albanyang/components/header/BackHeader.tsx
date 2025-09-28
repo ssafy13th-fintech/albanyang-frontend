@@ -1,4 +1,4 @@
-import { router} from "expo-router"
+import { Href, router} from "expo-router"
 import {
     Text,
     TouchableOpacity,
@@ -9,7 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
 
 interface BackHeaderProps{
-    headerText :string
+    headerText :string;
+    backTo?: string | { pathname: string; params?: Record<string, any> };
 }
 
 /**
@@ -17,14 +18,23 @@ interface BackHeaderProps{
  * 
  * - **headerText** : 헤더에 쓰일 글씨입니다.
 */
-export default function BackHeader({
-    headerText,
-} : BackHeaderProps) {
+export default function BackHeader({headerText, backTo} : BackHeaderProps) {
+    const handleBack = () => {
+        if(!backTo) return router.back();
+
+        if(typeof backTo === 'string') router.replace(backTo as any);
+        else {
+            router.replace({
+                pathname: backTo.pathname as any,
+                params: backTo.params
+            })
+        }
+    }
     return (
         <View style ={{flexDirection : "row", paddingVertical: 32, paddingHorizontal: 10,
             alignItems : "center"
         }}>
-        <TouchableOpacity onPress={()=> {router.back()}}>
+        <TouchableOpacity onPress={handleBack}>
             <FontAwesomeIcon icon={faChevronLeft} size={24} color='gray' />
         </TouchableOpacity>
         <View style = {{flex:1}}/>

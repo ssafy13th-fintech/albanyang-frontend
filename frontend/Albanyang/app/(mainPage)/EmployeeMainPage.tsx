@@ -1,37 +1,24 @@
 // app/(mainPage)/EmployeeMainPage.tsx
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Alert,
-  Animated,
-  Dimensions,
-  Image,
-  Modal,
-  PanResponder,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import NfcManager, { NfcTech, Ndef } from 'react-native-nfc-manager';
-
 import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBell } from '@fortawesome/free-regular-svg-icons';
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // API imports
-import { getMe } from '@/api/Member';
-import { getStores } from '@/api/Stores';
-import { getMyTimesheets, createMyTimesheet, patchMyTimesheetCheckout } from '@/api/Timesheet';
+import { getStaffPayslips } from "@/api/payslip/getStaffPayslips";
 import { getStoreSchedules } from '@/api/Schedule';
-import { getMyPayslips } from '@/api/EmployeePaylips';
+import { getStaffStores, Store } from '@/api/store/getStaffStores';
+import { getMyTimesheets } from '@/api/Timesheet';
+import AttendanceSection from "./components/AttendanceSection";
+import EmployeeStoreSelectionSection from "./components/EmployeeStoreSelectionSection";
+import NoStoreSection from './components/NoStoreSection';
+import StoreDetailModal from './components/StoreDetailModal';
+import TimeSection from './components/TimeSection';
+import { EmployeeTopSection, fetchUserAccountInfo, SalaryInfo, UserAccountInfo } from './components/TopSection';
+import WorkProgressSection from './components/WorkProgressSection';
 
 // ====== 레이아웃 상수 ======
 const TOP_PADDING = 16;
@@ -39,12 +26,6 @@ const SIDE_PADDING = 20;
 const SECTION_SPACING = 32;
 const NAVBAR_HEIGHT = NAVBAR_BASE_HEIGHT;
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-// ====== 타입 정의 ======
-interface Store {
-  id: number;
-  name: string;
-}
 
 interface WorkSession {
   storeId: number;
@@ -56,141 +37,22 @@ interface WorkSession {
   currentTimesheetId?: number;
 }
 
-interface SalaryInfo {
-  monthlyEarning: number;
-  month: string;
-}
-
-interface UserAccountInfo {
-  hasAccount: boolean;
-  accountNumber?: string;
-}
-
-interface StoreDetailInfo {
-  realName: string;
-  nickname: string;
-  employmentStatus: string;
-  hourlyWage: number;
-  weeklyWorkDays: number;
-  dailyWorkHours: number;
-}
-
-// ====== NFC 관련 함수들 ======
-const checkNFCAvailability = async (): Promise<{available: boolean, message: string}> => {
-  try {
-    const isSupported = await NfcManager.isSupported();
-    if (!isSupported) {
-      return { available: false, message: '이 기기는 NFC를 지원하지 않습니다.' };
-    }
-
-    const isEnabled = await NfcManager.isEnabled();
-    if (!isEnabled) {
-      return { available: false, message: 'NFC가 비활성화되어 있습니다. 설정에서 NFC를 활성화해주세요.' };
-    }
-
-    return { available: true, message: 'NFC 사용 가능' };
-  } catch (error) {
-    return { available: false, message: 'NFC 상태 확인 중 오류가 발생했습니다.' };
-  }
-};
-
-const readNFCTag = async (): Promise<boolean> => {
-  try {
-    await NfcManager.start();
-    
-    const isEnabled = await NfcManager.isEnabled();
-    if (!isEnabled) {
-      console.log('NFC가 비활성화되어 있습니다.');
-      return false;
-    }
-
-    await NfcManager.requestTechnology(NfcTech.Ndef, {
-      alertMessage: 'NFC 태그에 휴대폰을 가까이 대주세요',
-    });
-    
-    const tag = await NfcManager.getTag();
-    console.log('NFC Tag detected:', tag);
-
-    const isValidTag = validateStoreTag(tag);
-    return isValidTag;
-    
-  } catch (error) {
-    console.error('NFC 읽기 실패:', error);
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    if (errorMessage.includes('cancelled') || errorMessage.includes('timeout')) {
-      return false;
-    }
-    return false;
-  } finally {
-    try {
-      await NfcManager.cancelTechnologyRequest();
-    } catch (error) {
-      console.log('NFC 해제 중 오류:', error);
-    }
-  }
-};
-
-const validateStoreTag = (tag: any): boolean => {
-  try {
-    if (!tag || !tag.id) {
-      console.log('유효하지 않은 태그');
-      return false;
-    }
-
-    console.log('태그 ID:', tag.id);
-    console.log('태그 타입:', tag.techTypes);
-
-    return true;
-    
-  } catch (error) {
-    console.error('태그 검증 중 오류:', error);
-    return false;
-  }
-};
-
-// ====== API 호출 함수들 ======
-const fetchUserAccountInfo = async (): Promise<UserAccountInfo> => {
-  try {
-    const userData = await getMe();
-    return {
-      hasAccount: !!userData.data.account,
-      accountNumber: userData.data.account
-    };
-  } catch (error) {
-    console.error('계좌 정보 조회 실패:', error);
-    return { hasAccount: false };
-  }
-};
-
-const fetchUserStores = async (): Promise<Store[]> => {
-  try {
-    const storesData = await getStores();
-    return storesData.data.stores.map(store => ({
-      id: store.id,
-      name: store.name
-    }));
-  } catch (error) {
-    console.error('매장 정보 조회 실패:', error);
-    return [];
-  }
-};
-
 const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
   try {
     const today = new Date().toISOString().split('T')[0];
-    
-    const timesheetData = await getMyTimesheets(storeId, { date: today });
-    const todayTimesheet = timesheetData.data.timesheets[0];
-    
+    const timesheetData = (await getMyTimesheets(storeId,{date : today})).data
+    console.log("timedata :", timesheetData)
+    const todayTimesheet = timesheetData?.timesheets[0];
+
     const scheduleData = await getStoreSchedules(storeId, undefined, today);
     const mySchedule = scheduleData.data.schedules.find(s => s.staffId === todayTimesheet?.staffId);
-    
+
     let totalHours = 0;
     let isWorking = false;
-    
+
     if (todayTimesheet) {
       if (todayTimesheet.arrivedAt && todayTimesheet.leftAt) {
-        totalHours = todayTimesheet.commuteTime / 60;
+        totalHours = todayTimesheet.commuteDate / 60;
         isWorking = false;
       } else if (todayTimesheet.arrivedAt) {
         const checkInTime = new Date(`${today}T${todayTimesheet.arrivedAt}`);
@@ -199,14 +61,14 @@ const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
         isWorking = true;
       }
     }
-    
+
     return {
       storeId,
-      checkInTime: todayTimesheet?.arrivedAt!,
-      checkOutTime: todayTimesheet?.leftAt!,
+      checkInTime: todayTimesheet?.arrivedAt ?? null,
+      checkOutTime: todayTimesheet?.leftAt ?? null,
       isWorking,
       totalHours: Math.max(totalHours, 0),
-      targetHours: mySchedule?.workHours || 8,
+      targetHours: mySchedule?.workHours ?? 8,
       currentTimesheetId: todayTimesheet?.id
     };
   } catch (error) {
@@ -224,16 +86,15 @@ const fetchSalaryInfo = async (storeId: number): Promise<SalaryInfo> => {
   try {
     const currentYear = new Date().getFullYear().toString();
     const currentMonth = new Date().getMonth() + 1;
-    
-    const payslipsData = await getMyPayslips(storeId, currentYear);
-    
-    const monthlyPayslips = payslipsData.data.payslips.filter(payslip => {
+
+    const payslipsData = await getStaffPayslips(String(storeId), currentYear);
+    const monthlyPayslips = payslipsData.payslips?.filter(payslip => {
       const payDate = new Date(payslip.payDate);
       return payDate.getMonth() + 1 === currentMonth;
-    });
-    
+    }) ?? [];
+
     const monthlyEarning = monthlyPayslips.length > 0 ? 1000000 : 0;
-    
+
     return {
       monthlyEarning,
       month: `${currentMonth}월`
@@ -245,618 +106,6 @@ const fetchSalaryInfo = async (storeId: number): Promise<SalaryInfo> => {
       month: `${new Date().getMonth() + 1}월`
     };
   }
-};
-
-const handleCheckIn = async (storeId: number): Promise<void> => {
-  try {
-    await createMyTimesheet(storeId);
-    console.log('출근 처리 완료:', storeId);
-  } catch (error) {
-    console.error('출근 처리 실패:', error);
-    throw error;
-  }
-};
-
-const handleCheckOut = async (storeId: number, timesheetId: number): Promise<void> => {
-  try {
-    await patchMyTimesheetCheckout(storeId, timesheetId);
-    console.log('퇴근 처리 완료:', storeId, timesheetId);
-  } catch (error) {
-    console.error('퇴근 처리 실패:', error);
-    throw error;
-  }
-};
-
-// ====== 매장 상세 정보 모달 ======
-const StoreDetailModal = ({
-  visible,
-  onClose,
-  storeId,
-  storeName
-}: {
-  visible: boolean;
-  onClose: () => void;
-  storeId: number;
-  storeName: string;
-}) => {
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [detailInfo, setDetailInfo] = useState<StoreDetailInfo | null>(null);
-  const [editedInfo, setEditedInfo] = useState<StoreDetailInfo | null>(null);
-
-  useEffect(() => {
-    if (visible && storeId) {
-      // 실제로는 API에서 매장별 상세 정보 가져오기
-      // const info = await fetchStoreDetail(storeId);
-      // 임시 더미 데이터
-      const info: StoreDetailInfo = {
-        realName: "김철수",
-        nickname: "철수",
-        employmentStatus: "정규직",
-        hourlyWage: 12000,
-        weeklyWorkDays: 5,
-        dailyWorkHours: 8
-      };
-      setDetailInfo(info);
-      setEditedInfo(info);
-    }
-  }, [visible, storeId]);
-
-  const handleSave = () => {
-    if (editedInfo) {
-      setDetailInfo(editedInfo);
-      setIsEditMode(false);
-      Alert.alert('저장 완료', '정보가 업데이트되었습니다.');
-      // 실제로는 여기서 API 호출
-    }
-  };
-
-  const handleCancel = () => {
-    setEditedInfo(detailInfo);
-    setIsEditMode(false);
-  };
-
-  if (!detailInfo) return null;
-
-  return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={detailModalStyles.overlay}>
-        <View style={detailModalStyles.container}>
-          <View style={detailModalStyles.header}>
-            <Text style={detailModalStyles.title}>{storeName}</Text>
-            <Pressable onPress={onClose} style={detailModalStyles.closeButton}>
-              <Ionicons name="close" size={24} color={colors.text.primary} />
-            </Pressable>
-          </View>
-
-          <ScrollView style={detailModalStyles.content} showsVerticalScrollIndicator={false}>
-            <View style={detailModalStyles.infoRow}>
-              <Text style={detailModalStyles.label}>본명</Text>
-              <Text style={detailModalStyles.value}>{detailInfo.realName}</Text>
-            </View>
-
-            <View style={detailModalStyles.infoRow}>
-              <Text style={detailModalStyles.label}>닉네임</Text>
-              {isEditMode ? (
-                <Text style={[detailModalStyles.value, detailModalStyles.editableValue]}>
-                  {editedInfo?.nickname}
-                </Text>
-              ) : (
-                <Text style={detailModalStyles.value}>{detailInfo.nickname}</Text>
-              )}
-            </View>
-
-            <View style={detailModalStyles.infoRow}>
-              <Text style={detailModalStyles.label}>고용상태</Text>
-              {isEditMode ? (
-                <Text style={[detailModalStyles.value, detailModalStyles.editableValue]}>
-                  {editedInfo?.employmentStatus}
-                </Text>
-              ) : (
-                <Text style={detailModalStyles.value}>{detailInfo.employmentStatus}</Text>
-              )}
-            </View>
-
-            <View style={detailModalStyles.infoRow}>
-              <Text style={detailModalStyles.label}>시급</Text>
-              {isEditMode ? (
-                <Text style={[detailModalStyles.value, detailModalStyles.editableValue]}>
-                  {editedInfo?.hourlyWage.toLocaleString()}원
-                </Text>
-              ) : (
-                <Text style={detailModalStyles.value}>{detailInfo.hourlyWage.toLocaleString()}원</Text>
-              )}
-            </View>
-
-            <View style={detailModalStyles.infoRow}>
-              <Text style={detailModalStyles.label}>주간근무일수</Text>
-              <Text style={detailModalStyles.value}>{detailInfo.weeklyWorkDays}일</Text>
-            </View>
-
-            <View style={detailModalStyles.infoRow}>
-              <Text style={detailModalStyles.label}>하루근무시간</Text>
-              <Text style={detailModalStyles.value}>{detailInfo.dailyWorkHours}시간</Text>
-            </View>
-          </ScrollView>
-
-          <View style={detailModalStyles.buttonContainer}>
-            {isEditMode ? (
-              <View style={detailModalStyles.editButtons}>
-                <Pressable
-                  style={[detailModalStyles.button, detailModalStyles.cancelButton]}
-                  onPress={handleCancel}
-                >
-                  <Text style={detailModalStyles.cancelButtonText}>취소</Text>
-                </Pressable>
-                <Pressable
-                  style={[detailModalStyles.button, detailModalStyles.saveButton]}
-                  onPress={handleSave}
-                >
-                  <Text style={detailModalStyles.saveButtonText}>저장</Text>
-                </Pressable>
-              </View>
-            ) : (
-              <Pressable
-                style={[detailModalStyles.button, detailModalStyles.editModeButton]}
-                onPress={() => setIsEditMode(true)}
-              >
-                <Text style={detailModalStyles.editButtonText}>수정하기</Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-};
-
-// ====== NFC 확인 모달 컴포넌트 ======
-const NFCCheckModal = ({ 
-  visible, 
-  onClose, 
-  onSuccess,
-  isCheckIn 
-}: { 
-  visible: boolean; 
-  onClose: () => void; 
-  onSuccess: () => void;
-  isCheckIn: boolean;
-}) => {
-  const [nfcStatus, setNfcStatus] = useState<'waiting' | 'checking' | 'success' | 'error' | 'disabled'>('waiting');
-  const [statusMessage, setStatusMessage] = useState('');
-  const [currentTime, setCurrentTime] = useState('');
-  const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const timeString = now.toLocaleTimeString('ko-KR', { 
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      setCurrentTime(timeString);
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (visible) {
-      checkInitialNFCStatus();
-    }
-  }, [visible]);
-
-  const checkInitialNFCStatus = async () => {
-    const nfcCheck = await checkNFCAvailability();
-    if (!nfcCheck.available) {
-      setNfcStatus('disabled');
-      setStatusMessage(nfcCheck.message);
-    } else {
-      setNfcStatus('waiting');
-      setStatusMessage(`아직 ${isCheckIn ? '출근' : '퇴근'}하지 않았어요`);
-    }
-  };
-
-  useEffect(() => {
-    if (visible) {
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        useNativeDriver: true,
-        tension: 100,
-        friction: 8,
-      }).start();
-    } else {
-      Animated.spring(slideAnim, {
-        toValue: SCREEN_HEIGHT,
-        useNativeDriver: true,
-        tension: 100,
-        friction: 8,
-      }).start();
-    }
-  }, [visible]);
-
-  useEffect(() => {
-    if (nfcStatus === 'checking') {
-      const animation = Animated.loop(
-        Animated.sequence([
-          Animated.timing(scaleAnim, {
-            toValue: 1.1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(scaleAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      );
-      animation.start();
-      return () => animation.stop();
-    } else {
-      scaleAnim.setValue(1);
-    }
-  }, [nfcStatus]);
-
-  const panResponder = PanResponder.create({
-    onMoveShouldSetPanResponder: (_, gestureState) => {
-      return gestureState.dy > 0 && gestureState.dy > Math.abs(gestureState.dx);
-    },
-    onPanResponderMove: (_, gestureState) => {
-      if (gestureState.dy > 0) {
-        slideAnim.setValue(gestureState.dy);
-      }
-    },
-    onPanResponderRelease: (_, gestureState) => {
-      if (gestureState.dy > 100) {
-        onClose();
-      } else {
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-      }
-    },
-  });
-
-  const handleNFCCheck = async () => {
-    if (nfcStatus === 'disabled') {
-      const nfcCheck = await checkNFCAvailability();
-      if (!nfcCheck.available) {
-        setStatusMessage(nfcCheck.message);
-        return;
-      } else {
-        setNfcStatus('waiting');
-        setStatusMessage(`아직 ${isCheckIn ? '출근' : '퇴근'}하지 않았어요`);
-        return;
-      }
-    }
-
-    setNfcStatus('checking');
-    setStatusMessage('NFC 태그를 확인 중...');
-    
-    try {
-      const isValid = await readNFCTag();
-      if (isValid) {
-        setNfcStatus('success');
-        setStatusMessage(`${isCheckIn ? '출근' : '퇴근'} 완료!`);
-        setTimeout(() => {
-          onSuccess();
-          onClose();
-        }, 1500);
-      } else {
-        setNfcStatus('error');
-        setStatusMessage('NFC 인식 실패. 다시 시도해주세요.');
-        setTimeout(() => {
-          setNfcStatus('waiting');
-          setStatusMessage(`아직 ${isCheckIn ? '출근' : '퇴근'}하지 않았어요`);
-        }, 2000);
-      }
-    } catch (error) {
-      setNfcStatus('error');
-      setStatusMessage('NFC 인식 실패. 다시 시도해주세요.');
-      setTimeout(() => {
-        setNfcStatus('waiting');
-        setStatusMessage(`아직 ${isCheckIn ? '출근' : '퇴근'}하지 않았어요`);
-      }, 2000);
-    }
-  };
-
-  const getButtonText = () => {
-    switch (nfcStatus) {
-      case 'waiting': return `${isCheckIn ? '출근' : '퇴근'} 체크`;
-      case 'checking': return '확인 중...';
-      case 'success': return '완료';
-      case 'error': return '재시도';
-      case 'disabled': return 'NFC 설정 확인';
-      default: return '';
-    }
-  };
-
-  const getButtonColor = () => {
-    switch (nfcStatus) {
-      case 'waiting': return isCheckIn ? colors.subAccent : colors.main;
-      case 'checking': return colors.text.secondary;
-      case 'success': return '#4CAF50';
-      case 'error': return colors.reject;
-      case 'disabled': return colors.reject;
-      default: return colors.main;
-    }
-  };
-
-  return (
-    <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <View style={modalStyles.overlay}>
-        <Animated.View
-          style={[modalStyles.container, { transform: [{ translateY: slideAnim }] }]}
-          {...panResponder.panHandlers}
-        >
-          <View style={modalStyles.dragHandle} />
-          
-          <View style={modalStyles.header}>
-            <Text style={modalStyles.dayText}>월</Text>
-            <View style={[modalStyles.dateCircle, { backgroundColor: isCheckIn ? colors.subAccent : colors.main }]}>
-              <Text style={modalStyles.dateText}>{new Date().getDate()}</Text>
-            </View>
-            <Text style={modalStyles.dayText}>화</Text>
-          </View>
-
-          <Text style={modalStyles.timeText}>{currentTime}</Text>
-
-          <Text style={[
-            modalStyles.statusText,
-            nfcStatus === 'success' && { color: '#4CAF50' },
-            nfcStatus === 'error' && { color: colors.reject },
-            nfcStatus === 'disabled' && { color: colors.reject }
-          ]}>
-            {statusMessage}
-          </Text>
-
-          <View style={modalStyles.nfcContainer}>
-            <Ionicons 
-              name="wifi" 
-              size={80} 
-              color={nfcStatus === 'disabled' ? colors.reject : colors.text.secondary} 
-            />
-            <Text style={modalStyles.nfcLabel}>NFC</Text>
-          </View>
-
-          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-            <Pressable
-              style={[
-                modalStyles.checkButton,
-                { backgroundColor: getButtonColor() },
-                nfcStatus === 'checking' && modalStyles.checkButtonDisabled
-              ]}
-              onPress={handleNFCCheck}
-              disabled={nfcStatus === 'checking' || nfcStatus === 'success'}
-            >
-              <Text style={modalStyles.checkButtonText}>{getButtonText()}</Text>
-            </Pressable>
-          </Animated.View>
-        </Animated.View>
-      </View>
-    </Modal>
-  );
-};
-
-// ====== 컴포넌트들 ======
-const TopSection = ({ 
-  accountInfo, 
-  salaryInfo 
-}: { 
-  accountInfo: UserAccountInfo | null;
-  salaryInfo: SalaryInfo | null;
-}) => {
-  const router = useRouter();
-
-  return (
-    <View style={styles.section}>
-      <View style={styles.notificationRow}>
-        <View style={{ flex: 1 }} />
-        <Pressable
-          style={({ pressed }) => [
-            styles.notificationButton,
-            pressed && styles.notificationButtonPressed
-          ]}
-          onPress={() => {
-            router.push('/ViewNotification');
-          }}
-        >
-          <FontAwesomeIcon icon={faBell} size={24} color={colors.text.primary} />
-        </Pressable>
-      </View>
-
-      <View style={styles.salaryCard}>
-        <View style={styles.salaryContent}>
-          {accountInfo?.hasAccount ? (
-            <>
-              <Text style={styles.monthText}>{salaryInfo?.month || '이번 달'}에</Text>
-              <View style={styles.salaryAmountRow}>
-                <Text style={styles.salaryLabel}>총 </Text>
-                <Text style={styles.salaryAmount}>{salaryInfo?.monthlyEarning.toLocaleString() || '0'}</Text>
-                <Text style={styles.currencyText}>원</Text>
-              </View>
-              <Text style={styles.earnedText}>벌었습니다!</Text>
-            </>
-          ) : (
-            <View style={styles.noAccountContainer}>
-              <Text style={styles.noAccountTitle}>계좌를 등록해주세요</Text>
-              <Text style={styles.noAccountSubtitle}>마이페이지에서 계좌를 등록해주세요</Text>
-            </View>
-          )}
-        </View>
-        
-        <View style={styles.mascotContainer}>
-          <Image
-            source={require("@/assets/images/mascot/mascot_good_alba.png")}
-            style={styles.mascotImage}
-          />
-        </View>
-      </View>
-    </View>
-  );
-};
-
-const StoreSelectionSection = ({ 
-  stores, 
-  selectedStoreIndex, 
-  onStoreSelect,
-  onStoreInfoPress 
-}: { 
-  stores: Store[], 
-  selectedStoreIndex: number, 
-  onStoreSelect: (index: number) => void,
-  onStoreInfoPress: (storeId: number, storeName: string) => void
-}) => {
-  return (
-    <View style={styles.section}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.storeTabContainer}
-      >
-        {stores.map((store, index) => (
-          <Pressable
-            key={store.id}
-            style={[
-              styles.storeTab,
-              selectedStoreIndex === index && styles.activeStoreTab
-            ]}
-            onPress={() => onStoreSelect(index)}
-          >
-            <Text style={[
-              styles.storeTabText,
-              selectedStoreIndex === index && styles.activeStoreTabText
-            ]}>
-              {store.name}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-      
-      <Pressable 
-        style={styles.detailButton}
-        onPress={() => onStoreInfoPress(stores[selectedStoreIndex].id, stores[selectedStoreIndex].name)}
-      >
-        <Text style={styles.detailButtonText}>상세보기</Text>
-      </Pressable>
-    </View>
-  );
-};
-
-const TimeSection = ({ workSession }: { workSession: WorkSession | null }) => {
-  return (
-    <View style={styles.section}>
-      <View style={styles.timeCard}>
-        <View style={styles.timeItem}>
-          <Text style={styles.timeLabel}>출근시간</Text>
-          <Text style={styles.timeValue}>
-            {workSession?.checkInTime || '--:--:--'}
-          </Text>
-        </View>
-        <View style={styles.timeItem}>
-          <Text style={styles.timeLabel}>퇴근시간</Text>
-          <Text style={styles.timeValue}>
-            {workSession?.checkOutTime || (workSession?.isWorking ? '근무 중' : '--:--:--')}
-          </Text>
-        </View>
-      </View>
-    </View>
-  );
-};
-
-const WorkProgressSection = ({ workSession }: { workSession: WorkSession | null }) => {
-  if (!workSession) return null;
-  
-  const progress = workSession.totalHours / workSession.targetHours;
-  const progressPercentage = Math.min(progress * 100, 100);
-  
-  return (
-    <View style={styles.section}>
-      <View style={styles.progressCard}>
-        <Text style={styles.progressTitle}>오늘 근무 진행</Text>
-        <View style={styles.progressBarContainer}>
-          <View style={[styles.progressBar, { width: `${progressPercentage}%` }]} />
-          <Image 
-            source={require("@/assets/images/mascot/mascot_running_alba.png")}
-            style={[styles.runningMascot, { left: `${Math.max(progressPercentage - 10, 0)}%` }]}
-          />
-        </View>
-        <Text style={styles.progressText}>
-          {workSession.totalHours.toFixed(1)}시간 / {workSession.targetHours}시간
-        </Text>
-      </View>
-    </View>
-  );
-};
-
-const AttendanceSection = ({ 
-  workSession, 
-  storeId, 
-  onAttendanceChange 
-}: { 
-  workSession: WorkSession | null, 
-  storeId: number, 
-  onAttendanceChange: () => void 
-}) => {
-  const [showNFCModal, setShowNFCModal] = useState(false);
-
-  const handleNFCSuccess = async () => {
-    try {
-      if (workSession?.isWorking) {
-        if (workSession.currentTimesheetId) {
-          await handleCheckOut(storeId, workSession.currentTimesheetId);
-        }
-      } else {
-        await handleCheckIn(storeId);
-      }
-      onAttendanceChange();
-    } catch (error) {
-      console.error('출퇴근 처리 중 오류:', error);
-      Alert.alert('오류', '출퇴근 처리 중 오류가 발생했습니다.');
-    }
-  };
-
-  const buttonText = workSession?.isWorking ? '퇴근하기' : '출근하기';
-
-  return (
-    <>
-      <View style={styles.buttonSection}>
-        <Pressable
-          style={({ pressed }) => [
-            styles.attendanceButton,
-            pressed && styles.attendanceButtonPressed
-          ]}
-          onPress={() => setShowNFCModal(true)}
-        >
-          <Text style={styles.attendanceButtonText}>{buttonText}</Text>
-        </Pressable>
-      </View>
-
-      <NFCCheckModal
-        visible={showNFCModal}
-        onClose={() => setShowNFCModal(false)}
-        onSuccess={handleNFCSuccess}
-        isCheckIn={!workSession?.isWorking}
-      />
-    </>
-  );
-};
-
-const NoStoreSection = () => {
-  return (
-    <View style={styles.emptyContainer}>
-      <View style={styles.emptyContent}>
-        <Text style={styles.emptyTitle}>알바를 구해봅시다!</Text>
-        <Text style={styles.emptySubtitle}>등록된 사업장이 없습니다</Text>
-      </View>
-    </View>
-  );
 };
 
 // ====== 메인 컴포넌트 ======
@@ -876,33 +125,28 @@ export default function EmployeeMainPage() {
   }, []);
 
   useEffect(() => {
-    if (stores.length > 0) {
-      loadWorkSession(stores[selectedStoreIndex].id);
-      loadSalaryInfo(stores[selectedStoreIndex].id);
+    const selectedStoreId = stores?.[selectedStoreIndex]?.id;
+    if (selectedStoreId !== undefined) {
+      loadWorkSession(Number(selectedStoreId));
+      loadSalaryInfo(Number(selectedStoreId));
     }
-  }, [selectedStoreIndex, stores]);
+  }, [stores, selectedStoreIndex]);
 
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      
-      const [accountData, storesData] = await Promise.all([
-        fetchUserAccountInfo(),
-        fetchUserStores()
-      ]);
-      
+
+      // 1. 스토어 데이터 가져오기
+      const storesDataResponse = await getStaffStores();
+      console.log(storesDataResponse)
+      setStores(storesDataResponse); // 상태만 업데이트
+
+      // 2. 계정 정보 가져오기
+      const accountData = await fetchUserAccountInfo();
       setAccountInfo(accountData);
-      setStores(storesData);
-      
-      if (storesData.length > 0) {
-        await Promise.all([
-          loadWorkSession(storesData[0].id),
-          loadSalaryInfo(storesData[0].id)
-        ]);
-      }
+
     } catch (error) {
       console.error('데이터 로딩 중 오류:', error);
-      Alert.alert('오류', '데이터를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
@@ -935,9 +179,7 @@ export default function EmployeeMainPage() {
     }
   }, []);
 
-  const handleStoreSelect = (index: number) => {
-    setSelectedStoreIndex(index);
-  };
+  const handleStoreSelect = (index: number) => setSelectedStoreIndex(index);
 
   const handleStoreInfoPress = (storeId: number, storeName: string) => {
     setSelectedStoreForDetail({ id: storeId, name: storeName });
@@ -945,9 +187,8 @@ export default function EmployeeMainPage() {
   };
 
   const handleAttendanceChange = () => {
-    if (stores.length > 0) {
-      loadWorkSession(stores[selectedStoreIndex].id);
-    }
+    const selectedStoreId = stores?.[selectedStoreIndex]?.id;
+    if (selectedStoreId !== undefined) loadWorkSession(Number(selectedStoreId));
   };
 
   if (loading) {
@@ -960,18 +201,16 @@ export default function EmployeeMainPage() {
     );
   }
 
-  if (stores.length === 0) {
+  if (!stores || stores.length === 0) {
     return (
       <SafeAreaView style={styles.rootContainer} edges={['top']}>
         <ScrollView
           style={styles.scrollContainer}
           contentContainerStyle={styles.contentContainer}
           showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         >
-          <TopSection accountInfo={accountInfo} salaryInfo={null} />
+          <EmployeeTopSection accountInfo={accountInfo} salaryInfo={null} />
           <NoStoreSection />
         </ScrollView>
         <NavBar role="alba" activeKey="home" />
@@ -979,18 +218,18 @@ export default function EmployeeMainPage() {
     );
   }
 
+  const selectedStoreId = stores?.[selectedStoreIndex]?.id ?? 0;
+
   return (
     <SafeAreaView style={styles.rootContainer} edges={['top']}>
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <TopSection accountInfo={accountInfo} salaryInfo={salaryInfo} />
-        <StoreSelectionSection 
+        <EmployeeTopSection accountInfo={accountInfo} salaryInfo={salaryInfo} />
+        <EmployeeStoreSelectionSection
           stores={stores}
           selectedStoreIndex={selectedStoreIndex}
           onStoreSelect={handleStoreSelect}
@@ -1003,14 +242,14 @@ export default function EmployeeMainPage() {
       <StoreDetailModal
         visible={showStoreDetailModal}
         onClose={() => setShowStoreDetailModal(false)}
-        storeId={selectedStoreForDetail?.id || 0}
-        storeName={selectedStoreForDetail?.name || ''}
+        storeId={selectedStoreForDetail?.id ?? 0}
+        storeName={selectedStoreForDetail?.name ?? ''}
       />
 
       <View style={styles.fixedButtonWrapper}>
-        <AttendanceSection 
+        <AttendanceSection
           workSession={workSession}
-          storeId={stores[selectedStoreIndex]?.id || 0}
+          storeId={Number(selectedStoreId)}
           onAttendanceChange={handleAttendanceChange}
         />
       </View>
@@ -1020,7 +259,7 @@ export default function EmployeeMainPage() {
   );
 }
 
-// ====== 스타일 ======
+
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
@@ -1288,6 +527,7 @@ const styles = StyleSheet.create({
     color: colors.text.reverse,
   },
 });
+<<<<<<< HEAD
 
 const modalStyles = StyleSheet.create({
   overlay: {
@@ -1469,3 +709,5 @@ const detailModalStyles = StyleSheet.create({
     color: colors.text.reverse,
   },
 });
+=======
+>>>>>>> 1926b32f2e40cdd8fa466bcdeacb2e47dbc777e9

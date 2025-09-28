@@ -8,7 +8,7 @@ export interface Store {
   address: string;
   officeNumber: string;
   payDay: number;
-  scale: string;
+  scale: '5인 이상' | '5인 미만';
 }
 
 export interface ApiResponse<T = any> {

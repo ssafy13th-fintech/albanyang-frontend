@@ -16,6 +16,29 @@ export interface ApiResponse<T = any> {
   data?: T;
 }
 
+
+export interface CreateSsafyMemberRequest{
+  apiKey :string,
+  userId :string
+}
+
+export interface SelectSsafyMemberRequest extends CreateSsafyMemberRequest{
+}
+
+export interface CreateSsafyMemberResponse{
+  userId : string,
+  userName :string,
+  institutionCode : string,
+  userKey :string,
+  created : string,
+  modified :string
+}
+
+export interface SelectSsafyMemberResponse extends CreateSsafyMemberResponse{
+
+}
+
+
 // Utility: format date/time
 function pad(n: number, width = 2) {
   return String(n).padStart(width, '0');
@@ -197,6 +220,48 @@ export async function inquireTransactionHistoryByUniqueNo(params: { apiKey: stri
     handleAxiosError(err);
   }
 }
+
+
+
+
+
+export async function createSsafyMember(body : CreateSsafyMemberRequest){
+  console.log("create member : ",body)
+    try{
+      const res = await api.post<ApiResponse<CreateSsafyMemberResponse>>("/ssafy/api/v1/member",
+        body
+      )
+      return  res.data;
+    
+    }catch(e:any){
+      console.log(" create erro " , e?.response?.data)
+      throw e;
+    }
+}
+
+
+export async function searchSsafyMember(body : SelectSsafyMemberRequest){
+    console.log("search member : ",body)
+     try{
+      const res = await api.post<ApiResponse<SelectSsafyMemberResponse>>("/ssafy/api/v1/member/search",
+        body
+      )
+      return res.data;
+    
+    }catch(e : any){
+      console.log(e.response.data.responseCode)
+        switch(e?.response?.data.responseCode){
+          case "E4001":
+            throw ["E4001","올바르지 않은 이메일 형식"]
+          case "E4002":
+            throw  ["E4002","이미 존재하는 ID입니다."]
+          case "E4003":
+            throw  ["E4003","확인됨."]
+        }
+        throw e;
+    } 
+}
+
 
 
 export default {

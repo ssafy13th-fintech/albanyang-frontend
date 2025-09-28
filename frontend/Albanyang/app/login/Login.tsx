@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {Image,Pressable,StyleSheet,Text,View} from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/Auth";
@@ -48,6 +48,7 @@ export default function Login() {
               setChangeValue={setId}
               isSecure={false}
               />    
+              <View style ={{width :"100%"}}>
             <LoginTextInput
               //placeholder="비밀번호"
               label="비밀번호"
@@ -56,7 +57,7 @@ export default function Login() {
               isSecure={true}
               />   
               <Text style = {styles.inputError}>{errorText}</Text>
-           
+           </View>
             <Pressable
             onPress={async() => {
               //console.error("login pressed2 : " + id + " / " + pw);
@@ -84,8 +85,8 @@ export default function Login() {
 
               }
               catch(e : any){
-                console.log("error :", e);
-                setErrorText(e?.message || '로그인에 실패했습니다');
+                 console.log("error :", e);
+                 setErrorText("로그인 정보를 잘못 입력하셨습니다");
               }
             }}
             style={({ pressed }) => [
@@ -114,7 +115,8 @@ const styles = StyleSheet.create({
     
     rootcontainer: {
       //backgroundColor : colors.subAccent,    
-      alignItems : "center"
+      alignItems : "center",
+      backgroundColor: "#FFF"
     },
     titleContainer :{
       flexDirection : "row",
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
       paddingTop : 8,
       color : colors.reject,
       fontSize : sizes.smallText,
-      display : "none"
+
     },
     button :{
       backgroundColor : colors.main,

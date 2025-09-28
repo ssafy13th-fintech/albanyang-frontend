@@ -1,9 +1,11 @@
 import { deleteToken } from "@/api/authorization/AuthTokenStorage";
+import { searchSsafyMember } from "@/api/SSAFYOpenapi";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { useSignUpStore } from "@/store/useSignUpStore";
+import { SSAFY_MAIN_API_KEY } from "@env";
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +24,7 @@ export default function Signup() {
     const insets = useSafeAreaInsets();
     const signUpStore = useSignUpStore();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!"#$%&'()*+,\-./:;<=>?@[₩\]^_`{|}~])[A-Za-z\d!"#$%&'()*+,\-./:;<=>?@[₩\]^_`{|}~]{8,30}$/;
     // 이메일 형식, 특수문자/숫자/영문자 포함 8~30자리
     // 허용 특수문자 : !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
@@ -29,6 +32,8 @@ export default function Signup() {
     const [id, setId] = useState(signUpStore.registerForm.email ?? "");
     const [pw, setPw] = useState("");
     const [confirmPw, setConfirmPw] = useState("");
+    const [isError, setIsError] = useState(false);
+    const [emailErrorText, setEmailErrorText] = useState<string|null>(null);
 
     //ID 가 유효한지
     const [validID, setValidID] = useState(false);
@@ -105,7 +110,21 @@ export default function Signup() {
                       autoCapitalize="none" // 첫 글자 자동 대문자 방지
                       />
                       <Pressable
-                        onPress={() => console.log("클릭")}
+                        onPress={async() => {
+                          try{
+                          const res =await searchSsafyMember({apiKey : SSAFY_MAIN_API_KEY, userId : id })
+                            console.log("res ",res?.data);
+                          }
+                          catch(e : any){
+                            console.log("err" ,e);
+                            if(e[0] === "E4003"){
+                             console.log(" e4002 정상")
+                              setIsError(false);
+                            }  
+                            else setIsError(true);
+                            setEmailErrorText(e[1]);
+                          }
+                        }}
                         style={({ pressed }) => [
                           styles.button,
                           { 
@@ -116,7 +135,13 @@ export default function Signup() {
                           <Text style ={styles.buttonText}>중복 확인</Text>
                       </Pressable>
                     </View>
-                    <Text style = {styles.inputError}>이미 존재하는 이메일이 있습니다.</Text>
+                    <Text style = {[
+                      styles.inputError,
+                      {
+                         color : isError ? colors.reject : colors.subAccent,
+                        opacity : emailErrorText ? 1 : 0 }
+                    ]
+                      }>{emailErrorText}</Text>
                 </View>
                 <View style = {styles.smallInputContainer}>
                     <Text style = {styles.smallInputText}>비밀번호</Text>
@@ -177,14 +202,9 @@ export default function Signup() {
               <BottomActionButton
                 label ="다음으로"
                 onPress = {async () => {
-                  try{
-                  //await deleteToken();
+                  await deleteToken();
                   signUpStore.setForm({email : id, password : pw})
                   router.push("/login/SignUpSecond")
-                  }
-                  catch(e){
-                    console.error(e)
-                  }
                 }}
                 disabled = {isDisabled}
               />
@@ -225,7 +245,8 @@ const styles = StyleSheet.create({
     gap : 16
   },
   smallInputContainer : {
-    gap : 8
+    gap : 8,
+    paddingBottom : 16
   },
   smallInputText : {
     fontFamily : FONTS.jamsil.light2,
@@ -244,9 +265,7 @@ const styles = StyleSheet.create({
       height : 40
     },
     inputError : {
-      color : colors.reject,
       fontSize : sizes.smallText,
-      opacity : 0,
     },
     button :{
       backgroundColor : colors.main,
