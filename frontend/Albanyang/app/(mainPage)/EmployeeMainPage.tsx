@@ -29,7 +29,7 @@ import { faBell } from '@fortawesome/free-regular-svg-icons';
 // API imports
 import { getMe } from '@/api/Member';
 import { getStores } from '@/api/Stores';
-import { getMyTimesheets, createMyTimesheet, patchMyTimesheetCheckout } from '@/api/TimeSheet';
+import { getMyTimesheets, createMyTimesheet, patchMyTimesheetCheckout } from '@/api/Timesheet';
 import { getStoreSchedules } from '@/api/Schedule';
 import { getMyPayslips } from '@/api/EmployeePaylips';
 

@@ -25,7 +25,7 @@ import { faBell } from '@fortawesome/free-regular-svg-icons';
 // API imports
 import { getMe } from '@/api/Member';
 import { getStores } from '@/api/Stores';
-import { getTimesheetsByDate } from '@/api/TimeSheet';
+import { getTimesheetsByDate } from '@/api/Timesheet';
 import { getStoreSchedules } from '@/api/Schedule';
 
 // ====== 레이아웃 상수 ======
