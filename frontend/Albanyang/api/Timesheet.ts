@@ -60,6 +60,7 @@ function handleAxiosError(err: unknown): never {
 export async function getMyTimesheets(storeId: number, params?: { date?: string; month?: string; }) {
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
   try {
+    console.log("store id ", storeId, "param : ", params?.date, params?.month)
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
       `/v1/stores/${storeId}/timesheets/me`,
       { params }
@@ -103,6 +104,7 @@ export async function patchMyTimesheetCheckout(storeId: number, timesheetId: num
 export async function getTimesheetsByDate(storeId: number, date: string) {
   if ((!storeId && storeId !== 0) || !date) throw new Error('storeId and date (required)');
   try {
+    console.log("store Id :", storeId, "date :", date)
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
       `/v1/stores/${storeId}/timesheets`,
       { params: { date } }

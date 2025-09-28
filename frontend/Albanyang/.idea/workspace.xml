@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4d18f3a3-a90f-48e6-8809-0058f24e5cf9" name="Changes" comment="" />
+    <list default="true" id="4d18f3a3-a90f-48e6-8809-0058f24e5cf9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/api/Member.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/Member.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/SSAFYOpenapi.ts" beforeDir="false" afterPath="$PROJECT_DIR$/api/SSAFYOpenapi.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/login/SignUpFirst.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/login/SignUpFirst.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/login/SignUpThird.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/login/SignUpThird.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -40,7 +45,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "FE-dev",
+    "git-widget-placeholder": "feat/#53-api-mypage",
     "last_opened_file_path": "C:/SSAFYProject/Albanyang/frontend/frontend/Albanyang",
     "settings.editor.selected.configurable": "emulator"
   }

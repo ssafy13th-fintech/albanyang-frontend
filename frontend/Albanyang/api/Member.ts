@@ -1,6 +1,5 @@
 import { AxiosError } from 'axios';
 import { api, api_noheader } from './authorization/AuthHeader';
-import { loadToken } from './authorization/AuthTokenStorage';
 
 // 토큰 등록/해제 유틸 (react-native에서 로그인 토큰을 여기에 설정해서 사용)
 // export function setAuthToken(token: string | null) {
@@ -49,7 +48,12 @@ export interface RegisterRequest {
   role?: number;
   account?: string | null;
   accountPassword? :string | null;
+  userKey : string;
   token?: string;
+}
+
+export interface UserKeyData{
+  userKey :string
 }
 
 export interface AccountPatchRequest {
@@ -164,13 +168,7 @@ export async function updateAccountPassword(body: AccountPasswordRequest) {
 // 8) GET /api/v1/members/me - 내 정보 조회
 export async function getMe() {
   try {
-    const token = await loadToken();
-    console.log(token);
-    const res = await api.get<ApiResponse<MemberData>>('/v1/members/me', {
-      headers: {
-        Authorization: token
-      }
-    });
+    const res = await api.get<ApiResponse<MemberData>>('/v1/members/me'); // /api 제거
     return res.data;
   } catch (err) {
     handleAxiosError(err);

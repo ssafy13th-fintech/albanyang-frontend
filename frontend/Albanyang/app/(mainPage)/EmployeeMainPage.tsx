@@ -1,28 +1,24 @@
 // app/(mainPage)/EmployeeMainPage.tsx
-import { useCallback, useEffect, useState } from "react";
-import { Alert, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
 import NavBar, { NAVBAR_BASE_HEIGHT } from '@/components/navBar/NavBar';
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Dimensions, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // API imports
-import { getMyTimesheets } from '@/api/Timesheet';
-import { getStoreSchedules } from '@/api/Schedule';
-import { getMyPayslips } from '@/api/EmployeePaylips';
-import { EmployeeTopSection, fetchUserAccountInfo, UserAccountInfo } from './components/TopSection';
-import StoreDetailModal from './components/StoreDetailModal';
-import NoStoreSection from './components/NoStoreSection';
-import AttendanceSection from "./components/AttendanceSection";
-import TimeSection from './components/TimeSection';
-import EmployeeStoreSelectionSection from "./components/EmployeeStoreSelectionSection";
-import { getStaffStores, Store } from '@/api/store/getStaffStores';
-import WorkProgressSection from './components/WorkProgressSection';
-import { SalaryInfo } from './components/TopSection';
-import { fetchStoresWithStaffStatus } from "./components/StoreStatusSection";
-import { getTimesheetsByDate } from "@/api/timesheet/getTimesheetByDate";
 import { getStaffPayslips } from "@/api/payslip/getStaffPayslips";
+import { getStoreSchedules } from '@/api/Schedule';
+import { getStaffStores, Store } from '@/api/store/getStaffStores';
+import { getMyTimesheets } from '@/api/Timesheet';
+import AttendanceSection from "./components/AttendanceSection";
+import EmployeeStoreSelectionSection from "./components/EmployeeStoreSelectionSection";
+import NoStoreSection from './components/NoStoreSection';
+import StoreDetailModal from './components/StoreDetailModal';
+import TimeSection from './components/TimeSection';
+import { EmployeeTopSection, fetchUserAccountInfo, SalaryInfo, UserAccountInfo } from './components/TopSection';
+import WorkProgressSection from './components/WorkProgressSection';
 
 // ====== 레이아웃 상수 ======
 const TOP_PADDING = 16;
@@ -44,7 +40,8 @@ interface WorkSession {
 const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
   try {
     const today = new Date().toISOString().split('T')[0];
-    const timesheetData = await getTimesheetsByDate(storeId, today);
+    const timesheetData = (await getMyTimesheets(storeId,{date : today})).data
+    console.log("timedata :", timesheetData)
     const todayTimesheet = timesheetData?.timesheets[0];
 
     const scheduleData = await getStoreSchedules(storeId, undefined, today);
@@ -55,7 +52,7 @@ const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
 
     if (todayTimesheet) {
       if (todayTimesheet.arrivedAt && todayTimesheet.leftAt) {
-        totalHours = todayTimesheet.commuteTime / 60;
+        totalHours = todayTimesheet.commuteDate / 60;
         isWorking = false;
       } else if (todayTimesheet.arrivedAt) {
         const checkInTime = new Date(`${today}T${todayTimesheet.arrivedAt}`);
