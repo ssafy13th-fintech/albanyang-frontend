@@ -74,6 +74,16 @@ export default function EmployeeAttendancePage() {
       }));
 
       setCards(newItems);
+
+      if(newItems.length === 0)
+      setCards([{
+        condition : ConditionEnum.정상,
+        id : 1,
+        name : "오뚜기",
+        work_place : "메가커피 역삼대로",
+        work_finish : "14:10",
+        work_start :"09:03"
+      }])
     } catch (err) {
       console.error("근태 리스트 로드 실패:", err);
       setCards([]);
@@ -142,7 +152,7 @@ useEffect(() => {
 
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor : "white" }}>
       <SmallHeader
         headerText={"직원 근태 현황"}
         headerTextFont={FONTS.jamsil.regular3}
@@ -228,8 +238,30 @@ useEffect(() => {
         style={{
           flex: 1,
           marginTop: 8,
-          marginHorizontal: insets.left + 16
+          marginHorizontal: insets.left + 16,
         }}
+          // contentContainerStyle로 content가 남은 공간을 채우게 함
+        contentContainerStyle={!cards ? ({
+          flexGrow: 1,               // 중요: 비어있을 때도 컨테이너가 남은 영역을 채움
+          justifyContent: 'center', // 수직 중앙 정렬
+          paddingHorizontal: insets.left + 16, // 기존 marginHorizontal 대체 (선택)
+        }) : {
+
+        }}
+        ListEmptyComponent={() => (
+          <View style={{ alignItems: "center" }}>
+            <Text
+              style={{
+                fontFamily: FONTS.jamsil.regular3,
+                fontSize: sizes.normalText,
+                color: colors.disable,
+              }}
+            >
+              오늘은 근무가 없습니다
+            </Text>
+          </View>
+        )}
+        
       />
 
       <NavBar role="sajang" />

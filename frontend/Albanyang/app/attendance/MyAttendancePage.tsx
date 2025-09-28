@@ -234,7 +234,7 @@ useEffect(() => {
     );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor : "white" }}>
       <SmallHeader
         headerText="내 근태 현황"
         headerTextFont={FONTS.jamsil.regular3}

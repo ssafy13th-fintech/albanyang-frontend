@@ -1,8 +1,11 @@
+import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
 import Header from '@/components/header/Header';
 import NavBar from '@/components/navBar/NavBar';
+import { FONTS } from '@/constants/fonts/Fonts';
+import { sizes } from '@/constants/size/FontSize';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StatusBar, StyleSheet, View, Text, Image, ActivityIndicator, Alert } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PayslipListItem from '../common/components/PayslipListItem';
 import PayslipTabBar from '../common/components/PayslipTabBar';
@@ -10,7 +13,6 @@ import YearAndMonthSelector from '../common/components/YearAndMonthSelector';
 import EmployeeDropdown from './components/PayslipEmployeeSelector';
 import { ownerPayslips } from './hooks/useOwnerPayslips';
 import { ownerStores } from './hooks/useOwnerStores';
-import { getRoleFromToken } from '@/api/authorization/AuthTokenStorage';
 
 const PayslipListOwner = () => {
   const today = new Date();
@@ -43,7 +45,7 @@ const PayslipListOwner = () => {
   useEffect(() => setSelectedEmployee("전체"), [activeStoreId]);
 
   useEffect(() => {
-    let filtered = allPayslips;
+    let filtered = allPayslips ?? [];
     if (selectedEmployee !== '전체') {
       filtered = filtered.filter(item => item.staffName === selectedEmployee);
     }
@@ -51,7 +53,8 @@ const PayslipListOwner = () => {
   }, [allPayslips, selectedEmployee]);
 
   const handleEmployeeSelect = (employee: any) => setSelectedEmployee(employee.name);
-  const handlePayslipPress = (payslipId: number, storeId: number) => {
+  const handlePayslipPress = (payslipId: number, storeId: number | null) => {
+    if (storeId == null) return;
     router.push({ pathname: '/payslip/common/PayslipDetail', params: { payslipId, storeId } });
   };
 
@@ -88,7 +91,7 @@ const PayslipListOwner = () => {
 
       <PayslipTabBar
         tabs={stores.map(store => store.name)}
-        activeTab={stores.findIndex(store => store.id === activeStoreId)}
+        activeTab={Math.max(0, stores.findIndex(store => store.id === activeStoreId))}
         onTabPress={(index) => setActiveStoreId(stores[index].id)}
       />
 
@@ -112,18 +115,36 @@ const PayslipListOwner = () => {
         </View>
       </View>
 
-      <ScrollView>
-        {filteredPayslips.map((item) => (
-          <PayslipListItem
-            key={item.payslipId}
-            month={Number(item.payDate.split('-')[1])}
-            year={Number(item.payDate.split('-')[0])}
-            payDate={item.payDate}
-            employeeName={item.staffName}
-            employeeNickname={item.staffNickName}
-            onPress={() => handlePayslipPress(item.payslipId, Number(activeStoreId))}
-          />
-        ))}
+      {/* 여기서 빈 화면 중앙 정렬 구현 */}
+      <ScrollView
+        contentContainerStyle={[
+          { flexGrow: 1, paddingHorizontal: 16 },
+          filteredPayslips.length === 0 ? { justifyContent: 'center', alignItems: 'center' } : {}
+        ]}
+      >
+        {filteredPayslips.length === 0 ? (
+          <View style={{ alignItems: 'center' }}>
+            <Text style={[styles.emptyText,
+              {
+                fontFamily : FONTS.jamsil.regular3,
+                fontSize : sizes.smallTitle,
+                marginBottom : 128
+              }]
+            }>급여명세서가 없습니다</Text>
+          </View>
+        ) : (
+          filteredPayslips.map((item) => (
+            <PayslipListItem
+              key={item.payslipId}
+              month={Number(item.payDate.split('-')[1])}
+              year={Number(item.payDate.split('-')[0])}
+              payDate={item.payDate}
+              employeeName={item.staffName}
+              employeeNickname={item.staffNickName}
+              onPress={() => handlePayslipPress(item.payslipId, activeStoreId ? Number(activeStoreId) : null)}
+            />
+          ))
+        )}
       </ScrollView>
 
       <NavBar role='sajang' />

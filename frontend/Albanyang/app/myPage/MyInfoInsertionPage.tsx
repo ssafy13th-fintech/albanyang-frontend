@@ -1,7 +1,7 @@
 import { getMe, updateMember, UpdateMemberRequest } from "@/api/Member";
 import BottomActionButton from "@/components/buttons/BottomButton";
 import AgeDropdown from "@/components/dropdown/AgeDropDownByElement";
-import SmallHeader from "@/components/header/SmallHeader";
+import BackHeader from "@/components/header/BackHeader";
 import LabelTextInput from "@/components/textInput/LabelTextInput";
 import PhoneNumInput from "@/components/textInput/PhoneNumInput";
 import { colors } from "@/constants/colors/ColorTheme";
@@ -63,13 +63,17 @@ export default function MyInfoInsertion() {
 
     return (
         <SafeAreaView style = {[styles.rootContainer, {paddingHorizontal : insets.left + 16}]}>
-         
+{/*          
          <SmallHeader
             headerTextFont={FONTS.jamsil.regular3}
             headerTextSize={sizes.smallTitle}
             headerText = {"내 정보 수정"}
             paddingTopLen={32}
             paddingBottomLen={32}
+         /> */}
+
+         <BackHeader
+         headerText="내 정보 수정"
          />
 
         <View style = {{gap :24, marginTop :24}}>

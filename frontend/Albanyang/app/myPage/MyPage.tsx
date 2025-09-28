@@ -5,6 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { deleteToken } from "@/api/authorization/AuthTokenStorage";
 import PanelMenuButton from "@/components/buttons/PanelMenuButton";
+import AccountCard from "@/components/cards/AccountCard";
 import NavBar from "@/components/navBar/NavBar";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
@@ -69,7 +70,9 @@ export default function MyPage() {
             />
         )
         if(i < items.length-1){
-            views.push(<View style = {{
+            views.push(<View
+                key={`divider-${i}`}
+                style = {{
                 borderBottomWidth:1,
                 borderColor : colors.shadow,
                 opacity : 0.5
@@ -79,11 +82,19 @@ export default function MyPage() {
     }
 
     return (
-        <SafeAreaView style = {{flex :1}}>
+        <SafeAreaView style = {{flex :1, backgroundColor : "white"}}>
         <ScrollView
-            contentContainerStyle = {{padding: 16}
+            contentContainerStyle = {{paddingHorizontal: 16}
         }
         > 
+        <View style ={{
+            elevation : 10, 
+            backgroundColor : colors.main,
+            borderRadius : 10,
+            shadowRadius : 10,
+            shadowColor :colors.shadow,
+            marginBottom :24,
+        }}>
             <View style = {[styles.introduceCard, {flexDirection : "row"}]}>
                 <View style = {{flex : 1}}>
                 <View style = {{flexDirection : "row", marginBottom : 18}}>
@@ -101,22 +112,22 @@ export default function MyPage() {
                 </View>
 
                 <View style = {{gap : 8, marginTop : 18, paddingVertical : 8}}>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>전화번호 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{phoneNum}</Text></Text>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>나이 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{age}</Text></Text>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>이메일 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{email}</Text></Text>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>성별 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{gender}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-전화번호 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{phoneNum}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-나이 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{age}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-이메일 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{email}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-성별 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{gender}</Text></Text>
                 </View>
                 </View>
 
                 <Image
                     source ={mascot_path}
-                    style = {{marginLeft : 10}}
+                    style = {{marginLeft : 10, alignSelf : "center"}}
                 >
                     
                 </Image>
 
             </View>
-        
+        </View>
             <View style = {{paddingVertical : 16}}>
 
                 <Text style ={{
@@ -130,27 +141,13 @@ export default function MyPage() {
 
 
               {bankAccountNum ?(
-                <View style = {styles.accountCard}>
-                    <View style = { { 
-                        backgroundColor : colors.main, 
-                        borderTopRightRadius : 5,
-                        borderTopLeftRadius : 5,
-                        width:240, 
-                        height:130, 
-                        marginVertical : 8
-                        }}></View>
-                    <View style = {{ marginTop : 8}}>
-                    <Text
-                    style = {{fontFamily : FONTS.jamsil.regular3,
-                        fontSize : sizes.smallText
-                    }}
-                    >{bankname} 
-                    <Text
-                     style = {{fontFamily : FONTS.jamsil.light2,
-                        fontSize : sizes.smallText
-                    }}>{bankAccountNum}</Text></Text>
-                    </View>
-                </View> ) :(
+                    
+                <AccountCard
+                    bankname={bankname!}
+                    bankAccountNum={bankAccountNum}
+                />
+                
+                ) :(
                     <View style= {[styles.accountCard,
                         {paddingVertical : 36, paddingHorizontal : 16}]
                     }>
@@ -197,7 +194,7 @@ export default function MyPage() {
             <View style = {{marginVertical : 16}}>
                     {views}
             </View>
-        <View style = {{paddingBottom : 24}}></View>
+        <View style = {{paddingBottom : 48}}></View>
         </ScrollView>
         <NavBar
             role={myInfo.memberForm.role!}
@@ -209,25 +206,19 @@ export default function MyPage() {
 
 const styles = StyleSheet.create({
     introduceCard :{
-        backgroundColor : colors.main,
-        borderRadius : 10,
-        paddingTop : 32,
+        //backgroundColor : colors.main,
+        paddingVertical : 32,
         paddingHorizontal : 16,
-        paddingBottom : 16,
-        marginBottom :24,
-        boxShadow: "0 -10 0 0 rgba(0, 0, 255, 0.7)",
-        elevation : 5
+       
     },
     accountCard : {
-        borderColor : colors.accent,
-        borderStyle : "dashed",
-        borderWidth : 1,
+        borderColor : colors.main,
+        borderRadius : 10, 
+        borderWidth: 1,
         marginTop : 16,
         paddingVertical : 16,
         justifyContent : "center",
         alignItems : "center",
         boxShadow : "100"
     }
-    
-
 })

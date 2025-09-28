@@ -46,8 +46,8 @@ export default function PhoneNumInput({
                   <TextInput
                     onFocus={() => setFocus(true)}
                     onBlur ={() => setFocus(false)}
-                    value = {phoneLastNum}
-                    onChangeText={onChangePhonLastNum}
+                    value = {phoneLastNum.replaceAll("-","")}
+                    onChangeText={(v) => onChangePhonLastNum(v.replaceAll("-",""))}
                     style = {{
                       borderColor : focus ? colors.accent : colors.main,
                       borderRadius : 10,
@@ -56,6 +56,7 @@ export default function PhoneNumInput({
                       height : 40,
                       flex : 0.7
                     }}
+                    keyboardType="numeric"
                   />
                   </View>
     )
