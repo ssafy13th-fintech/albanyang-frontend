@@ -82,11 +82,19 @@ export default function MyPage() {
     }
 
     return (
-        <SafeAreaView style = {{flex :1}}>
+        <SafeAreaView style = {{flex :1, backgroundColor : "white"}}>
         <ScrollView
-            contentContainerStyle = {{padding: 16}
+            contentContainerStyle = {{paddingHorizontal: 16}
         }
         > 
+        <View style ={{
+            elevation : 10, 
+            backgroundColor : colors.main,
+            borderRadius : 10,
+            shadowRadius : 10,
+            shadowColor :colors.shadow,
+            marginBottom :24,
+        }}>
             <View style = {[styles.introduceCard, {flexDirection : "row"}]}>
                 <View style = {{flex : 1}}>
                 <View style = {{flexDirection : "row", marginBottom : 18}}>
@@ -104,22 +112,22 @@ export default function MyPage() {
                 </View>
 
                 <View style = {{gap : 8, marginTop : 18, paddingVertical : 8}}>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>전화번호 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{phoneNum}</Text></Text>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>나이 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{age}</Text></Text>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>이메일 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{email}</Text></Text>
-                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>성별 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{gender}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-전화번호 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{phoneNum}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-나이 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{age}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-이메일 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{email}</Text></Text>
+                    <Text style = {{fontFamily:FONTS.jamsil.light2}}>-성별 : <Text style = {{fontFamily :FONTS.jamsil.light2}}>{gender}</Text></Text>
                 </View>
                 </View>
 
                 <Image
                     source ={mascot_path}
-                    style = {{marginLeft : 10}}
+                    style = {{marginLeft : 10, alignSelf : "center"}}
                 >
                     
                 </Image>
 
             </View>
-        
+        </View>
             <View style = {{paddingVertical : 16}}>
 
                 <Text style ={{
@@ -198,14 +206,10 @@ export default function MyPage() {
 
 const styles = StyleSheet.create({
     introduceCard :{
-        backgroundColor : colors.main,
-        borderRadius : 10,
-        paddingTop : 32,
-        paddingHorizontal : 16,
-        paddingBottom : 16,
-        marginBottom :24,
-        boxShadow: "0 -10 0 0 rgba(0, 0, 255, 0.7)",
-        elevation : 5
+        //backgroundColor : colors.main,
+        paddingVertical : 32,
+        paddingHorizontal : 12,
+       
     },
     accountCard : {
         borderColor : colors.main,

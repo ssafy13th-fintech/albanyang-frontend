@@ -1,7 +1,6 @@
-import { colors } from "@/constants/colors/ColorTheme"
 import { FONTS } from "@/constants/fonts/Fonts"
 import { sizes } from "@/constants/size/FontSize"
-import { Image, ImageSourcePropType, Pressable, Text, View } from "react-native"
+import { Image, ImageSourcePropType, Text, TouchableOpacity, View } from "react-native"
 
 interface PanelMenuButtonProps{
     key? : any,
@@ -16,13 +15,13 @@ export default function PanelMenuButton({
     buttonAction
 } :PanelMenuButtonProps){
     return(
-        <Pressable 
+        <TouchableOpacity
                 onPress={buttonAction}
-                style={({pressed})=>[{
+                style={[{
                     flexDirection : "row",
                     alignItems :"center",
                     paddingVertical : 24,
-                    backgroundColor : pressed ? colors.disable : "transparent"
+                    // backgroundColor : pressed ? colors.disable : "transparent"
                 }]}>
                     <Image
                         source={icon}
@@ -42,7 +41,7 @@ export default function PanelMenuButton({
                         fontFamily : FONTS.jamsil.regular3,
                         fontSize : sizes.normalText
                     }}>{">"}</Text>
-                    </Pressable>
+                    </TouchableOpacity>
                     
     )
 }
