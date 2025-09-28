@@ -1,14 +1,16 @@
 import { colors } from "@/constants/colors/ColorTheme"
 import { FONTS } from "@/constants/fonts/Fonts"
 import { sizes } from "@/constants/size/FontSize"
-import { StyleSheet, Text, View } from "react-native"
+import { useRouter } from "expo-router"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 
 
 
 interface AccountCardProps{
     bankname :string,
     bankAccountNum : string,
-    existBorder? :boolean
+    existBorder? :boolean,
+    enableLink? : boolean,
 }
 
 
@@ -17,7 +19,9 @@ export default  function AccountCard(
     bankname,
     bankAccountNum,
     existBorder = true,
+    enableLink = true,
 }:AccountCardProps){
+    const router = useRouter();
     return(
                   <View style = {[styles.accountCard
 ,{        borderColor :  existBorder ? colors.accent : "transparent",
@@ -25,6 +29,10 @@ export default  function AccountCard(
         borderWidth : 1,}
                   ]
                   }>
+                    <TouchableOpacity onPress={()=>{
+                        if(enableLink)
+                        router.push("/myPage/MyAccountInsertionPage")
+                    }}>
                             <View style = { { 
                                 backgroundColor : colors.main, 
                                 borderTopRightRadius : 5,
@@ -42,10 +50,11 @@ export default  function AccountCard(
                                     </View>
         
                             </View>
-                            <View style = {{ marginTop : 8}}>
+                            <View style = {{ marginTop : 8, alignSelf:"center"}}>
                             <Text
                             style = {{fontFamily : FONTS.jamsil.regular3,
                                 fontSize : sizes.smallText
+
                             }}
                             >{bankname}
                             <Text
@@ -53,6 +62,7 @@ export default  function AccountCard(
                                 fontSize : sizes.smallText
                             }}> {bankAccountNum}</Text></Text>
                             </View>
+                            </TouchableOpacity>
                         </View> 
     )
 }

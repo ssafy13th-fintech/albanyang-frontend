@@ -86,6 +86,7 @@ export default function MyAccountInsertion(){
                     bankname={bank}
                     bankAccountNum={accountNum}
                     existBorder = {false}
+                    enableLink ={false}
                 />
             </View>
 
