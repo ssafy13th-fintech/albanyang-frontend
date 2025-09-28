@@ -70,7 +70,9 @@ export default function MyPage() {
             />
         )
         if(i < items.length-1){
-            views.push(<View style = {{
+            views.push(<View
+                key={`divider-${i}`}
+                style = {{
                 borderBottomWidth:1,
                 borderColor : colors.shadow,
                 opacity : 0.5
@@ -205,7 +207,7 @@ const styles = StyleSheet.create({
         boxShadow: "0 -10 0 0 rgba(0, 0, 255, 0.7)",
         elevation : 5
     },
-            accountCard : {
+    accountCard : {
         borderColor : colors.main,
         borderRadius : 10, 
         borderWidth: 1,
