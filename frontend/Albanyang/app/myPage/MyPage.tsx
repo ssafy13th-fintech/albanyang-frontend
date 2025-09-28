@@ -194,7 +194,7 @@ export default function MyPage() {
             <View style = {{marginVertical : 16}}>
                     {views}
             </View>
-        <View style = {{paddingBottom : 24}}></View>
+        <View style = {{paddingBottom : 48}}></View>
         </ScrollView>
         <NavBar
             role={myInfo.memberForm.role!}
