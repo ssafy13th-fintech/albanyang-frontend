@@ -15,7 +15,8 @@ export enum ConditionEnum{
     "정상" = 0,
     "지각" = 1,
     "조퇴" = 2,
-    "결근" = 3
+    "결근" = 3,
+    "예정" = 4
 }
 
 export const CONDITION_DATA = [
@@ -23,6 +24,7 @@ export const CONDITION_DATA = [
   { label: "지각", value: "1" },
   { label: "조퇴", value: "2" },
   { label: "결근", value: "3" },
+  { label: "예정", value: "4" },
 ];
 
 
