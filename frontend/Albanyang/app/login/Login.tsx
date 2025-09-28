@@ -3,7 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { login } from "@/api/Auth";
-import { saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
+import { deleteToken, saveToken, TokenDecodeObject } from "@/api/authorization/AuthTokenStorage";
 import { getMe } from "@/api/Member";
 import LoginTextInput from "@/components/textInput/loginTextInput";
 import { colors } from "@/constants/colors/ColorTheme";
@@ -12,6 +12,8 @@ import { sizes } from '@/constants/size/FontSize';
 import { useMemberStore } from "@/store/useMemberStore";
 import { useRouter } from "expo-router";
 import { jwtDecode } from "jwt-decode";
+
+
 
 
 export default function Login() {
@@ -58,14 +60,23 @@ export default function Login() {
            </View>
             <Pressable
             onPress={async() => {
+      
               //console.error("login pressed2 : " + id + " / " + pw);
               try{
+                //await deleteToken();
+                console.log("됨?")
+                
                 const response = await login({email : id, password : pw});
 
                 //token 디코딩
                 await saveToken(response.data.accessToken)
+                console.log("좀 되라고!!!!!!!!! ")
+
+
                 const decode = jwtDecode(response.data.accessToken) as TokenDecodeObject
+
                 console.log("decode msg ",decode.role)
+
 
                 //내 정보 가져오기
                 const me = await getMe();

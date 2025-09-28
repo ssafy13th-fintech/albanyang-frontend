@@ -40,9 +40,12 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
         const res = await api.get<ApiResponse<TimesheetListResponse>>(
         `/v1/stores/${storeId}/timesheets`,
         {
-            params: {
-                date: date
-            }
+          headers: {
+            Authorization: token
+          },
+          params: {
+            date: date
+          }
         }
         );
         return res.data.data;

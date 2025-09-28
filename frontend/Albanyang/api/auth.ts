@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios';
-import { api } from './authorization/AuthHeader';
+import { api, api_noheader } from './authorization/AuthHeader';
 
 // Axios 인스턴스 설정 (member.ts와 동일하게 맞춰야 함)
 // const api: AxiosInstance = axios.create({
@@ -46,18 +46,20 @@ function handleAxiosError(err: unknown): never {
 // 로그인
 export async function login(body: LoginRequest) {
      // console.log("login api called ", body);
+     console.log("진짜됨?")
   if (!body.email || !body.password) {
     throw new Error('email and password are required');
   }
   try {
-   // console.log("login api called");
-    const res = await api.post<ApiResponse<LoginResponseData>>(
+    console.log("login api called ", body);
+    const res = await api_noheader.post<ApiResponse<LoginResponseData>>(
       '/v1/auth/login',
       body
     );
+
     return res.data;
   } catch (err) {
-    //console.error("login error : ", err); 
+    console.error("login error : ", err); 
     handleAxiosError(err);
   }
 }
