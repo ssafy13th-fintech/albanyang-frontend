@@ -9,7 +9,7 @@ import { sizes } from "@/constants/size/FontSize";
 import { GetOtherDate, GetTodayDate } from "@/modules/DateTime";
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { CalendarProvider, WeekCalendar } from 'react-native-calendars';
 import { Dropdown } from "react-native-element-dropdown";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,7 +32,7 @@ interface DropBoxItemType {
 export default function EmployeeAttendancePage() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-
+  const [headerTitle, setHeaderTitle] = useState("직원 근태 관리");
   // 날짜 상태
   const [selectedDate, setSelectedDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [providerDate, setProviderDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
@@ -47,6 +47,7 @@ export default function EmployeeAttendancePage() {
   const marked = {
     [selectedDate]: { selected: true, selectedColor: colors.accent },
   };
+  const [activeTab, setActiveTab] = useState<number>(0);
 
   // 날짜 파싱
   const [year, month, day] = (() => {
@@ -154,11 +155,49 @@ useEffect(() => {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor : "white" }}>
       <SmallHeader
-        headerText={"직원 근태 현황"}
+        headerText={headerTitle}
         headerTextFont={FONTS.jamsil.regular3}
         headerTextSize={sizes.smallTitle}
         isAblaBack={false}
       />
+
+      {/* 지점 탭 */}
+      <View
+        style={{
+          elevation: 1,
+          shadowColor: colors.shadow,
+          height: 50,
+          justifyContent: "center",
+          marginBottom: 16,
+        }}
+      >
+        {/* <PayslipTabBar tabs={["직원 근태 관리", "스케쥴 관리"]} activeTab={activeTab!} onTabPress={setActiveTab} /> */}
+      
+        <View style={{flexDirection : "row",  borderBottomWidth:0.25, borderColor :colors.shadow,
+        }}>
+        {["직원 근태 관리", "스케쥴 관리"].map((tab, index)=> (
+            <TouchableOpacity
+            onPress={() => {
+              setHeaderTitle(tab)
+              setActiveTab(index)}}
+            key={index}
+            style ={{
+              flex : 0.5, alignSelf :"center", alignItems :"center",
+              borderBottomWidth : 1,
+              borderBottomColor : activeTab === index ? colors.accent : colors.shadow,
+              paddingBottom : 8,
+              zIndex : 5
+            }}
+            ><Text key={index} style={{
+              color : activeTab === index ? colors.accent : colors.text.secondary,
+              fontFamily : FONTS.jamsil.light2,
+              fontSize : 16
+            }}> {tab} </Text>
+            </TouchableOpacity>
+        ))}
+        </View>
+      </View>
+        
 
       <View style={{ flexDirection: "row", alignSelf: "center", marginBottom: 16 }}>
         <Text style={{ fontFamily: FONTS.jamsil.regular3, fontSize: sizes.normalText + 2 }}>
@@ -249,7 +288,7 @@ useEffect(() => {
 
         }}
         ListEmptyComponent={() => (
-          <View style={{ alignItems: "center" }}>
+          <View style={{ alignItems: "center", alignSelf : "center", marginTop : 48 }}>
             <Text
               style={{
                 fontFamily: FONTS.jamsil.regular3,
@@ -261,7 +300,6 @@ useEffect(() => {
             </Text>
           </View>
         )}
-        
       />
 
       <NavBar role="sajang" />
