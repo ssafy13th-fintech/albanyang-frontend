@@ -10,7 +10,7 @@ export interface ApiResponse<T = any> {
   data: T;
 }
 
-// 스태프 관련 타입 정의
+// ========== 스태프 관련 타입 ==========
 export interface StaffInvitationRequest {
   storeId: number;
   wage: number;
@@ -33,26 +33,26 @@ export interface StaffListResponse {
   staffInfoRes: StaffInfo[];
 }
 
-// 직원 상세 조회 응답 타입
+// 직원 단건 조회 응답(스웨거 키에 맞춰 status 사용)
 export interface StaffDetailResponse {
   id: number;
   name: string;
   nickname: string;
-  employmentStatus: 'SCHEDULED' | string;
+  status: 'SCHEDULED' | 'ACTIVE' | string;
   taxType: string;
   wage: number;
   weeklyWorkingDay: number;
   workingHours: number;
 }
 
-// 직원 수정 요청 타입
+// 직원 수정 요청(스웨거 예시 기준: nickname/status는 필수, 나머지는 선택)
 export interface StaffUpdateRequest {
   nickname: string;
   status: 'SCHEDULED' | 'ACTIVE' | string;
-  taxType: 'FOUR_INSURANCE' | 'THREE_POINT_THREE' | string;
-  wage: number;
-  weeklyWorkingDay: number;
-  workingHours: number;
+  taxType?: 'FOUR_INSURANCE' | 'THREE_POINT_THREE' | string;
+  wage?: number;
+  weeklyWorkingDay?: number;
+  workingHours?: number;
 }
 
 // 직원이 일하는 사업장 조회 응답 타입
@@ -86,22 +86,20 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
-// POST /v1/stores/{store-id}/invitation - 직원 초대
+/**
+ * POST /api/v1/stores/{store-id}/invitation
+ * 직원 초대 (query: wage, email)
+ */
 export async function sendStaffInvitation(storeId: number, wage: number, email: string) {
-  if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
-  if (wage === undefined || wage === null) throw new Error('wage (required)');
+  if (storeId == null) throw new Error('storeId (required)');
+  if (wage == null) throw new Error('wage (required)');
   if (!email) throw new Error('email (required)');
 
   try {
     const res = await api.post<ApiResponse<string>>(
       `/v1/stores/${storeId}/invitation`,
       null,
-      {
-        params: {
-          wage,
-          email
-        }
-      }
+      { params: { wage, email } }
     );
     return res.data;
   } catch (err) {
@@ -109,20 +107,19 @@ export async function sendStaffInvitation(storeId: number, wage: number, email: 
   }
 }
 
-// POST /v1/stores/{store-id}/invitation/response - 초대 응답
+/**
+ * POST /api/v1/stores/{store-id}/invitation/response
+ * 초대 응답 (query: accept)
+ */
 export async function respondToStaffInvitation(storeId: number, accept: boolean) {
-  if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
-  if (accept === undefined || accept === null) throw new Error('accept (required)');
+  if (storeId == null) throw new Error('storeId (required)');
+  if (accept == null) throw new Error('accept (required)');
 
   try {
     const res = await api.post<ApiResponse<string>>(
       `/v1/stores/${storeId}/invitation/response`,
       null,
-      {
-        params: {
-          accept
-        }
-      }
+      { params: { accept } }
     );
     return res.data;
   } catch (err) {
@@ -130,9 +127,12 @@ export async function respondToStaffInvitation(storeId: number, accept: boolean)
   }
 }
 
-// GET /v1/stores/{store-id}/staffs - 직원 전체 조회
+/**
+ * GET /api/v1/stores/{store-id}/staffs
+ * 직원 전체 조회
+ */
 export async function getStaffList(storeId: number) {
-  if (storeId === undefined || storeId === null) throw new Error('storeId (required)');
+  if (storeId == null) throw new Error('storeId (required)');
 
   try {
     const res = await api.get<ApiResponse<StaffListResponse>>(
@@ -144,15 +144,23 @@ export async function getStaffList(storeId: number) {
   }
 }
 
+/**
+ * GET /api/v1/stores/me
+ * 직원이 소속된 사업장 조회
+ */
 export async function getMyStores() {
   try {
     const res = await api.get<ApiResponse<MyStoresResponse>>(`/v1/stores/me`);
-    return res.data;
+  return res.data;
   } catch (err) {
     handleAxiosError(err);
   }
 }
 
+/**
+ * PUT /api/v1/stores/{store-id}/staffs/{staff-id}
+ * 직원 수정
+ */
 export async function updateStaff(
   storeId: number,
   staffId: number,
@@ -172,7 +180,10 @@ export async function updateStaff(
   }
 }
 
-// DELETE /v1/stores/{store-id}/staffs/{staff-id} - 직원 삭제
+/**
+ * DELETE /api/v1/stores/{store-id}/staffs/{staff-id}
+ * 직원 삭제
+ */
 export async function deleteStaff(storeId: number, staffId: number) {
   if (storeId == null) throw new Error('storeId (required)');
   if (staffId == null) throw new Error('staffId (required)');
@@ -187,6 +198,10 @@ export async function deleteStaff(storeId: number, staffId: number) {
   }
 }
 
+/**
+ * GET /api/v1/stores/{store-id}/staffs/{staff-id}
+ * 직원 단일 조회
+ */
 export async function getStaffDetail(storeId: number, staffId: number) {
   if (storeId == null) throw new Error('storeId (required)');
   if (staffId == null) throw new Error('staffId (required)');
@@ -209,5 +224,5 @@ export default {
   getStaffDetail,
   updateStaff,
   deleteStaff,
-  getMyStores
+  getMyStores,
 };

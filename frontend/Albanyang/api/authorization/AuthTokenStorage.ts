@@ -20,6 +20,9 @@ interface JwtPayload {
  * @param token accessToken
  */
 export async function saveToken(token: string) {
+
+  console.log("keychain")
+  console.log("Keychain",Keychain)
   await Keychain.setGenericPassword("auth", token); 
   // 첫 번째 인자: username (고정 문자열로 써도 됨)
   // 두 번째 인자: password (여기에 토큰을 저장)

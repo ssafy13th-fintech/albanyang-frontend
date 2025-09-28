@@ -83,9 +83,9 @@ export async function createMyTimesheet(storeId: number) {
   }
 }
 
-// PATCH /api/v1/stores/{store-id}/timesheets/me/{timesheet-id}
-// 특정 staff의 퇴근 시각 기록
-export async function patchMyTimesheetCheckout(storeId: number, timesheetId: number) {
+// POST /api/v1/stores/{store-id}/timesheets/me/{timesheet-id}
+// 특정 timesheet에 대한 작업 (예: 퇴근 기록 등)
+export async function postMyTimesheetAction(storeId: number, timesheetId: number) {
   if ((!storeId && storeId !== 0) || (!timesheetId && timesheetId !== 0)) {
     throw new Error('storeId and timesheetId are required');
   }
@@ -106,7 +106,7 @@ export async function getTimesheetsByDate(storeId: number, date: string) {
   try {
     console.log("store Id :", storeId, "date :", date)
     const res = await api.get<ApiResponse<TimesheetListResponse>>(
-      `/v1/stores/${storeId}/timesheets`,
+      `/api/v1/stores/${storeId}/timesheets`,
       { params: { date } }
     );
     return res.data;
@@ -119,6 +119,6 @@ export default {
   api,
   getMyTimesheets,
   createMyTimesheet,
-  patchMyTimesheetCheckout,
+  postMyTimesheetAction,
   getTimesheetsByDate,
 };
