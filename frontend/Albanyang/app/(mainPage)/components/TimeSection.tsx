@@ -3,6 +3,7 @@ import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from '@/constants/size/FontSize';
 import { NAVBAR_BASE_HEIGHT } from "@/components/navBar/NavBar";
+import { formatTime } from "@/utils/date";
 
 const TOP_PADDING = 16;
 const SIDE_PADDING = 20;
@@ -20,6 +21,7 @@ interface WorkSession {
     currentTimesheetId?: number;
 }
 
+
 const TimeSection = ({ workSession }: { workSession: WorkSession | null }) => {
   return (
     <View style={styles.section}>
@@ -27,13 +29,19 @@ const TimeSection = ({ workSession }: { workSession: WorkSession | null }) => {
         <View style={styles.timeItem}>
           <Text style={styles.timeLabel}>출근시간</Text>
           <Text style={styles.timeValue}>
-            {workSession?.checkInTime || '--:--:--'}
+            {formatTime(workSession?.checkInTime)}
           </Text>
         </View>
         <View style={styles.timeItem}>
           <Text style={styles.timeLabel}>퇴근시간</Text>
           <Text style={styles.timeValue}>
-            {workSession?.checkOutTime || (workSession?.isWorking ? '근무 중' : '--:--:--')}
+            {
+              workSession?.checkOutTime
+                ? formatTime(workSession.checkOutTime)
+                : workSession?.isWorking
+                  ? '근무 중'
+                  : '--:--'
+            }
           </Text>
         </View>
       </View>

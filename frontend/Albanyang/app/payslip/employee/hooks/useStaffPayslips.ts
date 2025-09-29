@@ -16,7 +16,7 @@ export const staffPayslips = (storeId: string | null, year: string) => {
         const payslipList = await getStaffPayslips(storeId, year);
         setAllPayslips(payslipList);
       } catch (err: any) {
-        console.error("급여명세서 조회 오류: ", err);
+        
         setError(err.message ?? "급여명세서를 불러오는데 실패했습니다.");
       } finally {
         setLoading(false);

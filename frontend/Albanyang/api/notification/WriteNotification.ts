@@ -50,7 +50,7 @@ export async function writeNotification(storeId: number, body: NotificationReque
         
         return res.data.data;
     } catch (err) {
-        console.error(err);
+
         handleAxiosError(err);
     }
 }

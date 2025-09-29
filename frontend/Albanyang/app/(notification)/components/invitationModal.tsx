@@ -43,7 +43,7 @@ const handleInvitationResponse = async (
         }]
         );
     } catch (error) {
-        console.error(error);
+        
          Alert.alert(
             "ERROR",
             "오류가 발생했습니다.",
@@ -64,7 +64,7 @@ const InvitationModal = ({ storeId, isResponse, closeModal, onUpdate }: Invitati
                 const data = await getStore(storeId);
                 setStoreInfo(data);
             } catch (err) {
-                console.error(err);
+                
             } finally {
                 setModalLoading(false);
             }

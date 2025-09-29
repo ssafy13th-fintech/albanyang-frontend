@@ -48,7 +48,7 @@ export default function EmployerMainPage() {
       
       console.log('데이터 로드 완료');
     } catch (error) {
-      console.error('데이터 로딩 실패:', error);
+      
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export default function EmployerMainPage() {
     }
     router.push({
       pathname: "/CheckMemberListPage",
-      params: { storeId: selectedStore.id }
+      params: { storeId: selectedStore.id, storeName: selectedStore.name }
     });
   };
 

@@ -4,6 +4,8 @@ import { StoreDetail, StaffStatus } from "../hook/getStoresDetail";
 import { colors } from "@/constants/colors/ColorTheme";
 import { FONTS } from "@/constants/fonts/Fonts";
 import { sizes } from "@/constants/size/FontSize";
+import { getToday } from "@/utils/date";
+import { formatTime, formatLocalTime } from "@/utils/date";
 
 
 interface Props {
@@ -28,7 +30,7 @@ export default function StoreStatusSection({ store, stores, onPressStoreOverview
 
   if (!store) return null;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getToday();
   const todayStaffs = store.staffs.filter(staff => staff.scheduleDate === today);
 
   const getStatusColor = (status: StaffStatus['status']) => {
@@ -40,9 +42,8 @@ export default function StoreStatusSection({ store, stores, onPressStoreOverview
     }
   };
 
-  const getStatusText = (staff: StaffStatus) => `${staff.checkInTime || '----'} / ${staff.checkOutTime || '----'}`;
-  const getScheduleText = (staff: StaffStatus) => `(${staff.scheduledStartTime} / ${staff.scheduledEndTime})`;
-
+  const getStatusText = (staff: StaffStatus) => `${formatLocalTime(staff.checkInTime)} / ${formatLocalTime(staff.checkOutTime)}`;
+  const getScheduleText = (staff: StaffStatus) => `(${formatTime(staff.scheduledStartTime)} / ${formatTime(staff.scheduledEndTime)})`;
   return (
     <View style={styles.section}>
       <View style={styles.statusCard}>
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.text.secondary },
   statusSummary: { flexDirection: 'row' },
   statusCount: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary },
-  staffListContainer: { minHeight: 300, maxHeight: 300 },
+  staffListContainer: { minHeight: 100 },
   emptyStaffContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 40 },
   emptyStaffTitle: { fontSize: sizes.normalText, fontFamily: FONTS.jamsil.medium4, color: colors.text.primary, marginBottom: 8, textAlign: 'center' },
   emptyStaffSubtitle: { fontSize: sizes.smallText, fontFamily: FONTS.jamsil.regular3, color: colors.text.secondary, textAlign: 'center' },

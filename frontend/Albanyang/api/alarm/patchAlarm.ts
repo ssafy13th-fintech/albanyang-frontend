@@ -40,7 +40,6 @@ export async function patchAlarm(messageId: string) {
           }
         )
     } catch (err) {
-        console.error(err);
         handleAxiosError(err);
     }
 }

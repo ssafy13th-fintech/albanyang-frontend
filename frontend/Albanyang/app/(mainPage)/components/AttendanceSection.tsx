@@ -38,7 +38,7 @@ const handleCheckOut = async (storeId: number, timesheetId: number): Promise<voi
     const response = await checkOutTimesheet(storeId, timesheetId);
     console.log('퇴근 처리 완료:', response);
   } catch (error) {
-    console.error('퇴근 처리 실패:', error);
+    
     throw error;
   }
 };
@@ -48,7 +48,7 @@ const handleCheckIn = async (storeId: number, timesheetId: number): Promise<void
     const response = await checkInTimesheet(storeId, timesheetId);
     console.log('출근 처리 완료:', response);
   } catch (error) {
-    console.error('출근 처리 실패:', error);
+    
     throw error;
   }
 };
@@ -81,7 +81,7 @@ const AttendanceSection = ({ workSession, storeId, onAttendanceChange }: Props) 
       onAttendanceChange();
       
     } catch (error) {
-      console.error('출퇴근 처리 중 오류:', error);
+      
       const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다.';
       Alert.alert('오류', `출퇴근 처리 중 오류가 발생했습니다: ${errorMessage}`);
     } finally {
@@ -90,6 +90,7 @@ const AttendanceSection = ({ workSession, storeId, onAttendanceChange }: Props) 
   };
 
   const getButtonText = () => {
+    console.log(workSession?.currentTimesheetId);
     if (isProcessing) return '처리 중...';
     if (!workSession?.currentTimesheetId) return '스케줄 없음';
     return workSession?.isWorking ? '퇴근하기' : '출근하기';
@@ -99,7 +100,7 @@ const AttendanceSection = ({ workSession, storeId, onAttendanceChange }: Props) 
     if (isProcessing || !workSession?.currentTimesheetId) {
       return [styles.attendanceButton, styles.attendanceButtonDisabled];
     }
-    return styles.attendanceButton;
+    return [styles.attendanceButton];
   };
 
   const isButtonDisabled = () => {

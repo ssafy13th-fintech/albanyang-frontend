@@ -41,7 +41,7 @@ const RoleBasedDropdown = ({ selectedItem, onSelect, style, containerStyle }: Pr
           }
         }
       } catch (err) {
-        console.error("매장 불러오기 실패:", err);
+        
       } finally {
         setLoading(false);
       }

@@ -35,7 +35,7 @@ export async function putStore(storeId: number, body: UpdateStore) {
         );
         return res.data.data;
     } catch (err) {
-        console.error(err);
+
         handleAxiosError(err);
     }
 }

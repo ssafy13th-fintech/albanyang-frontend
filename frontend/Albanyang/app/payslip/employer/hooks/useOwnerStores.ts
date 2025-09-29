@@ -14,7 +14,7 @@ export const ownerStores = () => {
         const storeList = await getOwnerStores();
         setStores(storeList);
       } catch (err: any) {
-        console.error("store 조회 오류 : ", err);
+        
         setError(err);
       } finally {
         setLoading(false);

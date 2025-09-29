@@ -19,7 +19,7 @@ import { sizes } from '@/constants/size/FontSize';
 
 // API imports
 import { getStaffList, StaffInfo, getStaffDetail, StaffDetailResponse } from '@/api/Staff';
-import { getPayslipsByMonth, PayslipSummary } from '@/api/EmployerPaylips';
+import { getPayslipsByMonth, PayslipSummary, PayslipListResponse } from '@/api/EmployerPaylips';
 import { getMemberByPhone } from '@/api/Member';
 
 // ====== 레이아웃 상수 ======
@@ -40,6 +40,8 @@ interface StaffMemberItem {
   account?: string;
   bankName?: string;
   phone?: string;
+  payslipId?: number;
+  storeId?: number;
   payslipStatus?: string;
 }
 
@@ -63,7 +65,7 @@ export default function CheckMemberListPage() {
 
   const [activeTab, setActiveTab] = useState<'settlement' | 'cafe'>('settlement');
   const [isLoading, setIsLoading] = useState(false);
-  const { storeId } = useLocalSearchParams();
+  const { storeId, storeName } = useLocalSearchParams();
   const [paymentItems, setPaymentItems] = useState<StaffMemberItem[]>([]);
   
   // 전월 기준으로 설정 (현재 월로 하려면 getCurrentMonth() 사용)
@@ -72,6 +74,8 @@ export default function CheckMemberListPage() {
   // 직원 목록 및 급여명세서 상태 조회
   useEffect(() => {
     if (storeId) {
+      console.log(storeId);
+      console.log(storeName);
       fetchStaffAndPayslipData();
     }
   }, [storeId, activeTab]);
@@ -100,7 +104,8 @@ export default function CheckMemberListPage() {
 
           // 해당 직원의 급여명세서 찾기
           const staffPayslip = payslips.find((payslip: PayslipSummary) => 
-            payslip.staffName === staff.name || payslip.staffNickName === staff.nickname
+          payslip.staffName == staff.name && payslip.staffNickName == staff.nickname
+            
           );
 
           // 계좌 정보는 임시로 비활성화 (phone 정보가 없으므로)
@@ -115,9 +120,7 @@ export default function CheckMemberListPage() {
           // }
 
           // 급여명세서 상태에 따른 활성화/비활성화 결정
-          const hasConfirmedPayslip = staffPayslip?.status === 'CONFIRMED' || 
-                                    staffPayslip?.status === 'ACCEPTED' ||
-                                    staffPayslip?.status === 'APPROVED';
+          const hasConfirmedPayslip = staffPayslip?.status == '완료';
 
           return {
             id: staff.id,
@@ -125,15 +128,17 @@ export default function CheckMemberListPage() {
             nickname: staff.nickname,
             amount: staffPayslip ? calculateNetSalary(staffPayslip) : 0,
             isSelected: false,
-            isDisabled: !hasConfirmedPayslip || staff.status !== 'ACTIVE',
-            account: '001-1234-5678', // 임시 계좌번호
+            isDisabled: !hasConfirmedPayslip && staff.status !== 'ACTIVE',
+            account: staff.account,
             bankName: '싸피',
-            phone: undefined, // 임시로 undefined
+            phone: staff.phone,
+            payslipId: staffPayslip?.payslipId,
+            storeId: Number(storeId),
             payslipStatus: staffPayslip?.status || 'NO_PAYSLIP'
           } as StaffMemberItem;
 
         } catch (error) {
-          console.error(`${staff.name} 정보 처리 중 오류:`, error);
+          
           return {
             id: staff.id,
             name: staff.name,
@@ -143,6 +148,8 @@ export default function CheckMemberListPage() {
             isDisabled: true,
             account: '정보 조회 실패',
             bankName: '싸피',
+            payslipId: 0,
+            storeId: Number(storeId),
             payslipStatus: 'ERROR'
           } as StaffMemberItem;
         }
@@ -152,19 +159,15 @@ export default function CheckMemberListPage() {
       setPaymentItems(processedStaff);
 
     } catch (error) {
-      console.error('데이터 조회 실패:', error);
-      Alert.alert('오류', '직원 정보를 불러오는데 실패했습니다.');
+      
+      
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 급여명세서에서 실수령액 계산 (임시 로직)
   const calculateNetSalary = (payslip: PayslipSummary): number => {
-    // 실제로는 PayslipSummary에 netSalary 정보가 없으므로
-    // 상세 조회 API를 추가로 호출하거나 다른 방식으로 계산 필요
-    // 여기서는 임시로 고정값 사용
-    return 2500000; // 임시값
+    return payslip.netSalary ?? 0;
   };
 
   // 계산된 값들
@@ -172,7 +175,7 @@ export default function CheckMemberListPage() {
     .filter(item => item.isSelected && !item.isDisabled)
     .reduce((sum, item) => sum + item.amount, 0);
 
-  const selectedItems = paymentItems.filter(item => item.isSelected && !item.isDisabled);
+  const selectedItem = paymentItems.filter(item => item.isSelected && !item.isDisabled);
 
   const handleItemToggle = (id: number) => {
     setPaymentItems(prev => 
@@ -185,25 +188,27 @@ export default function CheckMemberListPage() {
   };
 
   const handlePayment = async () => {
-    if (selectedItems.length === 0) {
+    if (selectedItem.length === 0) {
       Alert.alert('알림', '지급할 항목을 선택해주세요.');
       return;
     }
     
     Alert.alert(
       '급여 지급',
-      `${selectedItems.length}명에게 총 ${totalSelected.toLocaleString()}원을 지급하시겠습니까?`,
+      `${selectedItem.length}명에게 총 ${totalSelected.toLocaleString()}원을 지급하시겠습니까?`,
       [
         { text: '취소', style: 'cancel' },
         { 
           text: '지급하기', 
           onPress: () => {
-            const transferData = selectedItems.map(item => ({
+            const transferData = selectedItem.map(item => ({
               staffId: item.id,
               name: item.name,
               amount: item.amount,
               account: item.account,
-              bankName: item.bankName
+              bankName: item.bankName,
+              storeId: item.storeId,
+              payslipId: item.payslipId
             }));
             
             router.push({
@@ -211,7 +216,7 @@ export default function CheckMemberListPage() {
               params: {
                 transferData: JSON.stringify(transferData),
                 totalAmount: totalSelected,
-                recipientCount: selectedItems.length
+                recipientCount: selectedItem.length,
               }
             });
           }
@@ -239,13 +244,6 @@ export default function CheckMemberListPage() {
         contentContainerStyle={{ paddingBottom: BOTTOM_FIXED_HEIGHT + 20 }}
       >
         <View style={styles.contentContainer}>
-          
-          {/* 상단 탭 */}
-          <TabSection 
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-
           {/* 제목 섹션 */}
           <TitleSection targetMonth={targetMonth} />
 
@@ -255,6 +253,8 @@ export default function CheckMemberListPage() {
             onItemToggle={handleItemToggle}
           />
 
+          <Text>{storeName}</Text>
+
         </View>
       </ScrollView>
 
@@ -262,7 +262,7 @@ export default function CheckMemberListPage() {
       <View style={[styles.bottomFixedContainer, { paddingBottom: insets.bottom + NAVBAR_HEIGHT }]}>
         <TotalSection 
           totalAmount={totalSelected} 
-          selectedCount={selectedItems.length}
+          selectedCount={selectedItem.length}
         />
         <PaymentButton 
           totalAmount={totalSelected}
@@ -374,22 +374,23 @@ const PaymentItemCard = ({
   onToggle: () => void;
 }) => {
   const getStatusText = () => {
+    console.log(item.payslipStatus);
     switch (item.payslipStatus) {
-      case 'CONFIRMED':
-      case 'ACCEPTED': 
-      case 'APPROVED':
+      case '완료':
         return '급여명세서 확인 완료';
-      case 'PENDING':
-      case 'SENT':
+      case '대기 중':
         return '급여명세서 미확인';
       case 'NO_PAYSLIP':
         return '급여명세서 없음';
-      case 'ERROR':
-        return '정보 조회 실패';
+      case '거절':
+        return '급여명세서 거절';
+      case '송금':
+        return '송금 완료';
       default:
         return '상태 확인 필요';
     }
   };
+
 
   const getStatusColor = () => {
     if (item.isDisabled) return colors.text.secondary;
@@ -594,6 +595,7 @@ const styles = StyleSheet.create({
   itemsContainer: {
     gap: 16,
     marginBottom: 40,
+    paddingBottom: 100
   },
   itemCard: {
     flexDirection: 'row',

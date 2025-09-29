@@ -40,7 +40,7 @@ export async function responsePayslip(storeId: number, payslipId: number, messag
           }
         );
     } catch (err) {
-        console.error(err);
+
         handleAxiosError(err);
     }
 }

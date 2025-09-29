@@ -104,7 +104,7 @@ export default function EmployeeAttendancePage() {
           },
         ]);
     } catch (err) {
-      console.error("근태 리스트 로드 실패:", err);
+      
       setCards([]);
     }
   }, [workplaces]);
@@ -143,7 +143,7 @@ export default function EmployeeAttendancePage() {
 
       setMarkedDates(newMarked);
     } catch (err) {
-      console.error("스케줄 로드 실패:", err);
+      
       setSchedules([]);
       setScheduleByDate({});
       setMarkedDates({ [selectedDate]: { selected: true, selectedColor: colors.accent } });
@@ -170,7 +170,7 @@ export default function EmployeeAttendancePage() {
         setWorkplace(firstStoreId);
       }
     } catch (err) {
-      console.error("사업장 목록 로드 실패:", err);
+      
     }
   }, []);
 

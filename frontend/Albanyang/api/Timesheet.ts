@@ -52,6 +52,7 @@ function handleAxiosError(err: unknown): never {
 // GET /api/v1/stores/{store-id}/timesheets/me - 당일/월별 근태 조회
 export async function getMyTimesheets(storeId: number, params?: { date?: string; month?: string; }) {
   if (!storeId && storeId !== 0) throw new Error('storeId (required)');
+  console.log(params?.date);
   try {
     console.log("store id ", storeId, "param : ", params?.date, params?.month);
     const res = await api.get<ApiResponse<TimesheetListResponse>>(

@@ -72,7 +72,7 @@ export async function getRoleFromToken(): Promise<string | null> {
     const decoded = jwtDecode<JwtPayload>(token);
     return decoded.role || null;
   } catch (e) {
-    console.error('Failed to decode token', e);
+    
     return null;
   }
 }

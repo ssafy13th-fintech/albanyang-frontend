@@ -36,7 +36,7 @@ export default function ActionSection({ selectedStore, onWriteNotice, onSchedule
         </Pressable>
         
         <Pressable style={({ pressed }) => [styles.circleActionButton, pressed && styles.actionButtonPressed]} onPress={onSend}>
-          <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>✉️</Text></View>
+          <View style={styles.circleActionIconContainer}><Text style={styles.actionIcon}>💰</Text></View>
           <Text style={styles.actionText}>송금</Text>
         </Pressable>
       </View>
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   actionContainer: { flexDirection: 'row', justifyContent: 'space-around', gap: 12 },
   circleActionButton: { flex: 1, backgroundColor: colors.text.reverse, borderRadius: 30, padding: 20, alignItems: 'center', justifyContent: 'center', shadowColor: colors.shadow, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 6, aspectRatio: 1 },
   actionButtonPressed: { backgroundColor: colors.disable, transform: [{ scale: 0.95 }] },
-  circleActionIconContainer: { marginBottom: 8 },
-  actionIcon: { fontSize: 28 },
-  actionText: { fontSize: sizes.smallText, color: colors.text.primary, fontFamily: FONTS.jamsil.medium4, textAlign: 'center' },
+  circleActionIconContainer: {  },
+  actionIcon: { fontSize: 25 },
+  actionText: { fontSize: 9, color: colors.text.primary, fontFamily: FONTS.jamsil.medium4, textAlign: 'center' },
 });

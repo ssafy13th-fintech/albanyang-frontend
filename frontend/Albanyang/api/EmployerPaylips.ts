@@ -24,6 +24,7 @@ export interface PayslipSummary {
   storeName: string;
   payDate: string; // YYYY-MM-DD
   status: string;
+  netSalary: number;
 }
 
 export interface PayslipListResponse {
@@ -164,7 +165,7 @@ export async function generatePayslip(params: { storeId: number; staffId: number
     const query: any = { staffId };
     if (month) query.month = month;
     if (payslipId !== undefined && payslipId !== null) query.payslipId = payslipId;
-    const res = await api.put<ApiResponse<GeneratedPayslipResponse>>(
+    const res = await api.post<ApiResponse<GeneratedPayslipResponse>>(
       `/v1/stores/${storeId}/payslips`,
       null,
       { params: query }

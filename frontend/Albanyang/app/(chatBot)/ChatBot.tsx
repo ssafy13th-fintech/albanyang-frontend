@@ -96,7 +96,7 @@ export default function ChatbotPage() {
         }]);
       }
     } catch (error) {
-      console.error('챗봇 내역 로드 오류:', error);
+      
       console.log('오류 상세 정보:', JSON.stringify(error, null, 2));
       
       // 오류 시 초기 환영 메시지
@@ -159,7 +159,7 @@ export default function ChatbotPage() {
         setMessages(prev => [...prev, errorResponse]);
       }
     } catch (error) {
-      console.error('챗봇 API 오류:', error);
+      
       console.log('상세 에러 정보:', JSON.stringify(error, null, 2));
       
       let errorMessage = "네트워크 연결을 확인해주세요. 인터넷 연결이 불안정합니다.";

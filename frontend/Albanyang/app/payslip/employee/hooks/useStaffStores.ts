@@ -14,7 +14,7 @@ export const staffStores = () => {
         const storeList = await getStaffStores();
         setStores(storeList);
       } catch (err: any) {
-        console.error("store 조회 오류 : ", err);
+        
         setError(err);
       } finally {
         setLoading(false);

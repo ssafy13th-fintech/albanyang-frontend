@@ -60,7 +60,7 @@ export default function AlarmList() {
           const alarms = await getAlarms();
           setAlarms(alarms.alarmInfos);
         } catch (error) {
-        console.error(error);
+        
         } finally {
         setLoading(false);
       }
@@ -79,7 +79,7 @@ export default function AlarmList() {
         );
       }
     } catch(err){
-      console.error("읽음처리 오류: ", err);
+      
     }
 
     setSelectedAlarm(alarm);
@@ -94,7 +94,7 @@ export default function AlarmList() {
         setSelectedNotice(notice);
         setShowNoticeModal(true);
       } catch (error: any) {
-        console.error(error);
+        
         Alert.alert("주의", "삭제된 공지입니다.");
       }
     } else {

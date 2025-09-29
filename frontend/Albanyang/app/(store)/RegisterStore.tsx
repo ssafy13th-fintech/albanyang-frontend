@@ -108,7 +108,7 @@ export default function RegisterStore() {
       );
       
     } catch (error) {
-      console.error('사업장 등록 실패:', error);
+      
       Alert.alert(
         '등록 실패', 
         error instanceof Error ? error.message : '사업장 등록 중 오류가 발생했습니다.'

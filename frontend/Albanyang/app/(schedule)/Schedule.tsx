@@ -116,7 +116,7 @@ export default function ScheduleManagementPage() {
         }
         setSelectedStore(initial);
       } catch (error: any) {
-        console.error("초기 데이터 로드 실패:", error);
+        
         Alert.alert("오류", error?.message ?? "데이터를 불러오는데 실패했습니다.");
       } finally {
         setLoading(false);
@@ -139,7 +139,7 @@ export default function ScheduleManagementPage() {
         setSelectedStaff(null);
         setSelectedDates([]);
       } catch (error: any) {
-        console.error("직원 목록 로드 실패:", error);
+        
         Alert.alert("오류", error?.message ?? "직원 목록을 불러오지 못했습니다.");
       } finally {
         setLoading(false);
@@ -158,7 +158,7 @@ export default function ScheduleManagementPage() {
       const list = res?.data?.schedules ?? [];
       setSchedules(list as ScheduleInfo[]);
     } catch (error: any) {
-      console.error("스케줄 조회 실패:", error);
+      
       Alert.alert("오류", error?.message ?? "스케줄을 불러오지 못했습니다.");
     } finally {
       setLoading(false);
@@ -211,7 +211,7 @@ export default function ScheduleManagementPage() {
                 Alert.alert("오류", "급여명세서 생성에 실패했습니다.");
               }
             } catch (error: any) {
-              console.error("급여명세서 처리 실패:", error);
+              
               Alert.alert("오류", error?.message ?? "급여명세서 처리에 실패했습니다.");
             } finally {
               setLoading(false);
@@ -325,7 +325,7 @@ export default function ScheduleManagementPage() {
       setModalVisible(false);
       resetForm();
     } catch (error: any) {
-      console.error("스케줄 저장 실패:", error);
+      
       Alert.alert("오류", error?.message ?? "스케줄 저장에 실패했습니다.");
     } finally {
       setLoading(false);
@@ -347,7 +347,7 @@ export default function ScheduleManagementPage() {
             await fetchMonthlySchedules();
             Alert.alert("성공", "스케줄이 삭제되었습니다.");
           } catch (error: any) {
-            console.error("스케줄 삭제 실패:", error);
+            
             Alert.alert("오류", error?.message ?? "스케줄 삭제에 실패했습니다.");
           } finally {
             setLoading(false);

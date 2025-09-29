@@ -18,7 +18,7 @@ export default function HomeScreen() {
         if (!mounted) return;
         setToken(t);
       } catch (err) {
-        console.error('토큰 로드 실패:', err);
+        
         if (mounted) setToken(null);
       } finally {
         if (mounted) setIsLoading(false);
@@ -49,7 +49,7 @@ export default function HomeScreen() {
     console.warn('알려지지 않은 role:', role);
     return <DevMenu />;
   } catch (err) {
-    console.error('JWT 디코딩 실패:', err);
+    
     // 디코딩 실패하면 토큰이 손상되었거나 만료됐을 수 있으므로 DevMenu로
     return <DevMenu />;
   }

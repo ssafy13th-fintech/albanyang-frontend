@@ -61,7 +61,7 @@ export default function Login() {
             <Pressable
             onPress={async() => {
       
-              //console.error("login pressed2 : " + id + " / " + pw);
+              
               try{
                 //await deleteToken();
                 console.log("됨?")

@@ -60,6 +60,6 @@ export default function RootLayout() {
         console.log('[+] FCM Token:', token);
         return token;
       } catch (err) {
-        console.error('Failed to get FCM token:', err);;
+        
       }
     };
