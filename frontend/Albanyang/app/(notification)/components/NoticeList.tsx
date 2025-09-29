@@ -69,7 +69,7 @@ export default function NoticeList() {
 
             setNotices(allNotices);
           } catch (error) {
-            console.error(error);
+            
           } finally {
           setLoading(false);
         }
@@ -103,7 +103,7 @@ export default function NoticeList() {
       setNotices(prev => prev.filter(n => n.id !== noticeId));
       Alert.alert("삭제 완료", "공지사항이 삭제되었습니다.");
     } catch (error) {
-      console.error(error);
+      
       Alert.alert("오류", "공지사항 삭제 중 오류가 발생했습니다.");
     }
   };

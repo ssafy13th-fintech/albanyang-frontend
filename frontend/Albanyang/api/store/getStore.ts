@@ -48,7 +48,7 @@ export async function getStore(storeId: number) {
         );
         return res.data.data;
     } catch (err) {
-        console.error("사업장 조회 에러", err);
+
         handleAxiosError(err);
     }
 }
@@ -70,7 +70,7 @@ export async function getStaffStores(): Promise<Store[]> {
     return [];
     
   } catch (err) {
-    console.error('직원 사업장 조회 실패:', err);
+
     handleAxiosError(err);
   }
 }

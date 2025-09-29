@@ -20,8 +20,9 @@ import NumberButton from '@/components/buttons/NumberButton';
 
 // API imports - 실제 은행 API 연결
 import { checkAuthCode, updateDemandDepositAccountTransfer } from '@/api/SSAFYOpenapi';
-import { getMe } from '@/api/Member';
+import { confirmAccountPassword, getMe } from '@/api/Member';
 import Constants from 'expo-constants';
+import { patchPayslipStatus } from '@/api/payslip/patchPayslipStatus';
 
 export default function PasswordVerification() {
   const router = useRouter();
@@ -57,14 +58,14 @@ export default function PasswordVerification() {
       } else {
         setError(true);
         Vibration.vibrate(500);
-        Alert.alert('오류', '비밀번호가 일치하지 않습니다.');
+        
         setTimeout(() => {
           setPassword('');
           setError(false);
         }, 1000);
       }
     } catch (error) {
-      console.error('비밀번호 검증 오류:', error);
+      
       setError(true);
       Alert.alert('오류', '비밀번호 검증 중 문제가 발생했습니다.');
       setTimeout(() => {
@@ -92,26 +93,27 @@ export default function PasswordVerification() {
       const USER_KEY = Constants.expoConfig?.extra?.ssafyUserKey || 'test-user-key';
 
       // SSAFY API의 1원 송금 인증 코드 검증 사용
-      const response = await checkAuthCode({
-        apiKey: API_KEY,
-        userKey: USER_KEY,
-        accountNo: userAccount,
-        authText: 'SSAFY', // 고정 인증 텍스트
-        authCode: pwd // 사용자가 입력한 6자리 비밀번호
-      });
+      await confirmAccountPassword(pwd);
+      // const response = await checkAuthCode({
+      //   apiKey: API_KEY,
+      //   userKey: USER_KEY,
+      //   accountNo: userAccount,
+      //   authText: 'SSAFY', // 고정 인증 텍스트
+      //   authCode: pwd // 사용자가 입력한 6자리 비밀번호
+      // });
 
-      console.log('비밀번호 검증 응답:', response);
+     // console.log('비밀번호 검증 응답:', response);
 
       // SSAFY API 응답 구조에 따라 성공 여부 판단
       // REC.status가 'SUCCESS'이거나 전체 응답의 code가 성공을 나타내는 경우
-      const isSuccess = response?.REC?.status === 'SUCCESS' || 
-                       response?.code === 'SUCCESS' ||
-                       response?.Header?.responseCode === 'H0000';
+      // const isSuccess = response?.REC?.status === 'SUCCESS' || 
+      //                  response?.code === 'SUCCESS' ||
+      //                  response?.Header?.responseCode === 'H0000';
 
-      return isSuccess;
+      return true;
       
     } catch (error) {
-      console.error('계좌 비밀번호 검증 실패:', error);
+      
       
       // 개발 환경에서는 테스트용 비밀번호도 허용
       if (__DEV__) {
@@ -132,21 +134,27 @@ export default function PasswordVerification() {
       for (const item of transferData) {
         try {
           // 실제 송금 API 호출
-          const result = await transferSalary({
-            staffId: item.staffId,
-            account: item.account,
-            amount: item.amount,
-            bankName: item.bankName
-          });
+          console.log(item);
+          await patchPayslipStatus(item.storeId, item.payslipId);
+
+          // const result = await transferSalary({
+          //   staffId: item.staffId,
+          //   account: item.account,
+          //   amount: item.amount,
+          //   bankName: item.bankName
+          // });
+
 
           successList.push({
             ...item,
             success: true,
-            transactionNo: result?.transactionNo || Date.now().toString()
+            //transactionNo: result?.transactionNo || Date.now().toString()
           });
 
+          
+
         } catch (error) {
-          console.error(`${item.name} 송금 실패:`, error);
+          
           failList.push({
             ...item,
             success: false,
@@ -197,15 +205,15 @@ export default function PasswordVerification() {
           [
             {
               text: '확인',
-              onPress: () => router.back()
+              onPress: () => router.push('/(mainPage)/EmployerMainPage')
             }
           ]
         );
       }
     } catch (error) {
-      console.error('송금 처리 중 오류:', error);
+      
       Alert.alert('오류', '송금 처리 중 문제가 발생했습니다.');
-      router.back();
+      router.push('/(mainPage)/EmployerMainPage')
     }
   };
 
@@ -262,7 +270,7 @@ export default function PasswordVerification() {
       }
       
     } catch (error) {
-      console.error('송금 API 오류:', error);
+      
       
       // 개발 환경에서는 시뮬레이션 허용
       if (__DEV__) {

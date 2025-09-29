@@ -16,7 +16,7 @@ export const staffs = (storeId: string | null) => {
         const employeeList = await getStaffs(storeId);
         setEmployees([{ id: 0, name: "전체", nickname: "전체", status: "ALL" }, ...employeeList]);
       } catch (err: any) {
-        console.error("직원 조회 오류: ", err);
+        
         setError(err);
       } finally {
         setLoading(false);

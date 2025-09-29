@@ -59,7 +59,6 @@ export async function login(body: LoginRequest) {
 
     return res.data;
   } catch (err) {
-    console.error("login error : ", err); 
     handleAxiosError(err);
   }
 }

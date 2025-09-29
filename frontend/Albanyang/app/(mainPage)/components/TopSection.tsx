@@ -52,7 +52,7 @@ export const fetchAccountInfo = async (): Promise<AccountInfo | null> => {
       balance: 1500000
     };
   } catch (error) {
-    console.error('계좌 정보 조회 실패:', error);
+    
     return null;
   }
 };
@@ -65,7 +65,7 @@ export const fetchUserAccountInfo = async (): Promise<UserAccountInfo> => {
       accountNumber: userData.data.account
     };
   } catch (error) {
-    console.error('계좌 정보 조회 실패:', error);
+    
     return { hasAccount: false };
   }
 };
@@ -132,7 +132,7 @@ export function EmployeeTopSection({ salaryInfo }: EmployeeProps) {
         const unreadAlarms = alarmsResponse.data?.alarmInfos?.filter(alarm => !alarm.isRead) || [];
         setAlarmCount(unreadAlarms.length);
       } catch (error) {
-        console.error('알림 조회 실패:', error);
+        
         setAlarmCount(0);
       }
     };

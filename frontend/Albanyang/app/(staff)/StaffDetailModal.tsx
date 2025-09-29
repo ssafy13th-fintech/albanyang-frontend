@@ -99,7 +99,7 @@ const StaffDetailModal = ({
       onClose();
       onSave?.(updatedStaff);
     } catch (err) {
-      console.error(err);
+      
       Alert.alert('오류', '직원 정보 저장에 실패했습니다.');
     }
   };

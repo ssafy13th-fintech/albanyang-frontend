@@ -55,7 +55,7 @@ export default function SignUpAccountPassword() {
         router.push("/login/SignUpComplete")
         }
         catch(e ){
-            console.error("error " ,e);
+            
         }
       } else {
         console.log("미통과");

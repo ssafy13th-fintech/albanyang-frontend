@@ -57,7 +57,7 @@ export default function NextToEmployerMainPage() {
         setStaffs(detailedStaffs);
 
       } catch (e) {
-        console.error(e);
+        
       } finally {
         setLoading(false);
       }

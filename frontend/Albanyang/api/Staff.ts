@@ -27,6 +27,8 @@ export interface StaffInfo {
   nickname: string;
   name: string;
   status: 'SCHEDULED' | 'ACTIVE' | string;
+  account: string;
+  phone: string;
 }
 
 export interface StaffListResponse {

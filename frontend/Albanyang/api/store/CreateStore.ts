@@ -53,7 +53,7 @@ export async function createStore(body: CreateStoreReqeust) {
         );
         return res.data.data;
     } catch (err) {
-        console.error(err);
+
         handleAxiosError(err);
     }
 }

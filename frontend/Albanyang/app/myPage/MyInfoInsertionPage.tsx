@@ -41,7 +41,7 @@ export default function MyInfoInsertion() {
       //         age : res.data.age, email : res.data.email, gender : res.data.gender, phone : res.data.phone
       //       })
       //     } catch (error) {
-      //       console.error("getMe 실패:", error);
+      
       //       // 인증 실패 시 로그인 페이지로 이
       //     }
       //   };

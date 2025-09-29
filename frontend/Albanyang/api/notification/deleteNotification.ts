@@ -34,7 +34,6 @@ export async function deleteNotification(storeId: number, notificationId: number
         }
         );
     } catch (err) {
-        console.error("공지 삭제 에러", err);
         handleAxiosError(err);
     }
 }

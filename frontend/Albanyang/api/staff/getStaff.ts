@@ -41,7 +41,7 @@ export async function getStaff(storeId: number, staffId: number) {
         );
         return res.data.data;
     } catch (err) {
-        console.error("사업장 조회 에러", err);
+
         handleAxiosError(err);
     }
 }

@@ -40,7 +40,7 @@ export async function responseInvitation(storeId: number, accept: boolean) {
           }
         );
     } catch (err) {
-        console.error(err);
+
         handleAxiosError(err);
     }
 }

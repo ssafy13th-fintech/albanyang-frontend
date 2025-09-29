@@ -129,7 +129,7 @@ export default function Signup() {
                   signUpStore.resetForm();
                   router.push("/login/SignUpComplete")
                   }catch(e){
-                    console.error(e)
+                    
                   }
                 }}
                 style={({ pressed }) => [    
@@ -189,7 +189,7 @@ export default function Signup() {
                   }
                   setModalVisible(true)
                 }catch(err : any){
-                    console.error(err)
+                
                 }
                 }}
                 disabled = {isDisabled}

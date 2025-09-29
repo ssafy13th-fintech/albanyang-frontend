@@ -64,7 +64,7 @@ export default function MyAccountInsertion(){
             }
             setModalVisible(true);
         } catch(err: any){
-            console.error(err);
+            
         }
     }
 

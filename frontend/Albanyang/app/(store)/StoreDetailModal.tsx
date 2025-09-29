@@ -70,7 +70,7 @@ const StoreDetailModal = ({ visible, store, onClose, onSave }: Props) => {
       });
       handleClose();
     } catch (err) {
-      console.error(err);
+      
       Alert.alert('오류', '사업장 정보 저장에 실패했습니다.');
     }
   };

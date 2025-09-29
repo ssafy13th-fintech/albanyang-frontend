@@ -197,7 +197,7 @@ export default function Signup() {
                     router.push("login/SignUpThird");
                     console.log("라우터 이동 시도");
                   } catch (error) {
-                    console.error("에러 발생:", error);
+                    
                   }
                 }}
               />

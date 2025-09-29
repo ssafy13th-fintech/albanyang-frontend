@@ -259,9 +259,9 @@ export default function FindAlba() {
         Alert.alert('알림', '검색 결과가 없습니다.');
       }
     } catch (error) {
-      console.error('검색 실패:', error);
+      
       setSearchResults([]);
-      Alert.alert('오류', '검색 중 오류가 발생했습니다.');
+      
     } finally {
       setIsSearching(false);
     }
@@ -315,7 +315,7 @@ export default function FindAlba() {
       setShowConfirmModal(false);
       setShowSuccessModal(true);
     } catch (error) {
-      console.error('초대 전송 실패:', error);
+      
       Alert.alert('오류', '초대 메시지 전송 중 오류가 발생했습니다.');
     } finally {
       setIsSending(false);

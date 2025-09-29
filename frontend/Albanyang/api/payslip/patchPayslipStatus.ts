@@ -3,15 +3,6 @@ import { ApiResponse } from "../api";
 import { api } from "../authorization/AuthHeader";
 import { loadToken } from "../authorization/AuthTokenStorage";
 
-export interface UpdateStaff{
-    nickname: string;
-    status: number;
-    taxType: number;
-    wage: number;
-    weeklyWorkingDay: number;
-    workingHours: number;
-}
-
 
 function handleAxiosError(err: unknown): never {
   if ((err as AxiosError).isAxiosError) {
@@ -27,22 +18,17 @@ function handleAxiosError(err: unknown): never {
   throw err;
 }
 
-export async function updateStaff(storeId: number, staffId: number, body: UpdateStaff) {
+export async function patchPayslipStatus(storeId: number, payslipId: number) {
     try {
-        const token = await loadToken();
-        console.log(body);
-        await api.put<ApiResponse<void>>(
-          `/v1/stores/${storeId}/staffs/${staffId}`,
-          body,
-          {
-              headers: {
-                  Authorization: token,
-              },
-          }
-        );
+      console.log('상태 변경 요청');
+      console.log(storeId, payslipId);
+      await api.get<ApiResponse<void>>(
+        `/v1/stores/${storeId}/payslips/${payslipId}/confirm`
+        
+      );
+      console.log('상태 변경 완료');
         
     } catch (err) {
-
         handleAxiosError(err);
     }
 }

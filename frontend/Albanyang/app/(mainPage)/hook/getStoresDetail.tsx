@@ -1,6 +1,7 @@
 import { getStoreSchedules } from "@/api/schedule/getSchedule";
 import { getStores } from "@/api/Stores";
 import { getTimesheetsByDate } from "@/api/timesheet/getTimesheetByDate";
+import { getToday } from "@/utils/date";
 
 export interface StoreDetail {
   id: number;
@@ -27,7 +28,7 @@ export interface StaffStatus {
 
 export const fetchStoresWithStaffStatus = async (): Promise<StoreDetail[]> => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getToday();
     
     const storesResponse = await getStores();
     const stores = storesResponse.data.stores;
@@ -92,7 +93,7 @@ export const fetchStoresWithStaffStatus = async (): Promise<StoreDetail[]> => {
           absentCount
         };
         } catch (error) {
-          console.error(`매장 ${store.id} 정보 조회 실패:`, error);
+          
           return {
             id: store.id,
             name: store.name,
@@ -108,7 +109,7 @@ export const fetchStoresWithStaffStatus = async (): Promise<StoreDetail[]> => {
     
     return storesWithStatus;
   } catch (error) {
-    console.error('매장 정보 조회 실패:', error);
+    
     return [];
   }
 };

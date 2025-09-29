@@ -39,7 +39,7 @@ const handlePayslipesponse = async (
             ]
         );
     } catch (error) {
-        console.error(error);
+        
          Alert.alert(
             "ERROR",
             "오류가 발생했습니다.",

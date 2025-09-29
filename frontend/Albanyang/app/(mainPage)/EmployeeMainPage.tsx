@@ -13,7 +13,6 @@ import { getMyPayslips } from "@/api/EmployeePaylips";
 import { getMySchedules } from '@/api/Schedule';
 import { getStaffStores, Store } from '@/api/store/getStaffStores';
 import { getMyTimesheets } from '@/api/Timesheet';
-import { getMemberMonthlyIncome } from '@/api/Member';
 import AttendanceSection from "./components/AttendanceSection";
 import EmployeeStoreSelectionSection from "./components/EmployeeStoreSelectionSection";
 import NoStoreSection from './components/NoStoreSection';
@@ -21,6 +20,8 @@ import StoreDetailModal from './components/StoreDetailModal';
 import TimeSection from './components/TimeSection';
 import { EmployeeTopSection, fetchUserAccountInfo, SalaryInfo, UserAccountInfo } from './components/TopSection';
 import WorkProgressSection from './components/WorkProgressSection';
+import { getMonthlyIncome } from '@/api/Member';
+import { getToday } from '@/utils/date';
 
 // ====== 레이아웃 상수 ======
 const TOP_PADDING = 16;
@@ -41,13 +42,15 @@ interface WorkSession {
 }
 
 // 시간 차이 계산 함수
+// 바꿔야함
 const calculateTimeDifference = (startTime: string, endTime?: string): number => {
-  const today = new Date().toISOString().split('T')[0];
+  const today = getToday();
   const start = new Date(`${today}T${startTime}`);
   const end = endTime ? new Date(`${today}T${endTime}`) : new Date();
   
   return Math.max((end.getTime() - start.getTime()) / (1000 * 60 * 60), 0);
 };
+
 
 /**
  * 개선된 WorkSession 조회 로직
@@ -57,12 +60,13 @@ const calculateTimeDifference = (startTime: string, endTime?: string): number =>
  */
 const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getToday();
+    console.log(today);
     
     // 1. 오늘의 타임시트 조회
     const timesheetResponse = await getMyTimesheets(storeId, { date: today });
     const timesheetData = timesheetResponse.data;
-    console.log("timesheet data:", timesheetData);
+    console.log("timesheet data:", timesheetData.timesheets);
     
     const todayTimesheet = timesheetData?.timesheets?.[0];
 
@@ -71,7 +75,7 @@ const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
     try {
       const scheduleResponse = await getMySchedules(storeId, undefined, today);
       const scheduleData = scheduleResponse.data;
-      console.log("schedule data:", scheduleData);
+      console.log("schedule data:", scheduleData.schedules);
       
       const mySchedule = scheduleData?.schedules?.[0];
       if (mySchedule) {
@@ -118,7 +122,7 @@ const fetchWorkSession = async (storeId: number): Promise<WorkSession> => {
       checkInDate: today
     };
   } catch (error) {
-    console.error('근무 세션 조회 실패:', error);
+    
     return {
       storeId,
       isWorking: false,
@@ -138,15 +142,15 @@ const fetchSalaryInfo = async (storeId: number): Promise<SalaryInfo> => {
     const monthParam = `${currentYear}-${currentMonth.toString().padStart(2, '0')}`;
 
     // 실제 API 사용
-    const incomeResponse = await getMemberMonthlyIncome(monthParam);
-    const monthlyIncome = incomeResponse.data?.monthlyIncome || 0;
+    const incomeResponse = await getMonthlyIncome(monthParam);
+    const monthlyIncome = incomeResponse.monthlyIncome || 0;
 
     return {
       monthlyEarning: monthlyIncome,
       month: `${currentMonth}월`
     };
   } catch (error) {
-    console.error('급여 정보 조회 실패:', error);
+    
     return {
       monthlyEarning: 0,
       month: `${new Date().getMonth() + 1}월`
@@ -207,7 +211,7 @@ export default function EmployeeMainPage() {
       if (storesDataResponse && Array.isArray(storesDataResponse)) {
         setStores(storesDataResponse);
       } else {
-        console.error('Invalid stores data format:', storesDataResponse);
+
         setStores([]);
       }
 
@@ -216,7 +220,7 @@ export default function EmployeeMainPage() {
       setAccountInfo(accountData);
 
     } catch (error) {
-      console.error('데이터 로딩 중 오류:', error);
+      
       Alert.alert('오류', '데이터를 불러오는 중 문제가 발생했습니다.');
       setStores([]);
     } finally {
@@ -229,7 +233,7 @@ export default function EmployeeMainPage() {
       const sessionData = await fetchWorkSession(storeId);
       setWorkSession(sessionData);
     } catch (error) {
-      console.error('근무 정보 로딩 중 오류:', error);
+      
     }
   };
 
@@ -238,7 +242,7 @@ export default function EmployeeMainPage() {
       const salaryData = await fetchSalaryInfo(storeId);
       setSalaryInfo(salaryData);
     } catch (error) {
-      console.error('급여 정보 로딩 중 오류:', error);
+      
     }
   };
 
@@ -322,6 +326,7 @@ export default function EmployeeMainPage() {
       />
 
       <View style={styles.fixedButtonWrapper}>
+        <Text>{!workSession}</Text>
         <AttendanceSection
           workSession={workSession}
           storeId={Number(selectedStoreId)}

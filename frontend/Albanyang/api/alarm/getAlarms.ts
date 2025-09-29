@@ -36,7 +36,7 @@ export async function getAlarms() {
         const res = await api.get<ApiResponse<AlarmResponse[]>>(`/v1/alarms/me`);
         return res.data.data;
     } catch (err) {
-        console.error("알람 조회 에러", err);
+        
         handleAxiosError(err);
     }
 }

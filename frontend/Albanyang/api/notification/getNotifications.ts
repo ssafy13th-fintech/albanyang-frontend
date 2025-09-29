@@ -44,7 +44,7 @@ export async function getNotifications(storeId: number) {
         console.log("공지 함수 접근 후");
         return res.data.data;
     } catch (err) {
-        console.error("공지 조회 에러", err);
+        
         handleAxiosError(err);
     }
 }

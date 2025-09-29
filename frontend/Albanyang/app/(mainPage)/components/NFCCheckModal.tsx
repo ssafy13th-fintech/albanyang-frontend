@@ -54,7 +54,7 @@ const readNFCTag = async (): Promise<boolean> => {
     return isValidTag;
     
   } catch (error) {
-    console.error('NFC 읽기 실패:', error);
+    
     const errorMessage = error instanceof Error ? error.message : String(error);
     if (errorMessage.includes('cancelled') || errorMessage.includes('timeout')) {
       return false;
@@ -82,7 +82,7 @@ const validateStoreTag = (tag: any): boolean => {
     return true;
     
   } catch (error) {
-    console.error('태그 검증 중 오류:', error);
+    
     return false;
   }
 };

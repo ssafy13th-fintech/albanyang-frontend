@@ -5,7 +5,8 @@ import { FONTS } from '@/constants/fonts/Fonts'
 import { sizes } from "@/constants/size/FontSize"
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { patchPayslipStatus } from '@/api/payslip/patchPayslipStatus'
 
 interface TransferDetail {
   staffId: number;

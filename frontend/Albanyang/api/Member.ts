@@ -65,6 +65,10 @@ export interface AccountPasswordRequest {
   accountPassword: string; // *r
 }
 
+export interface MonthlyIncomeResponse{
+  monthlyIncome: number;
+}
+
 // 에러 헬퍼
 function handleAxiosError(err: unknown): never {
   if ((err as AxiosError).isAxiosError) {
@@ -118,7 +122,7 @@ export async function registerMember(body: RegisterRequest) {
     const res = await api_noheader.post<ApiResponse<string>>('/v1/members', body);
     return res.data;
   } catch (err) {
-    console.error("회원가입 에러! :",err);
+    
     handleAxiosError(err);
   }
 }
@@ -173,6 +177,34 @@ export async function getMe() {
   } catch (err) {
     handleAxiosError(err);
     
+  }
+}
+
+export async function getMonthlyIncome(month: string) {
+  try {
+    console.log(month);
+    const res = await api.get<ApiResponse<MonthlyIncomeResponse>>(
+      '/v1/members/income',
+      {
+        params: { month: month }
+      }
+    );
+    return res.data.data;
+  } catch (err) {
+    handleAxiosError(err);
+  }
+}
+
+export async function confirmAccountPassword(password: string) {
+  try {
+    await api.post<ApiResponse<void>>(
+      '/v1/members/account',
+      {
+        accountPassword: password
+      }
+    );
+  } catch (err) {
+    handleAxiosError(err);
   }
 }
 
